@@ -1,0 +1,283 @@
+:root{
+  --nc-mobile-side-gap: 10px;
+  --nc-mobile-sheet-radius: 22px;
+  --nc-mobile-sheet-shadow: 0 28px 60px rgba(0,0,0,.34);
+}
+
+@media (max-width: 900px){
+  body.nc-mobile-chat{
+    background-attachment: scroll;
+  }
+
+  body.nc-mobile-chat .layout.dc-layout{
+    height: calc(var(--nc-vh, 1vh) * 100 - var(--nc-mobile-topbar-h, 56px) - var(--nc-mobile-top-inset, 0px));
+  }
+
+  body.nc-mobile-chat .chat-main,
+  body.nc-mobile-chat .friends-view{
+    border-radius: 0 !important;
+  }
+
+  body.nc-mobile-chat .chat-main{
+    height: 100%;
+    min-height: 0;
+  }
+
+  body.nc-mobile-chat .chat-main .chat-header{
+    position: sticky;
+    top: 0;
+    z-index: 4;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    background: linear-gradient(180deg, rgba(12,14,19,.82), rgba(12,14,19,.62));
+    border-bottom: 1px solid rgba(255,255,255,.08);
+  }
+
+  body.nc-mobile-chat .chat-main .chat-messages,
+  body.nc-mobile-chat #friends-view .friends-list-wrap,
+  body.nc-mobile-chat #friends-view .friends-list,
+  body.nc-mobile-chat .friends-view .friends-list-wrap,
+  body.nc-mobile-chat .friends-view .friends-list{
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  body.nc-mobile-chat #sidebar,
+  body.nc-mobile-chat .sidebar,
+  body.nc-mobile-chat .rightbar{
+    top: calc(var(--nc-mobile-topbar-h, 56px) + var(--nc-mobile-top-inset, 0px) + var(--nc-mobile-side-gap));
+    bottom: calc(var(--nc-mobile-bottom-inset, 0px) + var(--nc-mobile-bnav-h, 74px) + var(--nc-mobile-side-gap));
+    border-radius: var(--nc-mobile-sheet-radius) !important;
+    overflow: hidden auto;
+    box-shadow: var(--nc-mobile-sheet-shadow);
+  }
+
+  body.nc-mobile-chat #sidebar,
+  body.nc-mobile-chat .sidebar{
+    left: var(--nc-mobile-side-gap);
+    width: min(88vw, 380px) !important;
+  }
+
+  body.nc-mobile-chat .rightbar{
+    right: var(--nc-mobile-side-gap);
+    width: min(88vw, 380px) !important;
+  }
+
+  body.nc-mobile-chat #nc-mobile-overlay{
+    background: rgba(4,6,10,.48);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  body.nc-mobile-chat .friends-topbar{
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    padding-top: 6px;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    background: linear-gradient(180deg, rgba(12,14,19,.84), rgba(12,14,19,.65));
+  }
+
+  body.nc-mobile-chat .friends-list-wrap,
+  body.nc-mobile-chat .friends-pending-pane,
+  body.nc-mobile-chat .friends-add-pane{
+    padding-bottom: calc(18px + var(--nc-mobile-bottom-inset, 0px) + var(--nc-mobile-bnav-h, 74px));
+  }
+
+  body.nc-mobile-chat footer.chat-input{
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    padding-bottom: calc(10px + var(--nc-mobile-bottom-inset, 0px));
+    background: linear-gradient(180deg, rgba(9,11,16,0), rgba(9,11,16,.72) 26%, rgba(9,11,16,.9));
+  }
+
+  body.nc-mobile-chat #message-form.composer,
+  body.nc-mobile-chat .composer.nc-composer-v2{
+    border-radius: 20px !important;
+    box-shadow: 0 18px 40px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.08);
+  }
+
+  body.nc-mobile-chat .emoji-pop,
+  body.nc-mobile-chat #emoji-pop,
+  body.nc-mobile-chat .nc-emoji-pop{
+    position: fixed !important;
+    left: 10px !important;
+    right: 10px !important;
+    top: auto !important;
+    width: auto !important;
+    max-width: none !important;
+    bottom: calc(84px + var(--nc-mobile-bottom-inset, 0px) + var(--nc-mobile-bnav-h, 74px)) !important;
+    max-height: min(56vh, 440px) !important;
+    border-radius: 24px !important;
+    box-shadow: 0 28px 64px rgba(0,0,0,.42) !important;
+    transform-origin: center bottom !important;
+  }
+
+  body.nc-mobile-chat .emoji-pop .emoji-grid,
+  body.nc-mobile-chat #emoji-pop .emoji-grid,
+  body.nc-mobile-chat .nc-emoji-pop .emoji-grid{
+    grid-template-columns: repeat(auto-fill, minmax(42px, 1fr));
+  }
+
+  body.nc-mobile-chat .call-hud .call-window{
+    border-radius: 0;
+  }
+
+  body.nc-mobile-chat .user-mini-card,
+  body.nc-mobile-chat .dc-member-card,
+  body.nc-mobile-chat .friend-item,
+  body.nc-mobile-chat .friends-page-item,
+  body.nc-mobile-chat .pending-item{
+    box-shadow: 0 10px 26px rgba(0,0,0,.18);
+  }
+}
+
+@media (max-width: 640px){
+  body.nc-mobile-chat{
+    --nc-mobile-side-gap: 8px;
+  }
+
+  body.nc-mobile-chat #sidebar,
+  body.nc-mobile-chat .sidebar,
+  body.nc-mobile-chat .rightbar{
+    width: calc(100vw - 16px) !important;
+    max-width: calc(100vw - 16px) !important;
+    top: calc(var(--nc-mobile-topbar-h, 56px) + var(--nc-mobile-top-inset, 0px) + 8px);
+    bottom: calc(var(--nc-mobile-bottom-inset, 0px) + var(--nc-mobile-bnav-h, 74px) + 8px);
+  }
+
+  body.nc-mobile-chat .friends-topbar{
+    padding-top: 2px;
+  }
+
+  body.nc-mobile-chat .emoji-pop,
+  body.nc-mobile-chat #emoji-pop,
+  body.nc-mobile-chat .nc-emoji-pop{
+    left: 8px !important;
+    right: 8px !important;
+    bottom: calc(80px + var(--nc-mobile-bottom-inset, 0px) + var(--nc-mobile-bnav-h, 74px)) !important;
+    max-height: min(54vh, 400px) !important;
+  }
+
+  body.nc-mobile-chat .emoji-pop .emoji-grid,
+  body.nc-mobile-chat #emoji-pop .emoji-grid,
+  body.nc-mobile-chat .nc-emoji-pop .emoji-grid{
+    grid-template-columns: repeat(auto-fill, minmax(38px, 1fr));
+  }
+}
+
+
+/* Stage D2 — deeper mobile screen management */
+@media (max-width: 900px){
+  body.nc-mobile-chat .chat-main{
+    display: flex;
+    flex-direction: column;
+  }
+
+  body.nc-mobile-chat .chat-messages,
+  body.nc-mobile-chat footer.chat-input,
+  body.nc-mobile-chat #friends-view,
+  body.nc-mobile-chat .guild-page{
+    min-width: 0;
+  }
+
+  body.nc-mobile-chat.nc-mobile-center-friends .chat-messages,
+  body.nc-mobile-chat.nc-mobile-center-friends footer.chat-input,
+  body.nc-mobile-chat.nc-mobile-center-friends .guild-page{
+    display: none !important;
+  }
+
+  body.nc-mobile-chat.nc-mobile-center-dm #friends-view,
+  body.nc-mobile-chat.nc-mobile-center-guild #friends-view{
+    display: none !important;
+  }
+
+  body.nc-mobile-chat.nc-mobile-center-dm .chat-messages,
+  body.nc-mobile-chat.nc-mobile-center-dm footer.chat-input,
+  body.nc-mobile-chat.nc-mobile-center-guild .chat-messages,
+  body.nc-mobile-chat.nc-mobile-center-guild footer.chat-input{
+    display: block;
+  }
+
+  body.nc-mobile-chat .friends-search .nc-search-btn,
+  body.nc-mobile-chat .sidebar-search .search-wrap,
+  body.nc-mobile-chat .sidebar-search input,
+  body.nc-mobile-chat .friends-search input{
+    min-height: 44px;
+  }
+
+  body.nc-mobile-chat .friends-tab,
+  body.nc-mobile-chat .dm-home-item,
+  body.nc-mobile-chat .sidebar-search,
+  body.nc-mobile-chat .sidebar-title-row,
+  body.nc-mobile-chat .chat-header-actions .icon-btn{
+    touch-action: manipulation;
+  }
+
+  body.nc-mobile-chat .rightbar{
+    border-radius: 24px 24px 0 0 !important;
+  }
+
+  body.nc-mobile-chat .rightbar .user-mini-card{
+    min-height: 100%;
+    border-radius: inherit;
+  }
+
+  body.nc-mobile-chat .chat-messages{
+    scrollbar-gutter: stable both-edges;
+  }
+
+  body.nc-mobile-chat .emoji-pop::before,
+  body.nc-mobile-chat #emoji-pop::before,
+  body.nc-mobile-chat .nc-emoji-pop::before{
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    width: 44px;
+    height: 5px;
+    border-radius: 999px;
+    transform: translateX(-50%);
+    background: rgba(255,255,255,.20);
+  }
+
+  body.nc-mobile-chat .emoji-pop,
+  body.nc-mobile-chat #emoji-pop,
+  body.nc-mobile-chat .nc-emoji-pop{
+    padding-top: 20px;
+  }
+}
+
+@media (max-width: 640px){
+  body.nc-mobile-chat .rightbar{
+    left: 8px;
+    right: 8px;
+    top: auto;
+    width: auto !important;
+    max-width: none !important;
+    bottom: calc(8px + var(--nc-mobile-bottom-inset, 0px) + var(--nc-mobile-bnav-h, 74px));
+    max-height: min(72vh, 620px);
+    transform: translateY(calc(100% + 18px));
+    border-left: 0 !important;
+    box-shadow: 0 26px 70px rgba(0,0,0,.42);
+  }
+
+  body.nc-right-open .rightbar,
+  body.nc-right-open #profile-panel,
+  body.nc-right-open .profile-panel{
+    transform: translateY(0) !important;
+  }
+
+  body.nc-mobile-chat .friends-topbar,
+  body.nc-mobile-chat .chat-header{
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  body.nc-mobile-chat .friends-list-wrap,
+  body.nc-mobile-chat .chat-messages{
+    padding-bottom: calc(18px + var(--nc-mobile-bottom-inset, 0px) + var(--nc-kb, 0px) + var(--nc-mobile-bnav-h, 74px));
+  }
+}

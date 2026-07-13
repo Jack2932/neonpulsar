@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="ru" data-nc-js="0" data-btn-skin="flat" data-asset-version="{{ _v }}">
+<head>
+    <meta charset="utf-8">
+    <title>Neon Chat</title>
+    <meta name="theme-color" content="#0b0f1a">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script>(function(){try{var v=(localStorage.getItem('nc_btn_skin')||'flat').toLowerCase();if(v!=='flat'&&v!=='elevated')v='flat';document.documentElement.setAttribute('data-btn-skin',v);}catch(e){}})();</script>
+    <!-- FIX22 / v66: keep motion for normal browsers, but do NOT force it in YaBrowser. -->
+    <script>(function(){
+      try{
+        var ua = navigator.userAgent || '';
+        var isYa = /YaBrowser/i.test(ua);
+        if (isYa) {
+          document.documentElement.classList.add('is-yabrowser','yabrowser','nc-yabrowser-lite');
+          window.__NC_YABROWSER = true;
+          return;
+        }
+        document.documentElement.classList.add('force-motion');
+        try{ localStorage.setItem('nc_force_motion','1'); }catch(e){}
+      }catch(e){}
+    })();</script>
+
+    <!-- App icons (NP) -->
+    <link rel="icon" href="{{ url_for('favicon') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='icon-16.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='icon-32.png') }}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ url_for('static', filename='icon-192.png') }}">
+    <link rel="icon" type="image/png" sizes="512x512" href="{{ url_for('static', filename='icon-512.png') }}">
+    <link rel="apple-touch-icon" sizes="192x192" href="{{ url_for('static', filename='icon-192.png') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+
+    <script>
+    (function(){
+      try{
+        var raw = localStorage.getItem('nc_appearance_settings');
+        if (!raw) return;
+        var st = JSON.parse(raw) || {};
+        var root = document.documentElement;
+        var theme = String(st.theme || 'dark').toLowerCase();
+        var mqLight = false;
+        try{ mqLight = !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches); }catch(_e){}
+        var effective = theme === 'system' ? (mqLight ? 'light' : 'dark') : theme;
+        var bodyClass = effective === 'light' ? 'nc-theme-light' : (effective === 'dim' ? 'nc-theme-dim' : 'nc-theme-dark');
+        root.classList.remove('nc-theme-light','nc-theme-dim','nc-theme-dark','nc-theme-system');
+        root.classList.add(bodyClass);
+        if (theme === 'system') root.classList.add('nc-theme-system');
+
+        var palettes = {
+          neon:['#7AF3FF','#FF7CFB','#1B7CFF'], mono:['#E5E7EB','#9CA3AF','#6B7280'], forest:['#22C55E','#10B981','#14532D'],
+          emerald:['#22C55E','#14B8A6','#0F766E'], violet:['#C084FC','#A855F7','#7E22CE'], sunset:['#FDBA74','#FB7185','#EA580C'],
+          ocean:['#38BDF8','#2563EB','#0F172A'], lime:['#A3E635','#22C55E','#166534'], rose:['#FB7185','#F59E0B','#9D174D'],
+          aurora:['#5EEAD4','#60A5FA','#F59E0B'], cyber:['#22C55E','#A855F7','#0F766E'], lava:['#F97316','#DC2626','#7F1D1D'],
+          arctic:['#7DD3FC','#A78BFA','#155E75'], mint:['#34D399','#22D3EE','#0F766E'], grape:['#8B5CF6','#38BDF8','#312E81'],
+          amber:['#F59E0B','#EF4444','#7C2D12'], sapphire:['#2563EB','#67E8F9','#082F49'], candy:['#F472B6','#FB7185','#831843'],
+          matrix:['#22C55E','#A3E635','#14532D'], dusk:['#A78BFA','#38BDF8','#1E1B4B'], peach:['#FDBA74','#F9A8D4','#9A3412'],
+          coral:['#FB7185','#F59E0B','#7C2D12'], prism:['#22D3EE','#C084FC','#1D4ED8'], steel:['#94A3B8','#38BDF8','#334155']
+        };
+        var stops = Array.isArray(st.bgStops) && st.bgStops.length >= 2 ? st.bgStops : (palettes[String(st.color||'neon').toLowerCase()] || palettes.neon);
+        stops = stops.slice(0,5);
+        var angle = parseInt(st.bgAngle, 10); if (!isFinite(angle)) angle = 135;
+        var sat = parseInt(st.bgSat, 10); if (!isFinite(sat)) sat = 72;
+        var bgMap = {
+          light:['#EEF3F9','#F8FBFF'],
+          dim:['#2B3140','#202533'],
+          dark:['#040812','#02050B']
+        };
+        var bgPair = bgMap[effective] || bgMap.dark;
+        root.style.setProperty('--bg', bgPair[0]);
+        root.style.setProperty('--nc-stage-base', bgPair[0]);
+        root.style.setProperty('--nc-stage-shell', bgPair[1]);
+        root.style.setProperty('--nc-theme-gradient', 'linear-gradient(' + angle + 'deg, ' + stops.join(', ') + ')');
+        root.style.setProperty('--nc-appearance-angle', String(angle));
+        root.style.setProperty('--nc-appearance-sat', String(sat));
+        root.style.setProperty('--accent-soft', stops[0] || '#7AF3FF');
+        root.style.setProperty('--accent', stops[1] || stops[0] || '#FF7CFB');
+        root.style.setProperty('--nc-bg-blob-1', (effective === 'light' ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0)'));
+        root.style.setProperty('--nc-theme-preview-booted', '1');
+      }catch(e){}
+    })();
+    </script>
+				{% set _v = config.get('ASSET_VERSION','20260403_interaction_restore_yabrowser_safe_v67') %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/core/browser.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/themes/skins.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/features/channels.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/core/components.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/features/ui.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/features/servers.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/features/chat.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/features/emoji.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/features/billing.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/features/profile.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/features/settings.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/features/gifts.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/features/admin.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/features/account.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/features/calls.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/features/friends.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/features/mobile.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/features/core-fixes.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/features/composer-fixes.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/features/visual-polish.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/features/sound-polish.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/features/jump-button-fix.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/features/mobile-polish.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/features/screenshare-beauty.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/features/dm-call-inline-row-cards-v46.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/features/dm-call-inline-row-cards-v47.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/features/dm-call-rounded-frame-v48.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/features/screenshare-preview-fill-v49.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/features/screenshare-preview-stage-v50.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/features/screenshare-preview-refine-v51.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/features/screenshare-preview-balance-v52.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/features/screenshare-preview-fill-and-profix-v53.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/features/screenshare-preview-fullframe-v54.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/features/screenshare-preview-stagefit-v55.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/features/screenshare-preview-fullscreenfit-v56.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/features/screenshare-preview-stage-safe-v57.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/features/screenshare-preview-stage-gap-v58.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/features/screenshare-preview-windowfix-v59.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/features/screenshare-preview-safe-window-v60.css') }}?v={{ _v }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/features/interaction-restore-yabrowser-v67.css') }}?v={{ _v }}">
+</head>
+<body class="space-bg">
+
+<!-- Shown only when main.js реально не загрузился -->
+<div class="js-warning" id="js-warning" style="display:none;">JS не загрузился. Проверь /static/js/main.js и mime types на хосте.</div>
+
+<div class="app-root">
+    {% block body %}{% endblock %}
+</div>
+
+<!-- THEME PREVIEW SIDEBAR (Appearance) -->
+<div class="nc-theme-preview is-hidden" id="nc-theme-preview" aria-hidden="true">
+  <div class="nc-theme-preview-inner glass-card">
+    <div class="nc-theme-preview-head">
+      <div class="nc-theme-preview-title">Предпросмотр темы</div>
+      <button class="nc-theme-preview-close" id="nc-theme-preview-close" type="button" aria-label="Закрыть">×</button>
+    </div>
+    <div class="nc-theme-preview-body">
+    <div class="nc-tp-card">
+      <div class="nc-tp-card-h">Создайте свою тему</div>
+      <div class="nc-tp-card-sub">Ваше пространство — ваши цвета.</div>
+      <button class="nc-tp-btn" id="nc-tp-try" type="button">Попробовать</button>
+    </div>
+
+    <div class="nc-tp-section-title">Цвета</div>
+    <div class="nc-tp-stops" id="nc-tp-stops">
+      <!-- dynamic stops -->
+      <div class="nc-tp-stop-actions">
+        <button class="nc-tp-mini" id="nc-tp-add-stop" type="button" title="Добавление цвета">+</button>
+        <button class="nc-tp-mini" id="nc-tp-remove-stop" type="button" title="Удалить цвет">−</button>
+      </div>
+    </div>
+
+    <div class="nc-tp-gradient-strip" id="nc-tp-gradient-strip" aria-label="Предпросмотр градиента"></div>
+
+    <div class="nc-tp-picker" aria-label="Выбор цвета">
+      <div class="nc-tp-sv" id="nc-tp-sv" role="application" aria-label="Насыщенность и яркость">
+        <canvas id="nc-tp-sv-canvas" width="260" height="180"></canvas>
+        <div class="nc-tp-sv-cursor" id="nc-tp-sv-cursor" aria-hidden="true"></div>
+      </div>
+      <div class="nc-tp-hue">
+        <input id="nc-tp-hue" type="range" min="0" max="360" value="190" step="1" aria-label="Оттенок">
+      </div>
+      <div class="nc-tp-hex-row">
+        <input class="nc-tp-color" id="nc-tp-color" type="color" value="#7AF3FF" aria-label="Палитра">
+        <input class="nc-tp-hex" id="nc-tp-hex" type="text" value="#7AF3FF" aria-label="HEX">
+      </div>
+    </div>
+
+    <div class="nc-tp-slider">
+      <div class="nc-tp-slider-label"><span>Направление градиента</span><span id="nc-tp-angle-val">135°</span></div>
+      <input id="nc-tp-angle" type="range" min="0" max="360" value="135" step="1">
+    </div>
+
+    <div class="nc-tp-slider">
+      <div class="nc-tp-slider-label"><span>Насыщенность цвета</span><span id="nc-tp-sat-val">60%</span></div>
+      <input id="nc-tp-sat" type="range" min="0" max="100" value="60" step="1">
+    </div>
+
+    <div class="nc-tp-actions">
+      <button class="nc-tp-ghost" id="nc-tp-surprise" type="button">Удивите меня!</button>
+      <button class="nc-tp-ghost nc-tp-danger" id="nc-tp-reset" type="button">Сброс</button>
+      <button class="nc-tp-ghost" id="nc-tp-back" type="button">Вернуться к настройкам</button>
+    </div>
+    </div>
+  </div>
+</div>
+<!-- /THEME PREVIEW SIDEBAR -->
+
+<!-- Socket.IO client loader (Flask-SocketIO does not serve /socket.io/socket.io.js) -->
+<script defer src="{{ url_for('static', filename='vendor/socketio-loader.js') }}?v={{ _v }}"></script>
+
+<!-- Failsafe: if an overlay got stuck in DOM, make sure it is hidden at boot -->
+<script>
+(function(){
+  try{
+    try{ document.body && document.body.classList && document.body.classList.remove("nc-modal-open"); }catch(e){}
+
+    ["svs-overlay","ss-overlay","drop-overlay"].forEach(function(id){
+      var el=document.getElementById(id);
+      if(!el) return;
+      el.setAttribute("aria-hidden","true");
+      el.setAttribute("hidden","");
+      if(el.classList) el.classList.add("is-hidden");
+      if(el.classList) el.classList.remove("active");
+    });
+    document.querySelectorAll(".modal-backdrop.active").forEach(function(el){
+      if(el.classList) el.classList.remove("active");
+      el.setAttribute("aria-hidden","true");
+    });
+  }catch(e){}
+})();
+</script>
+
+<script defer src="{{ url_for('static', filename='js/core/browser.js') }}?v={{ _v }}"></script>
+<script defer src="{{ url_for('static', filename='js/auth/password-toggle.js') }}?v={{ _v }}"></script>
+<script defer src="{{ url_for('static', filename='js/core/settings-sync.js') }}?v={{ _v }}"></script>
+<script defer
+        src="{{ url_for('static', filename='js/main.js') }}?v={{ _v }}"
+        onerror="try{__ncShowJsWarning('JS не загрузился (проверь 404/MIME/CSP в DevTools → Network/Console)');}catch(e){}"></script>
+<script defer src="{{ url_for('static', filename='js/features/chat.js') }}?v={{ _v }}"></script>
+<script defer src="{{ url_for('static', filename='js/features/emoji.js') }}?v={{ _v }}"></script>
+<script defer src="{{ url_for('static', filename='js/features/settings.js') }}?v={{ _v }}"></script>
+<script defer src="{{ url_for('static', filename='js/features/calls.js') }}?v={{ _v }}"></script>
+<script defer src="{{ url_for('static', filename='js/features/ui.js') }}?v={{ _v }}"></script>
+<script defer src="{{ url_for('static', filename='js/auth/password-strength.js') }}?v={{ _v }}"></script>
+<script defer src="{{ url_for('static', filename='js/features/menu.js') }}?v={{ _v }}"></script>
+<script defer src="{{ url_for('static', filename='js/features/billing.js') }}?v={{ _v }}"></script>
+<script defer src="{{ url_for('static', filename='js/features/gifts.js') }}?v={{ _v }}"></script>
+<script defer src="{{ url_for('static', filename='js/features/account.js') }}?v={{ _v }}"></script>
+<script defer src="{{ url_for('static', filename='js/features/profile.js') }}?v={{ _v }}"></script>
+<script defer src="{{ url_for('static', filename='js/features/mobile.js') }}?v={{ _v }}"></script>
+<script defer src="{{ url_for('static', filename='js/features/core-fixes.js') }}?v={{ _v }}"></script>
+<script defer src="{{ url_for('static', filename='js/features/composer-fixes.js') }}?v={{ _v }}"></script>
+<script defer src="{{ url_for('static', filename='js/features/sound-polish.js') }}?v={{ _v }}"></script>
+<script defer src="{{ url_for('static', filename='js/features/jump-button-fix.js') }}?v={{ _v }}"></script>
+<script defer src="{{ url_for('static', filename='js/features/mobile-polish.js') }}?v={{ _v }}"></script>
+<script defer src="{{ url_for('static', filename='js/core/yabrowser-safe-v67.js') }}?v={{ _v }}"></script>
+</body>
+</html>

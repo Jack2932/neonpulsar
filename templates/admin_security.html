@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="auth-wrapper" style="align-items:flex-start; padding-top:32px; padding-bottom:32px;">
+  <div class="auth-card glass-card" style="max-width:1220px; width:min(1220px, 97vw);">
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+      <div>
+        <h2 class="auth-title">Центр безопасности</h2>
+        <div class="auth-subtitle">Фильтры, экспорт, очистка логов и управление блокировками.</div>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <a class="nc-btn ghost" href="/admin">Админ-панель</a>
+        <a class="nc-btn ghost" href="/chat">В чат</a>
+      </div>
+    </div>
+
+    <div class="nc-vv-section nc-vv-section-first nc-security-dashboard" style="display:block; margin-top:18px;">
+      <div class="nc-vv-h2">Сводка за 24 часа</div>
+      <div class="nc-security-stats">
+        <div class="nc-security-stat"><div class="nc-security-stat-label">Событий</div><div class="nc-security-stat-value">{{ stats.attempts_24h }}</div></div>
+        <div class="nc-security-stat"><div class="nc-security-stat-label">Неудачных</div><div class="nc-security-stat-value">{{ stats.failed_24h }}</div></div>
+        <div class="nc-security-stat"><div class="nc-security-stat-label">Активные блоки</div><div class="nc-security-stat-value">{{ stats.active_blocks }}</div></div>
+      </div>
+    </div>
+
+    <div class="nc-vv-section">
+      <div class="nc-vv-h2">Фильтры</div>
+      <form method="get" action="/admin/security" style="display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:10px; margin-top:12px;">
+        <input class="auth-input" type="text" name="q" value="{{ request.args.get('q','') }}" placeholder="IP / логин / причина" style="grid-column: span 2;">
+        <select class="auth-input" name="view">
+          <option value="overview" {% if current_view == 'overview' %}selected{% endif %}>Обзор</option>
+          <option value="attempts" {% if current_view == 'attempts' %}selected{% endif %}>Попытки</option>
+          <option value="blocks" {% if current_view == 'blocks' %}selected{% endif %}>Блокировки</option>
+        </select>
+        <select class="auth-input" name="kind">
+          <option value="">Все попытки</option>
+          <option value="failed" {% if request.args.get('kind') == 'failed' %}selected{% endif %}>Только неудачные</option>
+          <option value="success" {% if request.args.get('kind') == 'success' %}selected{% endif %}>Только успешные</option>
+          <option value="invalid" {% if request.args.get('kind') == 'invalid' %}selected{% endif %}>Неверный логин / лимиты</option>
+        </select>
+        <select class="auth-input" name="status">
+          <option value="">Любой статус</option>
+          {% for s in ['success_login','success_2fa','bad_password','bad_2fa','bad_login','rate_limited_login','rate_limited_2fa','blocked_login','blocked_2fa','bad_captcha_login','bad_captcha_2fa'] %}
+          <option value="{{ s }}" {% if request.args.get('status') == s %}selected{% endif %}>{{ s }}</option>
+          {% endfor %}
+        </select>
+        <input class="auth-input" type="number" min="20" max="300" name="limit" value="{{ request.args.get('limit','100') }}">
+        <select class="auth-input" name="scope_type">
+          <option value="">Любой тип блока</option>
+          <option value="ip" {% if request.args.get('scope_type') == 'ip' %}selected{% endif %}>IP</option>
+          <option value="login" {% if request.args.get('scope_type') == 'login' %}selected{% endif %}>Логин</option>
+          <option value="user" {% if request.args.get('scope_type') == 'user' %}selected{% endif %}>Пользователь</option>
+        </select>
+        <select class="auth-input" name="phase">
+          <option value="">Любая фаза</option>
+          <option value="login" {% if request.args.get('phase') == 'login' %}selected{% endif %}>login</option>
+          <option value="2fa" {% if request.args.get('phase') == '2fa' %}selected{% endif %}>2fa</option>
+        </select>
+        <select class="auth-input" name="active">
+          <option value="">Все блоки</option>
+          <option value="1" {% if request.args.get('active') == '1' %}selected{% endif %}>Только активные</option>
+          <option value="0" {% if request.args.get('active') == '0' %}selected{% endif %}>Только истёкшие</option>
+        </select>
+        <div style="grid-column:1/-1; display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="nc-btn" type="submit">Применить</button>
+          <a class="nc-btn ghost" href="/admin/security">Сбросить</a>
+          <a class="nc-btn ghost" href="/admin/security/export?{{ request.query_string.decode('utf-8') }}&type=attempts&format=csv">Экспорт попыток CSV</a>
+          <a class="nc-btn ghost" href="/admin/security/export?{{ request.query_string.decode('utf-8') }}&type=blocks&format=csv">Экспорт блоков CSV</a>
+          <button class="nc-btn danger ghost" type="button" id="nc-admin-cleanup-attempts">Очистить старые логи</button>
+          <button class="nc-btn danger ghost" type="button" id="nc-admin-cleanup-blocks">Очистить старые блоки</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="nc-vv-section" {% if current_view == 'blocks' %}style="display:none;"{% endif %}>
+      <div class="nc-vv-h2">Последние попытки входа</div>
+      <div style="overflow:auto; margin-top:12px;">
+        <table style="width:100%; border-collapse:collapse; font-size:14px;">
+          <thead><tr><th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Время</th><th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Статус</th><th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Логин</th><th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">IP</th><th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Причина</th><th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Фильтр</th></tr></thead>
+          <tbody>
+            {% for row in attempts %}
+            <tr>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);">{{ row.created_at }}</td>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);">{{ row.status }}</td>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);">{{ row.login_value or ('user:' ~ row.user_id if row.user_id else '—') }}</td>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);">{{ row.ip_address or '—' }}</td>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);">{{ row.note or '—' }}</td>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05); white-space:nowrap;">{% if row.ip_address %}<a href="/admin/security?q={{ row.ip_address }}">IP</a>{% endif %}{% if row.login_value %} {% if row.ip_address %}·{% endif %} <a href="/admin/security?q={{ row.login_value }}">Логин</a>{% endif %}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6" style="padding:12px; opacity:.8;">История пока пустая.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="nc-vv-section" {% if current_view == 'attempts' %}style="display:none;"{% endif %}>
+      <div class="nc-vv-h2">Активные и недавние блокировки</div>
+      <div class="nc-vv-muted">Здесь можно быстро снять блокировку по IP, логину или пользователю.</div>
+      <div style="overflow:auto; margin-top:12px;">
+        <table style="width:100%; border-collapse:collapse; font-size:14px;">
+          <thead>
+            <tr>
+              <th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Статус</th>
+              <th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Тип</th>
+              <th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Значение</th>
+              <th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Фаза</th>
+              <th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Причина</th>
+              <th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">До</th>
+              <th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Действие</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in blocks %}
+            {% set is_active = row.active and row.expires_at > utcnow %}
+            <tr>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);">{{ 'active' if is_active else 'expired' }}</td>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);">{{ row.scope_type }}</td>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);">{{ row.scope_value }}</td>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);">{{ row.phase }}</td>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);">{{ row.reason or '—' }}</td>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);">{{ row.expires_at }}</td>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);">
+                {% if is_active %}
+                <button class="nc-btn danger ghost nc-admin-unblock" type="button" data-block-id="{{ row.id }}">Снять</button>
+                {% else %}
+                <span style="opacity:.65;">—</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" style="padding:12px; opacity:.8;">Пока блокировок нет.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="nc-vv-section" {% if current_view in ['attempts','blocks'] %}style="display:none;"{% endif %}>
+      <div class="nc-vv-h2">Топ IP за 24 часа</div>
+      <div style="overflow:auto; margin-top:12px;">
+        <table style="width:100%; border-collapse:collapse; font-size:14px;">
+          <thead><tr><th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">IP</th><th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Событий</th><th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Действие</th></tr></thead>
+          <tbody>
+            {% for ip, count in top_ips %}
+            <tr><td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);">{{ ip }}</td><td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);">{{ count }}</td><td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);"><a href="/admin/security?q={{ ip }}">Открыть</a></td></tr>
+            {% else %}
+            <tr><td colspan="3" style="padding:12px; opacity:.8;">Нет данных.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  async function unblock(blockId, btn){
+    if (!blockId) return;
+    if (!confirm('Снять эту блокировку?')) return;
+    if (btn) btn.disabled = true;
+    try{
+      const r = await fetch('/api/admin/security/unblock', {
+        method:'POST', credentials:'include', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({block_id:blockId})
+      });
+      const j = await r.json().catch(()=>({}));
+      if (!r.ok || !j || j.ok !== true) throw new Error((j && j.error) || 'Ошибка');
+      location.reload();
+    }catch(e){
+      alert((e && e.message) ? e.message : 'Ошибка');
+      if (btn) btn.disabled = false;
+    }
+  }
+  async function cleanup(kind){
+    const days = prompt('Удалить записи старше скольких дней?', '30');
+    if (!days) return;
+    const num = parseInt(days, 10);
+    if (!num || num < 1) return alert('Нужно число больше 0');
+    if (!confirm('Удалить старые записи?')) return;
+    try{
+      const r = await fetch('/api/admin/security/cleanup', {
+        method:'POST', credentials:'include', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({kind:kind, older_than_days:num})
+      });
+      const j = await r.json().catch(()=>({}));
+      if (!r.ok || !j || j.ok !== true) throw new Error((j && j.error) || 'Ошибка');
+      alert('Готово. Попытки: ' + (j.deleted_attempts || 0) + ' · Блоки: ' + (j.deleted_blocks || 0));
+      location.reload();
+    }catch(e){
+      alert((e && e.message) ? e.message : 'Ошибка');
+    }
+  }
+  document.addEventListener('click', function(e){
+    const unblockBtn = e.target && e.target.closest ? e.target.closest('.nc-admin-unblock') : null;
+    if (unblockBtn) return unblock(unblockBtn.getAttribute('data-block-id'), unblockBtn);
+    const cleanupAttempts = e.target && e.target.closest ? e.target.closest('#nc-admin-cleanup-attempts') : null;
+    if (cleanupAttempts) return cleanup('attempts');
+    const cleanupBlocks = e.target && e.target.closest ? e.target.closest('#nc-admin-cleanup-blocks') : null;
+    if (cleanupBlocks) return cleanup('blocks');
+  }, true);
+})();
+</script>
+{% endblock %}

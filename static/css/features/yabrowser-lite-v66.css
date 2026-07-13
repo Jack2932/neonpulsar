@@ -1,0 +1,46 @@
+/* v66 — YaBrowser: lighter visuals without breaking layout or click targets */
+
+html.is-yabrowser .space-bg::after,
+html.is-yabrowser .glass-card::before,
+html.is-yabrowser .panel::before,
+html.is-yabrowser .orb,
+html.is-yabrowser .ambient-orb,
+html.is-yabrowser .fx-orb,
+html.is-yabrowser .bg-orb,
+html.is-yabrowser .music2026-blob,
+html.is-yabrowser .music2026-rays,
+html.is-yabrowser #music-viz{
+  display: none !important;
+}
+
+html.is-yabrowser body.nc-glass-off .glass-card,
+html.is-yabrowser body.nc-glass-off .modal,
+html.is-yabrowser body.nc-glass-off .context-menu,
+html.is-yabrowser .layout.dc-layout .glass-card,
+html.is-yabrowser .layout.dc-layout .modal,
+html.is-yabrowser .layout.dc-layout .context-menu{
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+html.is-yabrowser .layout.dc-layout .chat-main,
+html.is-yabrowser .layout.dc-layout #sidebar,
+html.is-yabrowser .layout.dc-layout .rightbar,
+html.is-yabrowser .layout.dc-layout footer.chat-input{
+  contain: layout paint !important;
+}
+
+html.is-yabrowser .layout.dc-layout .glass-card,
+html.is-yabrowser .layout.dc-layout .chat-main,
+html.is-yabrowser .layout.dc-layout .sidebar,
+html.is-yabrowser .layout.dc-layout .rightbar,
+html.is-yabrowser .layout.dc-layout footer.chat-input,
+html.is-yabrowser .layout.dc-layout #message-form{
+  box-shadow: 0 8px 24px rgba(0,0,0,.24) !important;
+}
+
+html.is-yabrowser .layout.dc-layout *,
+html.is-yabrowser .layout.dc-layout *::before,
+html.is-yabrowser .layout.dc-layout *::after{
+  text-shadow: none !important;
+}

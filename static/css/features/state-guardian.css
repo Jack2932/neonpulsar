@@ -1,0 +1,39 @@
+body.nc-ui-mode-dm #friends-view,
+body.nc-ui-mode-guild #friends-view {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+body.nc-ui-mode-friends #friends-view {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+body.nc-ui-mode-friends #chat-messages,
+body.nc-ui-mode-friends #message-form,
+body.nc-ui-mode-friends .chat-message-pane,
+body.nc-ui-mode-friends .message-pane {
+  display: none !important;
+}
+
+body.nc-ui-mode-dm #chat-messages,
+body.nc-ui-mode-dm #message-form,
+body.nc-ui-mode-guild #chat-messages,
+body.nc-ui-mode-guild #message-form {
+  display: flex;
+}
+
+body.nc-ui-mode-dm #btn-jump-latest.is-hidden,
+body.nc-ui-mode-guild #btn-jump-latest.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#emoji-pop.nc-emoji-sheet-guarded {
+  max-width: none !important;
+  width: auto !important;
+}

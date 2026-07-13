@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="auth-wrapper">
+        <div class="auth-card glass-card">
+            {% include "_np_logo.html" %}
+        <h2 class="auth-title">Вход</h2>
+        {% if request.args.get('security') == 'reset_password' %}
+            <div class="flash-list"><div class="flash flash-error">Для безопасности мы завершили все сеансы. После входа сразу смените пароль и проверьте историю входов.</div></div>
+        {% endif %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-list">
+                {% for cat, msg in messages %}
+                    <div class="flash flash-{{ cat }}">{{ msg }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% endwith %}
+<form method="post" class="auth-form">
+            {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+            <label>Ник</label>
+            <input type="text" name="username" autocomplete="username" placeholder="ник" required>
+            <label>Пароль</label>
+            <input type="password" name="password" autocomplete="current-password" required>
+            {% if auth_challenge and auth_challenge.required %}
+            <div class="auth-help" style="margin-top:6px;">{{ auth_challenge.prompt }}</div>
+            <input type="text" name="captcha_answer" inputmode="numeric" placeholder="Ответ" autocomplete="off" required>
+            {% endif %}
+            <button type="submit" class="btn-primary">Войти</button>
+            <div class="auth-help">Забыл пароль? <a href="/recover">Восстановить по коду</a></div>
+        </form>
+        <div class="auth-alt">
+            Нет аккаунта? <a href="{{ url_for('register') }}">Регистрация</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,33 @@
+/* Semantic stylesheet */
+
+/* v9.12.1 YaBrowser performance mode: disable heavy blur/filters */
+html.is-yabrowser .glass-card,
+html.is-yabrowser .ss-overlay,
+html.is-yabrowser .call-topbar,
+html.is-yabrowser .call-stage-overlay {
+  backdrop-filter: none !important;
+}
+
+html.is-yabrowser .space-bg::after { filter: none !important; }
+
+html.is-yabrowser .glass-card,
+html.is-yabrowser .tile,
+html.is-yabrowser .dm-call-stage,
+html.is-yabrowser .call-stage {
+  box-shadow: none !important;
+}
+
+
+/* Extra safety: YaBrowser часто крашится на тяжёлых анимациях/transition */
+html.is-yabrowser * {
+  animation: none !important;
+  transition: none !important;
+}
+
+html.is-yabrowser .glass,
+html.is-yabrowser .glass-card,
+html.is-yabrowser .panel,
+html.is-yabrowser .modal,
+html.is-yabrowser .call-bar {
+  box-shadow: none !important;
+}

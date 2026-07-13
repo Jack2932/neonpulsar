@@ -1,0 +1,26 @@
+[Unit]
+Description=NeonChat (gunicorn + Flask-SocketIO production)
+After=network.target
+
+[Service]
+Type=simple
+User=REPLACE_ME
+Group=REPLACE_ME
+WorkingDirectory=/var/www/myflask
+EnvironmentFile=-/var/www/myflask/deploy/neonchat.env
+Environment=PYTHONUNBUFFERED=1
+Environment=PREFERRED_URL_SCHEME=https
+Environment=SOCKETIO_ASYNC_MODE=gevent
+
+# Preferred: configure gunicorn through deploy/gunicorn.conf.py
+ExecStart=/var/www/myflask/venv/bin/gunicorn -c /var/www/myflask/deploy/gunicorn.conf.py wsgi:app
+
+Restart=always
+RestartSec=2
+KillSignal=SIGTERM
+TimeoutStopSec=30
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

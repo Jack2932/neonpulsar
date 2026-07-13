@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="auth-wrapper" style="align-items:flex-start; padding-top:32px; padding-bottom:32px;">
+  <div class="auth-card glass-card" style="max-width:1260px; width:min(1260px, 96vw);">
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+      <div>
+        <h2 class="auth-title">Support Analytics</h2>
+        <div class="auth-subtitle">Срез по тикетам, SLA, качеству ответов и нагрузке команды за последние {{ days }} дней.</div>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <a class="nc-btn ghost" href="/admin">Админка</a>
+        <a class="nc-btn ghost" href="/admin/support">Саппорт-панель</a>
+        <a class="nc-btn" href="/admin/support/inbox">Support Inbox</a>
+      </div>
+    </div>
+
+    <div class="nc-devices-action-buttons" style="margin-top:14px; justify-content:flex-start;">
+      <a class="nc-btn {% if days == 7 %}primary{% else %}ghost{% endif %}" href="/admin/support/analytics?days=7">7 дней</a>
+      <a class="nc-btn {% if days == 30 %}primary{% else %}ghost{% endif %}" href="/admin/support/analytics?days=30">30 дней</a>
+      <a class="nc-btn {% if days == 90 %}primary{% else %}ghost{% endif %}" href="/admin/support/analytics?days=90">90 дней</a>
+    </div>
+
+    <div class="nc-security-stats" style="margin-top:18px;">
+      <div class="nc-security-stat"><div class="nc-security-stat-label">Создано</div><div class="nc-security-stat-value">{{ analytics.stats.created_total }}</div></div>
+      <div class="nc-security-stat"><div class="nc-security-stat-label">Закрыто</div><div class="nc-security-stat-value">{{ analytics.stats.closed_total }}</div></div>
+      <div class="nc-security-stat"><div class="nc-security-stat-label">Open сейчас</div><div class="nc-security-stat-value">{{ analytics.stats.open_now }}</div></div>
+      <div class="nc-security-stat"><div class="nc-security-stat-label">Pending сейчас</div><div class="nc-security-stat-value">{{ analytics.stats.pending_now }}</div></div>
+      <div class="nc-security-stat"><div class="nc-security-stat-label">Overdue сейчас</div><div class="nc-security-stat-value">{{ analytics.stats.overdue_now }}</div></div>
+    </div>
+
+    <div class="nc-security-stats" style="margin-top:12px;">
+      <div class="nc-security-stat"><div class="nc-security-stat-label">Средний first reply</div><div class="nc-security-stat-value">{{ analytics.stats.avg_first_response_min if analytics.stats.avg_first_response_min is not none else '—' }}</div></div>
+      <div class="nc-security-stat"><div class="nc-security-stat-label">Среднее закрытие, ч</div><div class="nc-security-stat-value">{{ analytics.stats.avg_close_hours if analytics.stats.avg_close_hours is not none else '—' }}</div></div>
+      <div class="nc-security-stat"><div class="nc-security-stat-label">CSAT средний</div><div class="nc-security-stat-value">{{ analytics.stats.csat_avg if analytics.stats.csat_avg is not none else '—' }}</div></div>
+      <div class="nc-security-stat"><div class="nc-security-stat-label">Оценок</div><div class="nc-security-stat-value">{{ analytics.stats.csat_count }}</div></div>
+      <div class="nc-security-stat"><div class="nc-security-stat-label">Тренд 7д</div><div class="nc-security-stat-value">+{{ analytics.trend_7d.created }} / -{{ analytics.trend_7d.closed }}</div></div>
+    </div>
+
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:16px;">
+      <div class="glass-card" style="padding:16px; border-radius:18px;">
+        <div class="nc-vv-h2">Тренд по дням</div>
+        <div class="nc-vv-muted">Создано vs закрыто по дням за выбранный период.</div>
+        <div id="supportDailyChart" style="margin-top:12px; height:220px;"></div>
+      </div>
+      <div class="glass-card" style="padding:16px; border-radius:18px;">
+        <div class="nc-vv-h2">Карта компетенций</div>
+        <div class="nc-vv-muted">Каких навыков у команды больше всего.</div>
+        <div style="display:grid; gap:8px; margin-top:12px;">
+          {% for row in analytics.skills %}
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;"><span>{{ row.name }}</span><b>{{ row.count }}</b></div>
+          {% else %}<div class="nc-settings-muted">Пока нет навыков в профилях саппорта.</div>{% endfor %}
+        </div>
+      </div>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; margin-top:16px;">
+      <div class="glass-card" style="padding:16px; border-radius:18px;">
+        <div class="nc-vv-h2">По категориям</div>
+        <div class="nc-vv-muted">Что чаще всего приносит нагрузку.</div>
+        <div style="display:grid; gap:10px; margin-top:12px;">
+          {% for row in analytics.by_category %}
+          <div>
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;"><span>{{ row.name }}</span><b>{{ row.count }}</b></div>
+            <div style="height:8px; border-radius:999px; background:rgba(255,255,255,.06); overflow:hidden; margin-top:6px;"><div style="height:100%; width:{{ (row.count / (analytics.by_category[0].count if analytics.by_category else 1) * 100)|round(0, 'ceil') }}%; background:linear-gradient(90deg, rgba(122,243,255,.7), rgba(126,92,255,.75));"></div></div>
+          </div>
+          {% else %}<div class="nc-settings-muted">Пока нет данных.</div>{% endfor %}
+        </div>
+      </div>
+      <div class="glass-card" style="padding:16px; border-radius:18px;">
+        <div class="nc-vv-h2">По приоритетам</div>
+        <div class="nc-vv-muted">Распределение urgent/high/normal/low.</div>
+        <div style="display:grid; gap:10px; margin-top:12px;">
+          {% for row in analytics.by_priority %}
+          <div>
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;"><span>{{ row.name }}</span><b>{{ row.count }}</b></div>
+            <div style="height:8px; border-radius:999px; background:rgba(255,255,255,.06); overflow:hidden; margin-top:6px;"><div style="height:100%; width:{{ (row.count / (analytics.by_priority[0].count if analytics.by_priority else 1) * 100)|round(0, 'ceil') }}%; background:linear-gradient(90deg, rgba(126,92,255,.72), rgba(255,255,255,.36));"></div></div>
+          </div>
+          {% else %}<div class="nc-settings-muted">Пока нет данных.</div>{% endfor %}
+        </div>
+      </div>
+    </div>
+
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:16px;">
+      <div class="glass-card" style="padding:16px; border-radius:18px;">
+        <div class="nc-vv-h2">Почасовая нагрузка</div>
+        <div class="nc-vv-muted">Когда саппорт получает больше всего новых тикетов и ответов.</div>
+        <div id="supportHourlyChart" style="margin-top:12px; height:220px;"></div>
+      </div>
+      <div class="glass-card" style="padding:16px; border-radius:18px;">
+        <div class="nc-vv-h2">Авто-роутинг категорий</div>
+        <div class="nc-vv-muted">Сколько тикетов система сама перенаправила в нужную категорию.</div>
+        <div class="nc-security-stats" style="margin-top:12px; grid-template-columns:repeat(2,minmax(0,1fr));">
+          <div class="nc-security-stat"><div class="nc-security-stat-label">Auto-routed</div><div class="nc-security-stat-value">{{ analytics.routing.auto_routed }}</div></div>
+          <div class="nc-security-stat"><div class="nc-security-stat-label">Manual / default</div><div class="nc-security-stat-value">{{ analytics.routing.manual_category }}</div></div>
+        </div>
+        <div style="display:grid; gap:8px; margin-top:12px;">
+          {% for row in analytics.routing.by_detected_category %}
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;"><span>{{ row.name }}</span><b>{{ row.count }}</b></div>
+          {% else %}<div class="nc-settings-muted">Авто-роутинг пока не срабатывал.</div>{% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="glass-card" style="padding:16px; border-radius:18px; margin-top:16px;">
+      <div class="nc-vv-h2">Heatmap по часам</div>
+      <div class="nc-vv-muted">В какие дни и часы у поддержки реально самая горячая нагрузка.</div>
+      <div id="supportHeatmap" style="margin-top:12px;"></div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1.3fr .7fr; gap:14px; margin-top:16px;">
+      <div class="glass-card" style="padding:16px; border-radius:18px;">
+        <div class="nc-vv-h2">Команда поддержки</div>
+        <div class="nc-vv-muted">Ответы, закрытия и текущая нагрузка по каждому саппорту.</div>
+        <div style="overflow:auto; margin-top:10px;">
+          <table style="width:100%; min-width:760px; border-collapse:collapse; font-size:14px;">
+            <thead><tr><th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Саппорт</th><th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Роль</th><th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Ответов</th><th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Закрыто</th><th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Открыто на нём</th><th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Ждут его</th></tr></thead>
+            <tbody>
+              {% for row in analytics.staff %}
+              <tr>
+                <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.06);">{{ row.username }}</td>
+                <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.06);">{{ row.role_label }}</td>
+                <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.06);">{{ row.staff_replies }}</td>
+                <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.06);">{{ row.closed_total }}</td>
+                <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.06);">{{ row.assigned_open }}</td>
+                <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.06);">{{ row.waiting_now }}</td>
+              </tr>
+              {% else %}<tr><td colspan="6" style="padding:10px; color:rgba(255,255,255,.66);">Нет данных по саппортам.</td></tr>{% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="glass-card" style="padding:16px; border-radius:18px;">
+        <div class="nc-vv-h2">Оценки качества</div>
+        <div class="nc-vv-muted">CSAT по закрытым тикетам.</div>
+        <div style="display:grid; gap:10px; margin-top:12px;">
+          {% for row in analytics.feedback %}
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+            <span>{{ row.rating }}★</span>
+            <b>{{ row.count }}</b>
+          </div>
+          {% else %}<div class="nc-settings-muted">Оценок пока нет.</div>{% endfor %}
+        </div>
+
+        <div class="nc-vv-h2" style="margin-top:18px;">Статусы сейчас</div>
+        <div style="display:grid; gap:8px; margin-top:10px;">
+          {% for row in analytics.by_status %}
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;"><span>{{ row.name }}</span><b>{{ row.count }}</b></div>
+          {% else %}<div class="nc-settings-muted">Пусто.</div>{% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="glass-card" style="padding:16px; border-radius:18px; margin-top:16px;">
+      <div class="nc-vv-h2">Топ overdue</div>
+      <div class="nc-vv-muted">Какие тикеты сильнее всего просрочены по SLA и кого уже пора пинать.</div>
+      <div class="nc-audit-list" style="margin-top:10px;">
+        {% for row in analytics.top_overdue %}
+        <div class="nc-audit-item">
+          <div class="nc-device-left">
+            <div class="nc-device-meta">
+              <div class="nc-device-title"><span class="nc-audit-badge is-bad">{{ row.minutes }} мин</span> #{{ row.id }} · {{ row.subject }}</div>
+              <div class="nc-device-sub">{{ row.username }} · {{ row.priority }} · ответственный: {{ row.assigned_username }}</div>
+            </div>
+          </div>
+          <div class="nc-device-actions"><a class="nc-btn ghost" href="/admin/support?ticket={{ row.id }}">Открыть</a></div>
+        </div>
+        {% else %}<div class="nc-settings-muted">Сейчас всё в пределах SLA.</div>{% endfor %}
+      </div>
+    </div>
+
+    <div class="glass-card" style="padding:16px; border-radius:18px; margin-top:16px;">
+      <div class="nc-vv-h2">SLA rules snapshot</div>
+      <div class="nc-vv-muted">Какие правила сейчас реально управляют first reply и auto-escalation.</div>
+      <div style="overflow:auto; margin-top:10px;">
+        <table style="width:100%; min-width:760px; border-collapse:collapse; font-size:14px;">
+          <thead><tr><th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Category</th><th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Priority</th><th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">First</th><th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Next</th><th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Escalate</th><th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Role</th></tr></thead>
+          <tbody>
+            {% for row in analytics.sla_rules %}<tr><td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);">{{ row.category }}</td><td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);">{{ row.priority }}</td><td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);">{{ row.first_reply_minutes }} мин</td><td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);">{{ row.next_reply_minutes }} мин</td><td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);">{{ row.escalate_after_minutes }} мин</td><td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);">{{ row.required_role }}</td></tr>{% else %}<tr><td colspan="6" style="padding:10px; color:rgba(255,255,255,.66);">Правил пока нет.</td></tr>{% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(function renderSupportDailyChart(){
+  const host = document.getElementById('supportDailyChart');
+  if(!host) return;
+  const rows = {{ analytics.series_daily|tojson }} || [];
+  if(!rows.length){ host.innerHTML = '<div class="nc-settings-muted">Нет данных для графика.</div>'; return; }
+  const maxVal = Math.max(1, ...rows.map(r => Math.max(Number(r.created||0), Number(r.closed||0))));
+  host.innerHTML = '<div style="height:100%; display:flex; align-items:flex-end; gap:4px;">' + rows.map(r => {
+    const ch = Math.max(4, Math.round((Number(r.created||0) / maxVal) * 180));
+    const dh = Math.max(4, Math.round((Number(r.closed||0) / maxVal) * 180));
+    return `<div title="${r.day}: +${r.created} / -${r.closed}" style="flex:1; min-width:8px; display:flex; align-items:flex-end; justify-content:center; gap:2px; height:100%;"><div style="width:45%; border-radius:999px 999px 0 0; background:rgba(122,243,255,.72); height:${ch}px;"></div><div style="width:45%; border-radius:999px 999px 0 0; background:rgba(126,92,255,.78); height:${dh}px;"></div></div>`;
+  }).join('') + '</div><div style="display:flex; justify-content:space-between; gap:8px; margin-top:10px; opacity:.72; font-size:12px;"><span>'+rows[0].day+'</span><span>'+rows[rows.length-1].day+'</span></div>';
+})();
+(function renderSupportHourlyChart(){
+  const host = document.getElementById('supportHourlyChart');
+  if(!host) return;
+  const rows = {{ analytics.hourly_load|tojson }} || [];
+  if(!rows.length){ host.innerHTML = '<div class="nc-settings-muted">Нет данных по часам.</div>'; return; }
+  const maxVal = Math.max(1, ...rows.map(r => Math.max(Number(r.created||0), Number(r.staff_replies||0), Number(r.closed||0))));
+  host.innerHTML = '<div style="height:100%; display:flex; align-items:flex-end; gap:4px;">' + rows.map(r => {
+    const a = Math.max(4, Math.round((Number(r.created||0) / maxVal) * 170));
+    const b = Math.max(4, Math.round((Number(r.staff_replies||0) / maxVal) * 170));
+    const c = Math.max(4, Math.round((Number(r.closed||0) / maxVal) * 170));
+    return `<div title="${r.hour}: new ${r.created}, replies ${r.staff_replies}, closed ${r.closed}" style="flex:1; min-width:10px; display:flex; align-items:flex-end; justify-content:center; gap:1px; height:100%;"><div style="width:30%; border-radius:999px 999px 0 0; background:rgba(122,243,255,.72); height:${a}px;"></div><div style="width:30%; border-radius:999px 999px 0 0; background:rgba(126,92,255,.78); height:${b}px;"></div><div style="width:30%; border-radius:999px 999px 0 0; background:rgba(255,255,255,.40); height:${c}px;"></div></div>`;
+  }).join('') + '</div><div style="display:flex; justify-content:space-between; gap:8px; margin-top:10px; opacity:.72; font-size:12px;"><span>00:00</span><span>23:00</span></div>';
+})();
+(function renderSupportHeatmap(){
+  const host = document.getElementById('supportHeatmap');
+  if(!host) return;
+  const rows = {{ analytics.hourly_heatmap|tojson }} || [];
+  if(!rows.length){ host.innerHTML = '<div class="nc-settings-muted">Нет данных для heatmap.</div>'; return; }
+  const levelStyle = (lvl) => {
+    if(lvl <= 0) return 'rgba(255,255,255,.06)';
+    if(lvl === 1) return 'rgba(122,243,255,.22)';
+    if(lvl === 2) return 'rgba(122,243,255,.38)';
+    if(lvl === 3) return 'rgba(126,92,255,.48)';
+    return 'rgba(126,92,255,.76)';
+  };
+  host.innerHTML = '<div style="overflow:auto;"><div style="min-width:840px; display:grid; grid-template-columns:70px repeat(24, minmax(18px,1fr)); gap:6px; align-items:center;">'
+    + '<div></div>' + Array.from({length:24}, (_,i)=>`<div style="font-size:11px; opacity:.7; text-align:center;">${i}</div>`).join('')
+    + rows.map(row => `<div style="font-size:12px; opacity:.82;">${row.weekday}</div>` + row.cells.map(cell => `<div title="${row.weekday} ${String(cell.hour).padStart(2,'0')}:00 · ${cell.count}" style="height:18px; border-radius:6px; background:${levelStyle(cell.level)}; border:1px solid rgba(255,255,255,.05);"></div>`).join('')).join('')
+    + '</div></div>';
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="auth-wrapper" style="align-items:flex-start; padding-top:32px; padding-bottom:32px;">
+  <div class="auth-card glass-card" style="max-width:1100px; width:min(1100px, 96vw);">
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+      <div>
+        <h2 class="auth-title">Поддержка NeonChat</h2>
+        <div class="auth-subtitle">Публичная страница для связи с поддержкой, статусов и перехода в тикеты.</div>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <a class="nc-btn ghost" href="/chat">В чат</a>
+        <a class="nc-btn" href="/support">Открыть тикеты</a>
+      </div>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin-top:18px;">
+      <div class="glass-card" style="padding:16px; border-radius:18px;">
+        <div class="nc-device-title">Как написать нам</div>
+        <div class="nc-device-sub" style="margin-top:8px;">1. Открой тикет. 2. Опиши шаги проблемы. 3. Приложи скрин или видео. 4. Укажи сервер/канал, если это важно.</div>
+      </div>
+      <div class="glass-card" style="padding:16px; border-radius:18px;">
+        <div class="nc-device-title">Статусы</div>
+        <div class="nc-device-sub" style="margin-top:8px;">ждём саппорт · ждём пользователя · closed</div>
+        <div class="nc-device-sub" style="margin-top:8px;">Открытых: {{ support_stats.open or 0 }} · В работе: {{ support_stats.pending or 0 }}</div>
+      </div>
+      <div class="glass-card" style="padding:16px; border-radius:18px;">
+        <div class="nc-device-title">Оценка качества</div>
+        <div class="nc-device-sub" style="margin-top:8px;">{% if avg_rating %}{{ avg_rating.value }} / 5 по {{ avg_rating.count }} отзывам{% else %}Пока отзывов мало{% endif %}</div>
+      </div>
+    </div>
+    <div class="glass-card" style="padding:16px; border-radius:18px; margin-top:18px;">
+      <div class="nc-device-title">Когда писать в поддержку</div>
+      <div class="nc-device-sub" style="margin-top:8px;">Баги, проблемы с входом, безопасность, оплата, жалобы, вопросы по серверу и восстановлению доступа.</div>
+      <div class="nc-device-sub" style="margin-top:8px;">Для ускорения ответа прикладывай точный текст ошибки, время, устройство и шаги воспроизведения.</div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,193 @@
+/* Final mobile pass for chat / friends / profile drawers */
+:root{
+  --nc-mobile-chat-radius: 18px;
+}
+
+@media (max-width: 900px){
+  html, body{ overscroll-behavior-y:none; }
+
+  body.nc-mobile-chat .layout.dc-layout{
+    grid-template-columns: minmax(0,1fr) !important;
+    gap: 0 !important;
+    padding: 0 !important;
+    min-height: calc(var(--nc-vh, 1vh) * 100);
+  }
+
+  body.nc-mobile-chat .chat-main{
+    min-width: 0;
+    width: 100%;
+    border-radius: 0;
+    margin: 0;
+    border-left: 0;
+    border-right: 0;
+  }
+
+  body.nc-mobile-chat .chat-header{
+    padding: 12px 14px;
+    min-height: 58px;
+  }
+
+  body.nc-mobile-chat .channel-title{
+    font-size: 18px;
+    line-height: 1.2;
+  }
+
+  body.nc-mobile-chat .chat-header-actions{
+    gap: 8px;
+  }
+
+  body.nc-mobile-chat .chat-header-actions .icon-btn{
+    width: 42px;
+    height: 42px;
+  }
+
+  body.nc-mobile-chat .friends-topbar{
+    gap: 10px;
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  body.nc-mobile-chat .friends-tabs{
+    overflow-x: auto;
+    gap: 8px;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+  body.nc-mobile-chat .friends-tabs::-webkit-scrollbar{ display:none; }
+
+  body.nc-mobile-chat .friends-search,
+  body.nc-mobile-chat .friends-list-wrap{
+    min-width: 0;
+  }
+
+  body.nc-mobile-chat .friend-item,
+  body.nc-mobile-chat .friends-page-item,
+  body.nc-mobile-chat .pending-item{
+    min-height: 68px;
+    padding: 12px 14px;
+    border-radius: 16px;
+  }
+
+  body.nc-mobile-chat .friend-meta,
+  body.nc-mobile-chat .pending-meta{
+    min-width: 0;
+  }
+
+  body.nc-mobile-chat .friend-name,
+  body.nc-mobile-chat .pending-name,
+  body.nc-mobile-chat .friend-sub,
+  body.nc-mobile-chat .pending-sub{
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  body.nc-mobile-chat .chat-messages{
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  body.nc-mobile-chat .msg-row,
+  body.nc-mobile-chat .message,
+  body.nc-mobile-chat .msg{
+    max-width: 100%;
+  }
+
+  body.nc-mobile-chat footer.chat-input{
+    padding: 0 10px 12px;
+  }
+
+  body.nc-mobile-chat #message-form.composer,
+  body.nc-mobile-chat .composer.nc-composer-v2{
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: 18px;
+    grid-template-columns: auto minmax(0,1fr) auto;
+  }
+
+  body.nc-mobile-chat .nc-composer-input{ min-width: 0; }
+
+  body.nc-mobile-chat #message-input{
+    min-height: 24px;
+    max-height: 128px;
+    font-size: 16px; /* prevent iOS zoom */
+  }
+
+  body.nc-mobile-chat .nc-composer-actions{
+    gap: 6px;
+    flex-wrap: nowrap;
+  }
+
+  body.nc-mobile-chat .nc-composer-actions .icon-btn,
+  body.nc-mobile-chat .composer-attach{
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+  }
+
+  body.nc-mobile-chat .rightbar,
+  body.nc-mobile-chat .sidebar{
+    width: min(88vw, 360px) !important;
+  }
+
+  body.nc-mobile-chat .user-mini-card{
+    border-radius: 22px;
+  }
+
+  body.nc-mobile-chat .emoji-pop,
+  body.nc-mobile-chat #emoji-pop,
+  body.nc-mobile-chat .nc-emoji-pop{
+    width: min(92vw, 380px) !important;
+    max-width: min(92vw, 380px) !important;
+    max-height: min(58vh, 420px) !important;
+  }
+}
+
+@media (max-width: 640px){
+  body.nc-mobile-chat .friends-title{ font-size: 15px; }
+
+  body.nc-mobile-chat .friends-add-btn{
+    width: 100%;
+    justify-content: center;
+  }
+
+  body.nc-mobile-chat .friends-tab{
+    flex: 0 0 auto;
+    min-height: 38px;
+    padding: 0 14px;
+  }
+
+  body.nc-mobile-chat .chat-header{
+    padding: 10px 12px;
+  }
+
+  body.nc-mobile-chat .chat-header-actions .icon-btn{
+    width: 38px;
+    height: 38px;
+  }
+
+  body.nc-mobile-chat .chat-messages{
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  body.nc-mobile-chat footer.chat-input{
+    padding: 0 8px 10px;
+  }
+
+  body.nc-mobile-chat #message-form.composer,
+  body.nc-mobile-chat .composer.nc-composer-v2{
+    padding: 9px 10px;
+    gap: 6px;
+  }
+
+  body.nc-mobile-chat .nc-composer-actions #btn-gift,
+  body.nc-mobile-chat .nc-composer-actions #btn-gif{
+    display: none;
+  }
+
+  body.nc-mobile-chat .current-user{
+    padding: 10px 12px;
+  }
+}

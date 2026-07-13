@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="auth-wrapper" style="align-items:flex-start; padding-top:32px; padding-bottom:32px;">
+  <div class="auth-card glass-card" style="max-width:1260px; width:min(1260px, 97vw);">
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+      <div>
+        <h2 class="auth-title">Админка · Пользователи</h2>
+        <div class="auth-subtitle">Живой список аккаунтов с быстрыми действиями: отключить аккаунт или выбить все активные сессии.</div>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <a class="nc-btn ghost" href="/admin">Назад в админку</a>
+        <a class="nc-btn ghost" href="/admin/security">Безопасность</a>
+      </div>
+    </div>
+
+    <div class="nc-vv-section nc-vv-section-first nc-security-dashboard" style="display:block; margin-top:18px;">
+      <div class="nc-vv-h2">Сводка по аккаунтам</div>
+      <div class="nc-security-stats">
+        <div class="nc-security-stat"><div class="nc-security-stat-label">Всего</div><div class="nc-security-stat-value">{{ stats.total }}</div></div>
+        <div class="nc-security-stat"><div class="nc-security-stat-label">Онлайн</div><div class="nc-security-stat-value">{{ stats.online }}</div></div>
+        <div class="nc-security-stat"><div class="nc-security-stat-label">Отключены</div><div class="nc-security-stat-value">{{ stats.disabled }}</div></div>
+        <div class="nc-security-stat"><div class="nc-security-stat-label">Новых за 24ч</div><div class="nc-security-stat-value">{{ stats.new_24h }}</div></div>
+      </div>
+    </div>
+
+    <div class="nc-vv-section">
+      <div class="nc-vv-h2">Фильтры</div>
+      <form method="get" action="/admin/users" style="display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:10px; margin-top:12px;">
+        <input class="auth-input" type="text" name="q" value="{{ current_q }}" placeholder="username / display / email" style="grid-column: span 2;">
+        <select class="auth-input" name="status">
+          <option value="" {% if not current_status %}selected{% endif %}>Все статусы</option>
+          <option value="active" {% if current_status == 'active' %}selected{% endif %}>Активные</option>
+          <option value="online" {% if current_status == 'online' %}selected{% endif %}>Онлайн</option>
+          <option value="disabled" {% if current_status == 'disabled' %}selected{% endif %}>Отключены</option>
+          <option value="deleted" {% if current_status == 'deleted' %}selected{% endif %}>Удалённые</option>
+        </select>
+        <select class="auth-input" name="sort">
+          <option value="recent" {% if current_sort == 'recent' %}selected{% endif %}>Недавняя активность</option>
+          <option value="new" {% if current_sort == 'new' %}selected{% endif %}>Новые сверху</option>
+          <option value="name" {% if current_sort == 'name' %}selected{% endif %}>По имени</option>
+        </select>
+        <input class="auth-input" type="number" name="limit" min="20" max="300" value="{{ current_limit }}">
+        <div style="grid-column:1/-1; display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="nc-btn" type="submit">Применить</button>
+          <a class="nc-btn ghost" href="/admin/users">Сбросить</a>
+        </div>
+      </form>
+    </div>
+
+    <div class="nc-vv-section">
+      <div class="nc-vv-h2">Аккаунты</div>
+      <div style="overflow:auto; margin-top:12px;">
+        <table style="width:100%; border-collapse:collapse; font-size:14px; min-width:1040px;">
+          <thead>
+            <tr>
+              <th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Пользователь</th>
+              <th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Статус</th>
+              <th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Создан</th>
+              <th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Последняя активность</th>
+              <th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Сообщения</th>
+              <th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Серверы</th>
+              <th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Сессии</th>
+              <th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Действия</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for u in users %}
+            {% set st = 'deleted' if u.is_deleted else ('disabled' if u.is_disabled else ('online' if u.is_online else 'active')) %}
+            <tr>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);">
+                <div class="nc-device-title"><a href="/admin/users/{{ u.id }}" style="color:inherit; text-decoration:none;">{{ u.username }}</a> {% if u.display_name %}<span style="opacity:.75; font-weight:500;">· {{ u.display_name }}</span>{% endif %}</div>
+                <div class="nc-device-sub">id: {{ u.id }}{% if u.email %} · {{ u.email }}{% endif %}</div>
+              </td>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);">
+                <span class="nc-audit-badge {% if st == 'online' %}is-ok{% elif st in ['disabled','deleted'] %}is-bad{% endif %}">{{ st }}</span>
+              </td>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);">{{ u.created_at or '—' }}</td>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);">{{ u.last_seen or '—' }}</td>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);">{{ msg_counts.get(u.id, 0) }}</td>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);">{{ server_counts.get(u.id, 0) }}</td>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);">{{ session_counts.get(u.id, 0) }}</td>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05); white-space:nowrap;">
+                <button class="nc-btn ghost nc-admin-user-logout" type="button" data-user-id="{{ u.id }}">Выйти везде</button>
+                {% if current_user.id != u.id %}
+                <button class="nc-btn danger ghost nc-admin-user-toggle" type="button" data-user-id="{{ u.id }}">{{ 'Включить' if u.is_disabled else 'Отключить' }}</button>
+                {% else %}
+                <span style="opacity:.65; margin-left:6px;">это ты</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="8" style="padding:12px; opacity:.8;">Ничего не найдено.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  async function post(url, body){
+    const r = await fetch(url, {method:'POST', credentials:'include', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body||{})});
+    const j = await r.json().catch(()=>({}));
+    if (!r.ok || !j || j.ok !== true) throw new Error((j && j.error) || 'Ошибка');
+    return j;
+  }
+  document.addEventListener('click', async function(e){
+    const toggleBtn = e.target && e.target.closest ? e.target.closest('.nc-admin-user-toggle') : null;
+    if (toggleBtn){
+      const userId = parseInt(toggleBtn.getAttribute('data-user-id') || '0', 10);
+      if (!userId) return;
+      if (!confirm('Переключить состояние аккаунта?')) return;
+      toggleBtn.disabled = true;
+      try{ await post('/api/admin/users/toggle-disable', {user_id:userId}); location.reload(); }
+      catch(err){ alert(err.message || 'Ошибка'); toggleBtn.disabled = false; }
+      return;
+    }
+    const logoutBtn = e.target && e.target.closest ? e.target.closest('.nc-admin-user-logout') : null;
+    if (logoutBtn){
+      const userId = parseInt(logoutBtn.getAttribute('data-user-id') || '0', 10);
+      if (!userId) return;
+      if (!confirm('Завершить все сессии этого пользователя?')) return;
+      logoutBtn.disabled = true;
+      try{
+        const j = await post('/api/admin/users/logout-all', {user_id:userId});
+        alert('Готово. Завершено сессий: ' + (j.deleted_sessions || 0));
+        location.reload();
+      }catch(err){ alert(err.message || 'Ошибка'); logoutBtn.disabled = false; }
+    }
+  }, true);
+})();
+</script>
+{% endblock %}

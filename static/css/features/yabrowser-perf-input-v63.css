@@ -1,0 +1,139 @@
+/* v63 — fix uneven composer shell and make YaBrowser ultra-lite/stable */
+
+.layout.dc-layout .chat-input{
+  padding: 12px 14px 14px !important;
+}
+
+.layout.dc-layout #message-form.composer.nc-composer-v2,
+.layout.dc-layout .chat-input .composer.nc-composer-v2{
+  width: 100% !important;
+  min-height: 76px !important;
+  padding: 10px 14px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  border-radius: 24px !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+.layout.dc-layout #message-form.composer.nc-composer-v2::before,
+.layout.dc-layout #message-form.composer.nc-composer-v2::after,
+.layout.dc-layout .chat-input .nc-composer-input::before,
+.layout.dc-layout .chat-input .nc-composer-input::after{
+  display: none !important;
+  content: none !important;
+}
+
+.layout.dc-layout .chat-input .nc-composer-input,
+.layout.dc-layout #message-form .nc-composer-input{
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  min-height: 56px !important;
+  height: 56px !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 0 18px !important;
+  margin: 0 !important;
+  border-radius: 999px !important;
+  box-sizing: border-box !important;
+}
+
+.layout.dc-layout .chat-input #message-input,
+.layout.dc-layout #message-form #message-input{
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 24px !important;
+  height: 24px !important;
+  max-height: 120px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 24px !important;
+  display: block !important;
+  align-self: center !important;
+  resize: none !important;
+  overflow: auto !important;
+  box-sizing: border-box !important;
+  background: transparent !important;
+}
+
+.layout.dc-layout .chat-input #message-input::placeholder,
+.layout.dc-layout #message-form #message-input::placeholder{
+  line-height: 24px !important;
+}
+
+.layout.dc-layout .chat-input .composer-attach,
+.layout.dc-layout .chat-input .nc-composer-actions,
+.layout.dc-layout .chat-input .nc-composer-actions .nc-ico-btn,
+.layout.dc-layout .chat-input .nc-composer-actions .icon-btn,
+.layout.dc-layout .chat-input .nc-gif-btn{
+  align-self: center !important;
+}
+
+.layout.dc-layout .chat-input .nc-composer-actions{
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex: 0 0 auto !important;
+}
+
+/* YaBrowser: kill expensive effects aggressively to stop whole-browser freezes */
+html.is-yabrowser body,
+html.is-yabrowser .app-root,
+html.is-yabrowser .layout.dc-layout,
+html.is-yabrowser .layout.dc-layout *{
+  scroll-behavior: auto !important;
+  will-change: auto !important;
+}
+
+html.is-yabrowser .layout.dc-layout *,
+html.is-yabrowser .layout.dc-layout *::before,
+html.is-yabrowser .layout.dc-layout *::after,
+html.is-yabrowser .ss-overlay *,
+html.is-yabrowser .call-stage *{
+  animation: none !important;
+  transition-property: none !important;
+  transition-duration: 0s !important;
+  transition-delay: 0s !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  filter: none !important;
+  text-shadow: none !important;
+}
+
+html.is-yabrowser .space-bg::before,
+html.is-yabrowser .space-bg::after,
+html.is-yabrowser .glass-card::before,
+html.is-yabrowser .glass-card::after,
+html.is-yabrowser .panel::before,
+html.is-yabrowser .panel::after,
+html.is-yabrowser .orb,
+html.is-yabrowser .ambient-orb,
+html.is-yabrowser .fx-orb,
+html.is-yabrowser .bg-orb,
+html.is-yabrowser .music2026-blob,
+html.is-yabrowser .music2026-rays,
+html.is-yabrowser .visualizer,
+html.is-yabrowser canvas{
+  display: none !important;
+}
+
+html.is-yabrowser .layout.dc-layout .glass-card,
+html.is-yabrowser .layout.dc-layout .chat-main,
+html.is-yabrowser .layout.dc-layout .sidebar,
+html.is-yabrowser .layout.dc-layout .rightbar,
+html.is-yabrowser .layout.dc-layout .chat-input,
+html.is-yabrowser .layout.dc-layout .nc-composer-v2,
+html.is-yabrowser .layout.dc-layout .panel,
+html.is-yabrowser .layout.dc-layout .modal,
+html.is-yabrowser .layout.dc-layout .call-bar,
+html.is-yabrowser .layout.dc-layout .dm-call-stage,
+html.is-yabrowser .layout.dc-layout .call-stage,
+html.is-yabrowser .layout.dc-layout .tile{
+  box-shadow: none !important;
+}
+
+html.is-yabrowser .layout.dc-layout #message-form.composer.nc-composer-v2,
+html.is-yabrowser .layout.dc-layout .chat-input .nc-composer-input{
+  box-shadow: inset 0 0 0 1px rgba(108, 180, 255, 0.18) !important;
+}

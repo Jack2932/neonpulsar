@@ -1,0 +1,179 @@
+/* v53: preview fully fills the inner screen and stays readable */
+#ss-preview-shell.ss-preview{
+  min-height: 308px !important;
+  height: 100% !important;
+}
+
+#ss-preview-shell .ss-preview-placeholder{
+  position: absolute !important;
+  inset: 12px !important;
+  padding: 0 !important;
+  display: block !important;
+  overflow: hidden !important;
+}
+
+#ss-preview-shell .ss-preview-scene{
+  position: relative !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: none !important;
+  height: 100% !important;
+  min-height: 100% !important;
+  margin: 0 !important;
+  place-self: stretch !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-rows: auto auto auto 1fr auto !important;
+  align-content: start !important;
+  justify-items: start !important;
+  gap: 10px !important;
+  padding: 18px 18px 16px !important;
+  border-radius: 22px !important;
+  overflow: hidden !important;
+  background:
+    radial-gradient(58% 72% at 80% 22%, rgba(96, 118, 255, 0.20), transparent 72%),
+    radial-gradient(54% 68% at 18% 78%, rgba(45, 201, 255, 0.14), transparent 74%),
+    radial-gradient(46% 60% at 100% 100%, rgba(216, 81, 255, 0.16), transparent 72%),
+    linear-gradient(135deg, rgba(6, 10, 28, 0.98) 0%, rgba(7, 12, 33, 0.985) 56%, rgba(6, 9, 24, 0.99) 100%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.05),
+    inset 0 0 0 1px rgba(118, 195, 255, 0.08),
+    0 16px 34px rgba(0,0,0,0.22) !important;
+}
+
+#ss-preview-shell .ss-preview-scene::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0)),
+    radial-gradient(42% 54% at 28% 40%, rgba(62, 165, 255, 0.09), transparent 72%),
+    radial-gradient(38% 50% at 82% 70%, rgba(222, 90, 255, 0.10), transparent 76%);
+}
+
+#ss-preview-shell .ss-preview-kicker,
+#ss-preview-shell .ss-preview-title,
+#ss-preview-shell .ss-preview-copy,
+#ss-preview-shell .ss-preview-sources,
+#ss-preview-shell .ss-preview-hints{
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+#ss-preview-shell .ss-preview-kicker{
+  margin: 0 !important;
+  padding: 8px 14px !important;
+  border-radius: 999px !important;
+  font-size: 10px !important;
+  letter-spacing: .19em !important;
+}
+
+#ss-preview-shell .ss-preview-title{
+  margin: 0 !important;
+  max-width: 10.5ch !important;
+  font-size: clamp(28px, 1.15vw + 20px, 40px) !important;
+  line-height: .92 !important;
+  letter-spacing: -.055em !important;
+  font-weight: 900 !important;
+  text-wrap: balance !important;
+}
+
+#ss-preview-shell .ss-preview-copy{
+  margin: 0 !important;
+  max-width: 34ch !important;
+  font-size: 13px !important;
+  line-height: 1.34 !important;
+  color: rgba(226, 236, 249, 0.86) !important;
+}
+
+#ss-preview-shell .ss-preview-sources{
+  width: 100% !important;
+  margin-top: auto !important;
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+  align-self: end !important;
+}
+
+#ss-preview-shell .ss-source-card{
+  min-width: 0 !important;
+  min-height: 66px !important;
+  padding: 10px 12px !important;
+  gap: 10px !important;
+  border-radius: 16px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+#ss-preview-shell .ss-source-card-icon{
+  flex: 0 0 30px !important;
+  width: 30px !important;
+  height: 30px !important;
+  border-radius: 10px !important;
+  font-size: 12px !important;
+}
+
+#ss-preview-shell .ss-source-card-copy{
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+#ss-preview-shell .ss-source-card-title,
+#ss-preview-shell .ss-source-card-sub{
+  display: block !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+#ss-preview-shell .ss-source-card-title{
+  margin: 0 !important;
+  font-size: 13px !important;
+  line-height: 1.08 !important;
+  font-weight: 800 !important;
+}
+
+#ss-preview-shell .ss-source-card-sub{
+  margin-top: 2px !important;
+  font-size: 10px !important;
+  line-height: 1.18 !important;
+  color: rgba(214, 227, 245, 0.76) !important;
+}
+
+#ss-preview-shell .ss-preview-hints{
+  display: none !important;
+}
+
+@media (max-height: 920px){
+  #ss-preview-shell.ss-preview{
+    min-height: 292px !important;
+  }
+  #ss-preview-shell .ss-preview-placeholder{
+    inset: 10px !important;
+  }
+  #ss-preview-shell .ss-preview-scene{
+    padding: 16px 16px 14px !important;
+    gap: 8px !important;
+  }
+  #ss-preview-shell .ss-preview-title{
+    max-width: 11ch !important;
+    font-size: clamp(24px, .95vw + 18px, 34px) !important;
+  }
+  #ss-preview-shell .ss-preview-copy{
+    max-width: 31ch !important;
+    font-size: 12px !important;
+  }
+  #ss-preview-shell .ss-source-card{
+    min-height: 60px !important;
+    padding: 9px 10px !important;
+    gap: 8px !important;
+  }
+  #ss-preview-shell .ss-source-card-title{
+    font-size: 12px !important;
+  }
+  #ss-preview-shell .ss-source-card-sub{
+    font-size: 9px !important;
+  }
+}

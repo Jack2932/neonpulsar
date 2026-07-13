@@ -1,0 +1,39 @@
+/* =========================
+   v48 — DM call panel rounded frame hotfix
+   Goal:
+   - remove sharp/square outer corners on the floating DM call controls bar
+   - keep the whole shell as a clean pill with proper clipping
+   ========================= */
+
+body .layout.dc-layout #call-bar.call-hud[data-layout="dm"] .call-bottom,
+#call-bar.call-hud[data-layout="dm"] .call-bottom{
+  border-radius: 999px !important;
+}
+
+body .layout.dc-layout #call-bar.call-hud[data-layout="dm"] .call-controls-main,
+#call-bar.call-hud[data-layout="dm"] .call-controls-main{
+  border-radius: 999px !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+  background-clip: padding-box !important;
+  -webkit-mask-image: -webkit-radial-gradient(white, black) !important;
+  clip-path: inset(0 round 999px) !important;
+}
+
+body .layout.dc-layout #call-bar.call-hud[data-layout="dm"] .call-controls-main::before,
+#call-bar.call-hud[data-layout="dm"] .call-controls-main::before{
+  border-radius: inherit !important;
+}
+
+/* Slightly round the first and last visible control edges so the shell reads softer */
+body .layout.dc-layout #call-bar.call-hud[data-layout="dm"] .call-control:first-child,
+#call-bar.call-hud[data-layout="dm"] .call-control:first-child{
+  border-top-left-radius: 14px !important;
+  border-bottom-left-radius: 14px !important;
+}
+
+body .layout.dc-layout #call-bar.call-hud[data-layout="dm"] .call-control:last-child,
+#call-bar.call-hud[data-layout="dm"] .call-control:last-child{
+  border-top-right-radius: 14px !important;
+  border-bottom-right-radius: 14px !important;
+}

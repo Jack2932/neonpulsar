@@ -1,0 +1,1440 @@
+/* Semantic stylesheet */
+
+/*
+  v16: Discord-inspired channels list (interaction model + density), with Neon Pulsar emerald palette.
+  This is intentionally not a pixel-perfect copy.
+*/
+
+/* Container spacing */
+.guild-cats{ padding: 6px 8px 10px; }
+
+/* ===== Category header ===== */
+.guild-cat{ margin-top: 8px; }
+
+.guild-cat-head{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.guild-cat-toggle{
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  border: 0;
+  background: transparent;
+  color: rgba(255,255,255,.72);
+  font-size: 12px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.guild-cat-toggle:hover{ color: rgba(255,255,255,.92); }
+
+.guild-cat-caret{
+  width: 14px;
+  display: inline-block;
+  opacity: .9;
+  transform: rotate(0deg);
+  transition: transform .12s ease;
+}
+.guild-cat.is-collapsed .guild-cat-caret{ transform: rotate(-90deg); }
+
+.guild-cat-actions{
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .12s ease;
+}
+.guild-cat:hover .guild-cat-actions,
+.guild-cat:focus-within .guild-cat-actions{
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.guild-cat-add,
+.guild-cat-gear{
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.04);
+  color: rgba(255,255,255,.85);
+}
+.guild-cat-add:hover,
+.guild-cat-gear:hover{ background: rgba(255,255,255,.08); }
+
+/* Collapse */
+.guild-cat.is-collapsed > .guild-channel-list{ display: none; }
+
+/* ===== Channel item ===== */
+.guild-channel-list{ list-style: none; margin: 4px 0 0; padding: 0; }
+
+/* Allow dropping into empty category */
+.guild-channel-list:empty{
+  min-height: 22px;
+  padding: 0 8px;
+}
+.guild-channel-list:empty::after{
+  content: '';
+  display: block;
+  height: 22px;
+}
+.guild-channel-list.is-drop-target{
+  padding: 6px 8px;
+  margin: 6px 0 0;
+  border-radius: 10px;
+  outline: 1px dashed rgba(255,255,255,.18);
+  background: rgba(255,255,255,.03);
+}
+
+.guild-channel-item{
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  margin: 2px 0;
+  border-radius: 8px;
+  cursor: pointer;
+  user-select: none;
+  color: rgba(255,255,255,.70);
+}
+.guild-channel-item:hover{
+  background: rgba(255,255,255,.06);
+  color: rgba(255,255,255,.92);
+}
+.guild-channel-item.is-active{
+  background: rgba(0,0,0,.24);
+  box-shadow: 0 0 0 1px rgba(255,255,255,.08) inset;
+  color: rgba(255,255,255,.96);
+}
+
+/* left indicator (unread/active) */
+.guild-channel-item::before{
+  content: '';
+  position: absolute;
+  left: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 0;
+  border-radius: 999px;
+  background: rgba(255,255,255,.90);
+  opacity: 0;
+  transition: height .12s ease, opacity .12s ease;
+}
+.guild-channel-item.is-unread::before{ opacity: 1; height: 10px; }
+.guild-channel-item.is-active::before{ opacity: 1; height: 22px; }
+
+.guild-channel-icon{ width: 18px; height: 18px; opacity: .82; display: grid; place-items: center; }
+.guild-channel-name{
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+  letter-spacing: .1px;
+}
+
+.guild-channel-unread{
+  margin-left: auto;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 9px;
+  display: inline-grid;
+  place-items: center;
+  font-size: 11px;
+  background: rgba(0,0,0,.32);
+  border: 1px solid rgba(255,255,255,.14);
+  color: rgba(255,255,255,.92);
+}
+
+.guild-channel-actions{
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .12s ease;
+}
+.guild-channel-item:hover .guild-channel-actions,
+.guild-channel-item:focus-within .guild-channel-actions{
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.guild-channel-gear{
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.04);
+  color: rgba(255,255,255,.85);
+}
+.guild-channel-gear:hover{ background: rgba(255,255,255,.08); }
+
+/* Locked channel */
+.guild-channel-item.is-locked{
+  cursor: not-allowed;
+  color: rgba(255,255,255,.38);
+}
+.guild-channel-item.is-locked:hover{ background: transparent; }
+.guild-channel-item.is-locked .guild-channel-icon{ opacity: .38; }
+
+/* Keep your emerald accent for selected state */
+.guild-channel-item.is-active::after{
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  pointer-events: none;
+  box-shadow: 0 0 0 1px rgba(28,238,255,.10) inset;
+}
+
+
+/* ===== Voice roster under voice channels (Discord-like) ===== */
+.guild-voice-roster{
+  flex-basis: 100%;
+  width: 100%;
+  margin: 2px 0 6px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.voice-roster-user{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: rgba(255,255,255,.82);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.voice-roster-user:hover{
+  background: rgba(255,255,255,.06);
+}
+
+.voice-roster-avatar{
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex: 0 0 16px;
+}
+
+.voice-roster-avatar.ph{
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 10px;
+  background: rgba(255,255,255,.08);
+  color: rgba(255,255,255,.85);
+  flex: 0 0 16px;
+}
+
+.voice-roster-name{
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.voice-roster-icons{
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0.85;
+}
+
+.vr-icon{
+  width: 14px;
+  height: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255,255,255,.72);
+}
+
+.vr-icon svg{ width: 14px; height: 14px; display:block; }
+
+.voice-roster-user.is-speaking .voice-roster-avatar{
+  box-shadow: 0 0 0 2px rgba(28,238,255,.55);
+}
+
+.voice-roster-user.is-speaking .voice-roster-name{
+  color: rgba(255,255,255,.95);
+}
+
+/* Emerald accent for drag insert line (Discord-like) */
+.dnd-insert-line{
+  background: linear-gradient(90deg, rgba(28,238,255,.85), rgba(0,255,165,.85));
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.28), 0 0 10px rgba(0,255,165,0.20);
+}
+
+.guild-cat.is-drag-over > .guild-cat-head{
+  background: rgba(0,255,165,0.08);
+}
+
+
+/* =============================
+   Unified Panels (match chat)
+   ============================= */
+.dc-layout .dc-rail.glass-card,
+.dc-layout .sidebar.glass-card,
+.dc-layout #sidebar.glass-card,
+.dc-layout .rightbar.glass-card,
+.dc-layout .members-card.glass-card,
+.dc-layout #members-card.glass-card,
+.dc-layout .channel-panel-card.glass-card,
+.dc-layout #channel-panel-card.glass-card,
+.dc-layout .guild-menu.glass-card,
+.dc-layout .presence-menu.glass-card,
+.dc-layout .modal.glass-card,
+.dc-layout .user-popout-card.glass-card,
+.dc-layout .user-mini-popout.glass-card,
+.dc-layout .ss-card.glass-card,
+.dc-layout .drop-card.glass-card{
+  background: #313338 !important;
+  border: 1px solid rgba(255,255,255,0.06) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+/* Optional: separators like Discord */
+.dc-layout .dc-rail.glass-card,
+.dc-layout .sidebar.glass-card,
+.dc-layout #sidebar.glass-card,
+.dc-layout .rightbar.glass-card{
+  border-color: #1e1f22 !important;
+}
+
+
+
+/* Friends main page (Discord-like) */
+.dm-home-nav{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  padding: 8px 10px 6px;
+}
+.dm-home-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  width:100%;
+  padding:10px 12px;
+  border-radius:10px;
+  background: rgba(0,0,0,.25);
+  border: 1px solid rgba(255,255,255,.06);
+  color: #dbdee1;
+  cursor:pointer;
+}
+.dm-home-item:hover{ background: rgba(0,0,0,.35); }
+.dm-home-ico{ width:18px; opacity:.9; }
+.dm-home-label{ font-weight:600; }
+
+.chat-main.friends-mode #chat-messages,
+.chat-main.friends-mode #message-form{
+  display:none !important;
+}
+.friends-view{
+  display:block;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 10px 14px 14px;
+}
+.friends-view.is-hidden{
+  display:none !important;
+}
+.friends-topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding: 8px 8px 10px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  margin-bottom: 10px;
+}
+.friends-tabs{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.friends-title{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:#f2f3f5;
+  font-weight:700;
+  margin-right: 6px;
+}
+.friends-title-ico{ opacity:.9; }
+.friends-tab{
+  padding:6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(0,0,0,.20);
+  color:#dbdee1;
+  cursor:pointer;
+  font-weight:600;
+}
+.friends-tab:hover{ background: rgba(0,0,0,.30); }
+.friends-tab.is-active{
+  background: rgba(88,101,242,.25);
+  border-color: rgba(88,101,242,.45);
+  color:#ffffff;
+}
+.friends-add-btn{
+  padding:8px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.25);
+  color:#ffffff;
+  cursor:pointer;
+  font-weight:700;
+}
+.friends-add-btn:hover{ background: rgba(0,0,0,.35); }
+
+.friends-search{
+  padding: 8px;
+}
+.friends-search input{
+  width:100%;
+  border-radius: 10px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(0,0,0,.30);
+  color:#dbdee1;
+  outline:none;
+}
+.friends-list-wrap{
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  padding: 4px 8px 8px;
+}
+.friends-count{
+  color: rgba(219,222,225,.8);
+  font-weight:700;
+  margin: 6px 0 8px;
+}
+.friends-page-list{
+  list-style:none;
+  margin:0;
+  padding:0;
+}
+#friends-view .friends-page-item{
+  display:flex;
+  align-items:center;
+  gap: 12px;
+  padding: 10px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.06);
+  background: rgba(0,0,0,.18);
+  margin-bottom: 8px;
+}
+#friends-view .friends-page-item:hover{
+  background: rgba(0,0,0,.28);
+}
+#friends-view .friends-row-actions{
+  margin-left:auto;
+  opacity: .65;
+  padding-right: 6px;
+}
+#friends-view .friends-action-dot{
+  display:inline-block;
+  width:10px;
+  height:10px;
+  border-radius:999px;
+  background: rgba(255,255,255,.22);
+}
+
+
+/* ================================
+   Friends -> Pending (Ожидание)
+   ================================ */
+.friends-pending-pane{
+  display:block;
+  padding-top: 4px;
+}
+.friends-pending-pane.is-hidden{ display:none !important; }
+
+.pending-section{
+  margin: 6px 0 14px;
+}
+.pending-section-title{
+  color: rgba(219,222,225,.85);
+  font-weight: 800;
+  letter-spacing: .2px;
+  margin: 8px 2px 10px;
+}
+.pending-list{
+  list-style:none;
+  margin:0;
+  padding:0;
+}
+.pending-item{
+  display:flex;
+  align-items:center;
+  gap: 12px;
+  padding: 10px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.06);
+  background: rgba(0,0,0,.18);
+  margin-bottom: 8px;
+}
+.pending-item:hover{
+  background: rgba(0,0,0,.28);
+}
+.pending-meta{
+  display:flex;
+  flex-direction:column;
+  gap: 2px;
+  min-width: 0;
+}
+.pending-row{
+  display:flex;
+  align-items:center;
+  gap: 8px;
+  min-width: 0;
+}
+.pending-name{
+  color:#f2f3f5;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 46ch;
+}
+.pending-row.sub .pending-sub{
+  color: rgba(219,222,225,.75);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 60ch;
+}
+.pending-actions{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  gap: 8px;
+}
+.pending-btn{
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.22);
+  color:#fff;
+  cursor:pointer;
+  font-weight: 800;
+}
+.pending-btn:hover{ background: rgba(0,0,0,.32); }
+.pending-btn.accept{
+  border-color: rgba(79, 212, 142, .35);
+  background: rgba(79, 212, 142, .18);
+}
+.pending-btn.accept:hover{ background: rgba(79, 212, 142, .26); }
+.pending-btn.reject{
+  border-color: rgba(255, 90, 90, .35);
+  background: rgba(255, 90, 90, .16);
+}
+.pending-btn.reject:hover{ background: rgba(255, 90, 90, .24); }
+.pending-btn.cancel{
+  border-color: rgba(255,255,255,.14);
+  background: rgba(0,0,0,.22);
+}
+.pending-empty{
+  margin: 10px 0 4px;
+  padding: 14px 10px;
+  border-radius: 12px;
+  border: 1px dashed rgba(255,255,255,.10);
+  background: rgba(0,0,0,.14);
+}
+
+/* ================================
+   DM list skeleton (Discord-like)
+   ================================ */
+.dm-skeleton{
+  list-style:none;
+  margin: 10px 0 0;
+  padding: 0;
+}
+.dm-skel-item{
+  display:flex;
+  align-items:center;
+  gap: 12px;
+  padding: 10px 8px;
+  border-radius: 12px;
+  opacity: .9;
+}
+.dm-skel-avatar{
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  flex: 0 0 auto;
+  background:
+    linear-gradient(90deg,
+      rgba(255,255,255,.06) 0%,
+      rgba(112,231,255,.10) 35%,
+      rgba(255,88,208,.10) 65%,
+      rgba(255,255,255,.06) 100%);
+  background-size: 200% 100%;
+  animation: dmSkelShimmer 1.7s ease-in-out infinite;
+}
+.dm-skel-lines{
+  display:flex;
+  flex-direction:column;
+  gap: 8px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.dm-skel-line{
+  height: 12px;
+  width: 70%;
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg,
+      rgba(255,255,255,.05) 0%,
+      rgba(255,255,255,.09) 45%,
+      rgba(255,255,255,.05) 100%);
+  background-size: 200% 100%;
+  animation: dmSkelShimmer 1.7s ease-in-out infinite;
+}
+.dm-skel-line.sm{
+  height: 10px;
+  width: 46%;
+  opacity: .85;
+}
+
+@keyframes dmSkelShimmer{
+  0%{ background-position: 0% 50%; }
+  100%{ background-position: 200% 50%; }
+}
+
+/* ---- Presence dot hard-fix (prevent stray/offline dots) ---- */
+.presence-dot{ display:none !important; }
+.avatar-circle{ position:relative; }
+.avatar-circle .presence-dot{ display:block !important; }
+.avatar-circle .presence-dot.is-offline,
+.avatar-circle .presence-dot.is-invisible{ display:none !important; }
+/* ----------------------------------------------------------- */
+
+
+
+/*
+  FIX125: WOW Channels
+  - Animated pill hover/active
+  - Voice LIVE badge + count
+  - Smooth category collapse
+  - Neon roster accents
+
+  Designed to override skin_discord_channels_emerald.css.
+*/
+
+:root{
+  --nc-acc1: rgba(28,238,255,1);
+  --nc-acc2: rgba(0,255,165,1);
+  --nc-acc3: rgba(186,85,255,1);
+  --nc-ch-radius: 12px;
+}
+
+/* Slightly tighter + cleaner padding */
+.guild-cats{ padding: 8px 10px 12px; }
+
+/* Scrollbar polish */
+.guild-cats{ scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.22) transparent; }
+.guild-cats::-webkit-scrollbar{ width: 10px; }
+.guild-cats::-webkit-scrollbar-thumb{ background: rgba(255,255,255,.14); border-radius: 999px; border: 3px solid transparent; background-clip: padding-box; }
+.guild-cats::-webkit-scrollbar-thumb:hover{ background: rgba(255,255,255,.20); border: 3px solid transparent; background-clip: padding-box; }
+
+/* ===== Category header (WOW) ===== */
+.guild-cat{ margin-top: 10px; }
+
+.guild-cat-head{
+  padding: 2px 2px;
+  border-radius: 10px;
+}
+
+.guild-cat-toggle{
+  padding: 6px 8px;
+  border-radius: 10px;
+  position: relative;
+}
+
+.guild-cat-toggle::before{
+  content:'';
+  position:absolute;
+  left: 2px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 14px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--nc-acc1), var(--nc-acc2));
+  opacity: .22;
+  filter: blur(.0px);
+  transition: opacity .18s ease, height .18s ease;
+}
+
+.guild-cat:hover .guild-cat-toggle::before,
+.guild-cat:focus-within .guild-cat-toggle::before{
+  opacity: .55;
+  height: 18px;
+}
+
+.guild-cat-toggle:hover{
+  background: rgba(255,255,255,.04);
+}
+
+.guild-cat-count{
+  margin-left: auto;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 999px;
+  display: inline-grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 800;
+  color: rgba(255,255,255,.85);
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.22);
+  opacity: .85;
+}
+
+.guild-cat.is-collapsed .guild-cat-count{ opacity: .65; }
+
+/* Smooth collapse: override the old display:none rule */
+.guild-cat.is-collapsed > .guild-channel-list{ display: block !important; }
+
+.guild-channel-list{
+  overflow: hidden;
+  max-height: var(--nc-catMax, 1600px);
+  transition: max-height .26s ease;
+}
+
+.guild-cat.is-collapsed > .guild-channel-list{
+  max-height: 0px !important;
+}
+
+/* ===== Channel item (WOW pill) ===== */
+.guild-channel-item{
+  border-radius: var(--nc-ch-radius);
+  padding: 8px 10px;
+  margin: 3px 0;
+  isolation: isolate;
+  transform: translateX(0);
+  transition: transform .12s ease, color .14s ease, background .14s ease;
+}
+
+/* animated neon wash */
+.guild-channel-item::after{
+  content:'';
+  position:absolute;
+  inset: 0;
+  border-radius: var(--nc-ch-radius);
+  background: linear-gradient(90deg,
+    rgba(28,238,255,.00),
+    rgba(28,238,255,.12),
+    rgba(186,85,255,.10),
+    rgba(0,255,165,.12),
+    rgba(28,238,255,.00)
+  );
+  background-size: 220% 100%;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .16s ease;
+  z-index: -1;
+}
+
+.guild-channel-item:hover{
+  transform: translateX(2px);
+  background: rgba(255,255,255,.04);
+}
+
+.guild-channel-item:hover::after{
+  opacity: 1;
+  animation: ncChSweep 3.8s linear infinite;
+}
+
+.guild-channel-item.is-active{
+  background: rgba(0,0,0,.32);
+}
+
+.guild-channel-item.is-active::after{
+  opacity: 1;
+  animation: ncChSweep 3.2s linear infinite;
+}
+
+.guild-channel-item.is-joined{
+  box-shadow: 0 0 0 1px rgba(0,255,165,.14) inset;
+}
+
+@keyframes ncChSweep{
+  0%{ background-position: 0% 50%; }
+  100%{ background-position: 100% 50%; }
+}
+
+/* left indicator with glow */
+.guild-channel-item::before{
+  left: -7px;
+  width: 5px;
+  border-radius: 999px;
+  box-shadow: 0 0 14px rgba(255,255,255,.12);
+}
+.guild-channel-item.is-unread::before{
+  box-shadow: 0 0 18px rgba(255,255,255,.24);
+}
+.guild-channel-item.is-active::before{
+  box-shadow: 0 0 22px rgba(28,238,255,.22);
+}
+
+.guild-channel-icon{ opacity: .9; }
+.guild-channel-item:hover .guild-channel-icon{ opacity: 1; }
+.guild-channel-icon .i{ transition: transform .14s ease; }
+.guild-channel-item:hover .guild-channel-icon .i{ transform: scale(1.06); }
+
+.guild-channel-name{
+  font-weight: 750;
+}
+
+/* badges block */
+.guild-channel-badges{
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Voice LIVE pill */
+.guild-channel-live{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 18px;
+  padding: 0 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(0,255,165,.18);
+  background: rgba(0,255,165,.08);
+  color: rgba(255,255,255,.90);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .06em;
+}
+
+.guild-channel-live::before{ content: 'LIVE'; }
+
+.gcl-dot{
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(0,255,165,.95);
+  box-shadow: 0 0 14px rgba(0,255,165,.35);
+  animation: ncLivePulse 1.25s ease-in-out infinite;
+}
+
+@keyframes ncLivePulse{
+  0%,100%{ transform: scale(1); opacity: 1; }
+  50%{ transform: scale(1.22); opacity: .75; }
+}
+
+.gcl-bars{ display: inline-flex; align-items: flex-end; gap: 2px; height: 10px; }
+.gcl-bars i{
+  display:block;
+  width: 2px;
+  height: 6px;
+  border-radius: 2px;
+  background: rgba(255,255,255,.88);
+  opacity: .9;
+  animation: ncBars 0.9s ease-in-out infinite;
+}
+.gcl-bars i:nth-child(2){ animation-delay: .12s; height: 9px; }
+.gcl-bars i:nth-child(3){ animation-delay: .24s; height: 7px; }
+
+@keyframes ncBars{
+  0%,100%{ transform: scaleY(.65); opacity: .75; }
+  50%{ transform: scaleY(1.2); opacity: 1; }
+}
+
+/* Voice count chip */
+.guild-channel-voice-count{
+  min-width: 18px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 999px;
+  display: inline-grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 900;
+  color: rgba(255,255,255,.92);
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.28);
+}
+
+/* unread badge: a bit punchier */
+.guild-channel-unread{
+  background: rgba(0,0,0,.34);
+  border-color: rgba(255,255,255,.16);
+  box-shadow: 0 0 16px rgba(28,238,255,.08);
+}
+
+.guild-channel-item.is-unread .guild-channel-unread{
+  box-shadow: 0 0 20px rgba(255,255,255,.14);
+}
+
+/* gear button: slightly more Discord-like */
+.guild-channel-gear{
+  border-radius: 9px;
+  background: rgba(0,0,0,.20);
+}
+.guild-channel-gear:hover{
+  background: rgba(0,0,0,.30);
+}
+
+/* Locked: keep readable but subdued */
+.guild-channel-item.is-locked{ opacity: .62; }
+.guild-channel-item.is-locked:hover{ transform: none; }
+
+/* ===== Voice roster (WOW connectors + speaking aura) ===== */
+.guild-voice-roster{
+  position: relative;
+  margin: 4px 0 8px 26px;
+  padding-left: 10px;
+}
+
+.guild-voice-roster::before{
+  content:'';
+  position:absolute;
+  left: 2px;
+  top: 2px;
+  bottom: 2px;
+  width: 2px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.10);
+}
+
+.voice-roster-user{
+  position: relative;
+  padding: 4px 8px;
+  border-radius: 10px;
+}
+
+.voice-roster-user::before{
+  content:'';
+  position:absolute;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 2px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.10);
+}
+
+.voice-roster-user:hover{
+  background: rgba(255,255,255,.07);
+}
+
+.voice-roster-user.is-speaking{
+  background: rgba(28,238,255,.06);
+}
+
+.voice-roster-user.is-speaking::after{
+  content:'';
+  position:absolute;
+  inset: 0;
+  border-radius: 10px;
+  pointer-events:none;
+  box-shadow: 0 0 0 1px rgba(28,238,255,.18) inset, 0 0 18px rgba(28,238,255,.10);
+  opacity: .95;
+  animation: ncSpeakAura 1.15s ease-in-out infinite;
+}
+
+@keyframes ncSpeakAura{
+  0%,100%{ filter: brightness(1); }
+  50%{ filter: brightness(1.12); }
+}
+
+.voice-roster-user.is-speaking .voice-roster-avatar{
+  box-shadow: 0 0 0 2px rgba(28,238,255,.62), 0 0 18px rgba(28,238,255,.18);
+}
+
+/* make roster icons slightly calmer */
+.voice-roster-icons{ opacity: .78; }
+
+/* Skeleton state (optional) */
+.guild-cats.is-loading{
+  position: relative;
+}
+.guild-cats.is-loading::before{
+  content:'';
+  position:absolute;
+  inset: 0;
+  border-radius: 12px;
+  background: linear-gradient(90deg, rgba(255,255,255,.02), rgba(255,255,255,.06), rgba(255,255,255,.02));
+  background-size: 200% 100%;
+  animation: ncSkel 1.1s linear infinite;
+  pointer-events:none;
+}
+@keyframes ncSkel{ 0%{ background-position: 0% 50%; } 100%{ background-position: 100% 50%; } }
+
+
+
+/* =========================================================
+   FIX126: WOW x2 — activity overlay + extra channel spice
+   ========================================================= */
+
+/* Mini activity overlay (voice channels): avatar stack + stream + speaking count */
+.guild-channel-activity{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gca-stack{
+  display: inline-flex;
+  align-items: center;
+}
+
+.gca-av{
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  margin-left: -6px;
+  border: 2px solid rgba(0,0,0,.55);
+  background: rgba(255,255,255,.08);
+  object-fit: cover;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.06);
+}
+
+.gca-av:first-child{ margin-left: 0; }
+
+.gca-av.ph{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 900;
+  color: rgba(255,255,255,.88);
+}
+
+.gca-more{
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  margin-left: -6px;
+  border: 2px solid rgba(0,0,0,.55);
+  background: rgba(0,0,0,.28);
+  color: rgba(255,255,255,.92);
+  font-size: 10px;
+  font-weight: 900;
+  display: inline-grid;
+  place-items: center;
+}
+
+.gca-tags{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.gca-tag{
+  height: 18px;
+  border-radius: 999px;
+  padding: 0 7px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0,0,0,.26);
+  border: 1px solid rgba(255,255,255,.10);
+  color: rgba(255,255,255,.90);
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.gca-tag.stream{
+  border-color: rgba(186,85,255,.22);
+  background: rgba(186,85,255,.10);
+}
+
+.gca-tag.stream svg{ width: 14px; height: 14px; display:block; }
+
+.gca-tag.speak{
+  border-color: rgba(28,238,255,.20);
+  background: rgba(28,238,255,.08);
+}
+
+.gca-bars{ display:inline-flex; align-items:flex-end; gap: 2px; height: 10px; }
+.gca-bars i{
+  display:block;
+  width: 2px;
+  height: 6px;
+  border-radius: 2px;
+  background: rgba(255,255,255,.88);
+  opacity: .9;
+  animation: ncBars 0.9s ease-in-out infinite;
+}
+.gca-bars i:nth-child(2){ animation-delay: .12s; height: 9px; }
+.gca-bars i:nth-child(3){ animation-delay: .24s; height: 7px; }
+
+.gca-n{ min-width: 10px; text-align: center; }
+
+/* Extra "hot" glow on the voice channel pill when someone is speaking (your current channel) */
+.guild-channel-item.is-voice-hot{
+  box-shadow: 0 0 0 1px rgba(28,238,255,.10) inset, 0 0 18px rgba(28,238,255,.08);
+}
+.guild-channel-item.is-voice-hot::after{
+  opacity: 1;
+  animation: ncChSweep 2.2s linear infinite;
+}
+
+/* Juicier channel icons (text vs voice) */
+.guild-channel-item[data-type="voice"] .guild-channel-icon{
+  color: rgba(0,255,165,.95);
+  filter: drop-shadow(0 0 10px rgba(0,255,165,.15));
+}
+.guild-channel-item[data-type="text"] .guild-channel-icon{
+  color: rgba(28,238,255,.95);
+  filter: drop-shadow(0 0 10px rgba(28,238,255,.12));
+}
+.guild-channel-item.is-active .guild-channel-icon{
+  color: rgba(255,255,255,.95);
+  filter: drop-shadow(0 0 16px rgba(255,255,255,.10));
+}
+
+/* Category separators (soft neon line between blocks) */
+.guild-cat + .guild-cat{ position: relative; }
+.guild-cat + .guild-cat::before{
+  content:'';
+  display:block;
+  height: 1px;
+  margin: 12px 6px 2px;
+  background: linear-gradient(90deg, rgba(28,238,255,.0), rgba(255,255,255,.10), rgba(0,255,165,.0));
+}
+
+/* Streaming icon tint in roster */
+.vr-icon.is-stream{
+  color: rgba(186,85,255,.92);
+  filter: drop-shadow(0 0 10px rgba(186,85,255,.18));
+}
+
+
+/*
+  FIX219 — Discord 1:1 channel list (structure + spacing) without breaking Pulsar/Glass UI.
+  - Only in server mode (body.nc-server-mode)
+  - Sidebar stays стеклянным (glass-card), но внутри — Discord-like channel list.
+*/
+
+/* === Layout: keep Pulsar glass, but remove extra padding inside === */
+body.nc-server-mode #pane-channels{ padding: 0 !important; }
+/* IMPORTANT: keep .sidebar-block glass background/border from main.css */
+body.nc-server-mode #pane-channels .sidebar-block{
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Keep header readable on glass */
+body.nc-server-mode #pane-channels .guild-header{
+  height: 48px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(30,31,34,.38) !important;
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255,255,255,.06) !important;
+}
+body.nc-server-mode #pane-channels .guild-header-main{
+  height: 48px !important;
+  border-radius: 0 !important;
+  padding: 0 12px !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+}
+body.nc-server-mode #pane-channels .guild-header-main:hover{
+  background: rgba(255,255,255,.05) !important;
+}
+body.nc-server-mode #pane-channels .guild-header-name{
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: .2px;
+}
+body.nc-server-mode #pane-channels .guild-header-actions .icon-btn{
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: transparent;
+}
+body.nc-server-mode #pane-channels .guild-header-actions .icon-btn:hover{
+  background: rgba(255,255,255,.08);
+}
+
+/* === FIX219: Quick links under server header === */
+body.nc-server-mode #guild-quick{ padding: 8px 8px 6px !important; }
+/* Force-overwrite any global button styles (make them Discord-like rows, not big pills) */
+body.nc-server-mode #pane-channels .guild-quick-item{
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  height: 32px !important;
+  padding: 0 10px !important;
+  border-radius: 4px !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  color: rgba(255,255,255,.72) !important;
+  cursor: pointer !important;
+  text-align: left !important;
+}
+body.nc-server-mode #pane-channels .guild-quick-item:hover{
+  background: rgba(255,255,255,.06) !important;
+  color: rgba(255,255,255,.92) !important;
+}
+body.nc-server-mode .guild-quick-ico .i{
+  width: 18px;
+  height: 18px;
+  opacity: .9;
+}
+body.nc-server-mode .guild-quick-text{
+  font-size: 14px;
+  font-weight: 700;
+}
+body.nc-server-mode .guild-quick-sep{
+  margin: 8px 8px 0;
+  height: 1px;
+  background: rgba(255,255,255,.06);
+}
+
+/* === Channel list container === */
+body.nc-server-mode #guild-channel-block{
+  padding: 0;
+}
+body.nc-server-mode #guild-cats-list{
+  padding: 4px 8px 12px;
+}
+
+/* Kill WOW pill / neon effects only in server mode */
+body.nc-server-mode #pane-channels .guild-cat-toggle::before,
+body.nc-server-mode #pane-channels .guild-channel-item::after{
+  content: none !important;
+  display: none !important;
+}
+body.nc-server-mode #pane-channels .guild-cat-toggle,
+body.nc-server-mode #pane-channels .guild-channel-item{
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* === Category header (Discord-like) === */
+body.nc-server-mode #pane-channels .guild-cat-head{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0 4px;
+}
+body.nc-server-mode #pane-channels .guild-cat-toggle{
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px !important;
+  padding: 0 6px !important;
+  border-radius: 4px !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  cursor: pointer;
+  color: rgba(255,255,255,.62);
+}
+body.nc-server-mode #pane-channels .guild-cat-toggle:hover{
+  color: rgba(255,255,255,.85);
+}
+body.nc-server-mode #pane-channels .guild-cat-label{
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .06em;
+}
+body.nc-server-mode #pane-channels .guild-cat-count{ display: none !important; }
+body.nc-server-mode #pane-channels .guild-cat-caret{
+  width: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: .9;
+}
+body.nc-server-mode #pane-channels .guild-cat.is-collapsed .guild-cat-caret{
+  transform: rotate(-90deg);
+}
+
+/* Category action buttons (plus/gear) appear on hover */
+body.nc-server-mode #pane-channels .guild-cat-actions{
+  display: flex;
+  gap: 6px;
+  opacity: 0;
+  pointer-events: none;
+}
+body.nc-server-mode #pane-channels .guild-cat:hover .guild-cat-actions{
+  opacity: 1;
+  pointer-events: auto;
+}
+body.nc-server-mode #pane-channels .guild-cat-actions .icon-btn{
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  background: transparent;
+  border: 0;
+  color: rgba(255,255,255,.62);
+}
+body.nc-server-mode #pane-channels .guild-cat-actions .icon-btn:hover{
+  background: rgba(255,255,255,.08);
+  color: rgba(255,255,255,.92);
+}
+
+/* === Category collapse behavior (Discord-like) === */
+body.nc-server-mode #pane-channels .guild-channel-list{
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow: visible !important;
+  max-height: none !important;
+  transition: none !important;
+}
+body.nc-server-mode #pane-channels .guild-cat.is-collapsed > .guild-channel-list{
+  display: none !important;
+}
+
+/* === Channel item (Discord-like) === */
+body.nc-server-mode #pane-channels .guild-channel-item{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px !important;
+  padding: 0 8px !important;
+  margin: 1px 0 !important;
+  border-radius: 4px !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  color: rgba(255,255,255,.70) !important;
+  cursor: pointer;
+}
+body.nc-server-mode #pane-channels .guild-channel-item:hover{
+  background: rgba(255,255,255,.06) !important;
+  color: rgba(255,255,255,.92) !important;
+}
+body.nc-server-mode #pane-channels .guild-channel-item.is-active{
+  background: rgba(255,255,255,.10) !important;
+  color: rgba(255,255,255,.96) !important;
+}
+body.nc-server-mode #pane-channels .guild-channel-icon{
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: .9;
+}
+body.nc-server-mode #pane-channels .guild-channel-icon .i{ width: 18px; height: 18px; }
+body.nc-server-mode #pane-channels .guild-channel-name{
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 600 !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Badges */
+body.nc-server-mode #pane-channels .guild-channel-badges{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Actions on hover like Discord */
+body.nc-server-mode #pane-channels .guild-channel-actions{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0;
+  pointer-events: none;
+}
+body.nc-server-mode #pane-channels .guild-channel-item:hover .guild-channel-actions,
+body.nc-server-mode #pane-channels .guild-channel-item.is-active .guild-channel-actions{
+  opacity: 1;
+  pointer-events: auto;
+}
+body.nc-server-mode #pane-channels .guild-channel-actions .icon-btn{
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  background: transparent;
+  border: 0;
+  color: rgba(255,255,255,.65);
+}
+body.nc-server-mode #pane-channels .guild-channel-actions .icon-btn:hover{
+  background: rgba(255,255,255,.08);
+  color: rgba(255,255,255,.95);
+}
+
+/* Voice roster indentation (Discord-like) */
+body.nc-server-mode #pane-channels .guild-voice-roster{
+  margin: 4px 0 6px !important;
+  padding-left: 32px !important;
+}
+/* Reset WOW/emerald decorations on roster items (fix overlap/lines) */
+body.nc-server-mode #pane-channels .voice-roster-user{
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  height: 28px !important;
+  border-radius: 4px !important;
+  padding: 0 8px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+body.nc-server-mode #pane-channels .voice-roster-user::before,
+body.nc-server-mode #pane-channels .voice-roster-user::after{
+  content: none !important;
+  display: none !important;
+}
+body.nc-server-mode #pane-channels .voice-roster-user:hover{
+  background: rgba(255,255,255,.06) !important;
+}
+body.nc-server-mode #pane-channels .voice-roster-avatar{
+  width: 16px !important;
+  height: 16px !important;
+  border-radius: 999px !important;
+}
+body.nc-server-mode #pane-channels .voice-roster-name{
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  opacity: .92 !important;
+}
+
+/* Make sure scroll looks like Discord list (no giant gaps) */
+body.nc-server-mode #guild-channel-block .guild-cats{ padding-right: 6px; }

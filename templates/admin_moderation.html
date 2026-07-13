@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="auth-wrapper" style="align-items:flex-start; padding-top:32px; padding-bottom:32px;">
+  <div class="auth-card glass-card" style="max-width:1340px; width:min(1340px, 98vw);">
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+      <div>
+        <h2 class="auth-title">Админка · Модерация</h2>
+        <div class="auth-subtitle">Жалобы, быстрые санкции, превью вложений и массовые действия по сообщениям и репортам.</div>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <a class="nc-btn ghost" href="/admin">Назад в админку</a>
+        <a class="nc-btn ghost" href="/admin/users">Пользователи</a>
+        <a class="nc-btn ghost" href="/admin/servers">Серверы</a>
+      </div>
+    </div>
+
+    <div class="nc-vv-section nc-vv-section-first nc-security-dashboard" style="display:block; margin-top:18px;">
+      <div class="nc-vv-h2">Сводка по модерации</div>
+      <div class="nc-security-stats">
+        <div class="nc-security-stat"><div class="nc-security-stat-label">Открытых жалоб</div><div class="nc-security-stat-value">{{ stats.reports_open }}</div></div>
+        <div class="nc-security-stat"><div class="nc-security-stat-label">Жалоб за 24ч</div><div class="nc-security-stat-value">{{ stats.reports_24h }}</div></div>
+        <div class="nc-security-stat"><div class="nc-security-stat-label">Скрытых сообщений</div><div class="nc-security-stat-value">{{ stats.hidden_messages }}</div></div>
+        <div class="nc-security-stat"><div class="nc-security-stat-label">Сообщений за 24ч</div><div class="nc-security-stat-value">{{ stats.messages_24h }}</div></div>
+      </div>
+    </div>
+
+    <div class="nc-vv-section">
+      <div class="nc-vv-h2">Фильтры</div>
+      <form method="get" action="/admin/moderation" style="display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:10px; margin-top:12px;">
+        <input class="auth-input" type="text" name="q" value="{{ current_q }}" placeholder="текст / user / канал / id" style="grid-column: span 2;">
+        <select class="auth-input" name="report_status">
+          <option value="" {% if not current_report_status %}selected{% endif %}>Все жалобы</option>
+          <option value="open" {% if current_report_status == 'open' %}selected{% endif %}>Открытые</option>
+          <option value="resolved" {% if current_report_status == 'resolved' %}selected{% endif %}>Решённые</option>
+          <option value="dismissed" {% if current_report_status == 'dismissed' %}selected{% endif %}>Отклонённые</option>
+        </select>
+        <select class="auth-input" name="message_state">
+          <option value="" {% if not current_message_state %}selected{% endif %}>Все сообщения</option>
+          <option value="visible" {% if current_message_state == 'visible' %}selected{% endif %}>Видимые</option>
+          <option value="hidden" {% if current_message_state == 'hidden' %}selected{% endif %}>Скрытые</option>
+        </select>
+        <input class="auth-input" type="number" name="limit" min="20" max="300" value="{{ current_limit }}">
+        <select class="auth-input" name="reason" style="grid-column: span 2;">
+          <option value="" {% if not current_reason %}selected{% endif %}>Все причины</option>
+          {% for reason_name, cnt in report_reason_counts %}
+          <option value="{{ reason_name }}" {% if current_reason == reason_name %}selected{% endif %}>{{ reason_name }} · {{ cnt }}</option>
+          {% endfor %}
+        </select>
+        <div style="grid-column:1/-1; display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="nc-btn" type="submit">Применить</button>
+          <a class="nc-btn ghost" href="/admin/moderation">Сбросить</a>
+        </div>
+      </form>
+    </div>
+
+    <div class="nc-vv-section">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+        <div>
+          <div class="nc-vv-h2">Жалобы</div>
+          <div class="nc-vv-muted">Выделяй несколько репортов и закрывай пачкой.</div>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="nc-btn ghost nc-admin-bulk" type="button" data-kind="reports" data-action="resolve">Resolve выбранные</button>
+          <button class="nc-btn ghost nc-admin-bulk" type="button" data-kind="reports" data-action="dismiss">Dismiss выбранные</button>
+          <button class="nc-btn ghost nc-admin-bulk" type="button" data-kind="reports" data-action="reopen">Reopen выбранные</button>
+        </div>
+      </div>
+      <div class="nc-audit-list" style="margin-top:12px;">
+        {% for rep in reports %}
+        {% set msg = message_map.get(rep.message_id) %}
+        {% set reporter = user_map.get(rep.reporter_user_id) %}
+        {% set target = user_map.get(rep.target_user_id) if rep.target_user_id else None %}
+        {% set ch = channel_map.get(rep.channel_id) %}
+        {% set target_mute = active_mutes.get(rep.target_user_id) if rep.target_user_id else None %}
+        <div class="nc-audit-item" data-report-id="{{ rep.id }}">
+          <div class="nc-device-left" style="align-items:flex-start; gap:12px;">
+            <label style="padding-top:4px;"><input type="checkbox" class="nc-admin-select" data-kind="reports" value="{{ rep.id }}"></label>
+            <div class="nc-device-meta">
+              <div class="nc-device-title">
+                <span class="nc-audit-badge {% if rep.status == 'open' %}is-bad{% elif rep.status == 'resolved' %}is-ok{% endif %}">{{ rep.status }}</span>
+                <span class="nc-audit-login">#{{ rep.id }} · {{ rep.reason }}</span>
+                {% if target_mute %}<span class="nc-audit-badge is-warn">muted</span>{% endif %}
+              </div>
+              <div class="nc-device-sub" style="margin-top:6px;">репортёр: {{ reporter.username if reporter else ('user ' ~ rep.reporter_user_id) }} · цель: {% if target %}<a href="/admin/users/{{ target.id }}" style="color:inherit;">{{ target.username }}</a>{% else %}{{ rep.target_user_id or '—' }}{% endif %} · канал: {{ ch.name if ch else rep.channel_id }} · {{ rep.created_at }}</div>
+              <div class="nc-device-sub" style="margin-top:8px; line-height:1.45;">{{ msg.content if msg and msg.content else 'Сообщение уже пустое или удалено.' }}</div>
+              {% set atts = attachment_map.get(rep.message_id, []) %}
+              {% if atts %}
+              <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
+                {% for a in atts[:4] %}
+                  {% if a.is_image %}
+                  <a href="{{ a.file_url }}" target="_blank" style="display:block; width:88px; height:88px; border-radius:14px; overflow:hidden; border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.03);">
+                    <img src="{{ a.file_url }}" alt="{{ a.file_name }}" style="width:100%; height:100%; object-fit:cover; display:block;">
+                  </a>
+                  {% else %}
+                  <a href="{{ a.file_url }}" target="_blank" class="glass-card" style="display:block; padding:10px 12px; border-radius:14px; text-decoration:none; color:inherit; max-width:260px;">{{ a.file_name }}</a>
+                  {% endif %}
+                {% endfor %}
+              </div>
+              {% endif %}
+              {% if rep.details %}<div class="nc-device-sub" style="margin-top:6px; opacity:.92;">Жалоба: {{ rep.details }}</div>{% endif %}
+              {% if rep.moderator_note %}<div class="nc-device-sub" style="margin-top:6px; opacity:.92;">Заметка модератора: {{ rep.moderator_note }}</div>{% endif %}
+            </div>
+          </div>
+          <div class="nc-device-actions" style="display:flex; flex-wrap:wrap; gap:8px; justify-content:flex-end;">
+            {% if msg %}
+            <button class="nc-btn ghost nc-admin-message-action" type="button" data-action="{{ 'restore' if msg.deleted_at else 'hide' }}" data-message-id="{{ msg.id }}">{{ 'Показать' if msg.deleted_at else 'Скрыть' }}</button>
+            {% endif %}
+            {% if rep.target_user_id %}
+            <button class="nc-btn ghost nc-admin-user-action" type="button" data-action="mute" data-duration="1440" data-user-id="{{ rep.target_user_id }}">Мут 24ч</button>
+            {% endif %}
+            <button class="nc-btn ghost nc-admin-report-action" type="button" data-action="resolve" data-report-id="{{ rep.id }}">Решено</button>
+            <button class="nc-btn ghost nc-admin-report-action" type="button" data-action="dismiss" data-report-id="{{ rep.id }}">Отклонить</button>
+            {% if rep.status != 'open' %}<button class="nc-btn ghost nc-admin-report-action" type="button" data-action="reopen" data-report-id="{{ rep.id }}">Открыть снова</button>{% endif %}
+          </div>
+        </div>
+        {% else %}
+        <div class="nc-settings-muted">Жалоб пока нет.</div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="nc-vv-section">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+        <div>
+          <div class="nc-vv-h2">Свежие сообщения</div>
+          <div class="nc-vv-muted">Есть массовый hide/restore и превью вложений прямо в таблице.</div>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="nc-btn ghost nc-admin-bulk" type="button" data-kind="messages" data-action="hide">Скрыть выбранные</button>
+          <button class="nc-btn ghost nc-admin-bulk" type="button" data-kind="messages" data-action="restore">Показать выбранные</button>
+        </div>
+      </div>
+      <div style="overflow:auto; margin-top:12px;">
+        <table style="width:100%; border-collapse:collapse; font-size:14px; min-width:1200px;">
+          <thead>
+            <tr>
+              <th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08); width:40px;"></th>
+              <th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Сообщение</th>
+              <th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Автор</th>
+              <th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Канал</th>
+              <th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Статус</th>
+              <th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Жалобы</th>
+              <th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Время</th>
+              <th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Действия</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for msg in messages %}
+            {% set author = user_map.get(msg.user_id) %}
+            {% set ch = channel_map.get(msg.channel_id) %}
+            {% set atts = attachment_map.get(msg.id, []) %}
+            <tr data-message-row="{{ msg.id }}">
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);"><input type="checkbox" class="nc-admin-select" data-kind="messages" value="{{ msg.id }}"></td>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05); max-width:520px;">
+                <div class="nc-device-title">#{{ msg.id }}</div>
+                <div class="nc-device-sub" style="margin-top:6px; line-height:1.45; white-space:normal;">{{ msg.content if msg.content else 'Пустое содержимое' }}</div>
+                {% if atts %}
+                <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
+                  {% for a in atts[:4] %}
+                    {% if a.is_image %}
+                    <a href="{{ a.file_url }}" target="_blank" style="display:block; width:72px; height:72px; border-radius:12px; overflow:hidden; border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.03);">
+                      <img src="{{ a.file_url }}" alt="{{ a.file_name }}" style="width:100%; height:100%; object-fit:cover; display:block;">
+                    </a>
+                    {% else %}
+                    <a href="{{ a.file_url }}" target="_blank" class="glass-card" style="display:block; padding:8px 10px; border-radius:12px; text-decoration:none; color:inherit; max-width:220px;">{{ a.file_name }}</a>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </td>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);"><a href="/admin/users/{{ msg.user_id }}" style="color:inherit;">{{ author.username if author else ('user ' ~ msg.user_id) }}</a></td>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);">{% if ch and ch.guild_id and ch.guild_id != ch.id %}<a href="/admin/servers/{{ ch.guild_id }}" style="color:inherit;">{{ ch.name }}</a>{% elif ch %}{{ ch.name }}{% else %}{{ msg.channel_id }}{% endif %}</td>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);"><span class="nc-audit-badge {% if msg.deleted_at %}is-warn{% else %}is-ok{% endif %}" data-message-state>{{ 'hidden' if msg.deleted_at else 'visible' }}</span></td>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);">{{ report_counts.get(msg.id, 0) }}</td>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);">{{ msg.created_at }}</td>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05); white-space:nowrap;">
+                <button class="nc-btn ghost nc-admin-message-action" type="button" data-action="{{ 'restore' if msg.deleted_at else 'hide' }}" data-message-id="{{ msg.id }}">{{ 'Показать' if msg.deleted_at else 'Скрыть' }}</button>
+              </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="8" style="padding:12px; opacity:.8;">Сообщений не найдено.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  async function post(url, body){
+    const r = await fetch(url, {method:'POST', credentials:'include', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body||{})});
+    const j = await r.json().catch(()=>({}));
+    if (!r.ok || !j || j.ok !== true) throw new Error((j && j.error) || 'Ошибка');
+    return j;
+  }
+  function getSelected(kind){
+    return Array.from(document.querySelectorAll('.nc-admin-select[data-kind="'+kind+'"]:checked')).map(x => parseInt(x.value || '0', 10)).filter(Boolean);
+  }
+  document.addEventListener('click', async function(e){
+    const bulk = e.target && e.target.closest ? e.target.closest('.nc-admin-bulk') : null;
+    if (bulk){
+      const kind = bulk.getAttribute('data-kind') || '';
+      const action = bulk.getAttribute('data-action') || '';
+      const ids = getSelected(kind);
+      if (!ids.length){ alert('Ничего не выбрано'); return; }
+      bulk.disabled = true;
+      try{ await post('/api/admin/moderation/bulk', {kind, action, ids}); location.reload(); }
+      catch(err){ alert(err.message || 'Ошибка'); bulk.disabled = false; }
+      return;
+    }
+    const ub = e.target && e.target.closest ? e.target.closest('.nc-admin-user-action') : null;
+    if (ub){
+      const userId = parseInt(ub.getAttribute('data-user-id') || '0', 10);
+      const action = ub.getAttribute('data-action') || '';
+      const duration = parseInt(ub.getAttribute('data-duration') || '0', 10);
+      const reason = prompt('Причина (необязательно):', '') || '';
+      ub.disabled = true;
+      try{ await post('/api/admin/users/punish', {user_id:userId, action, duration_minutes:duration, reason}); location.reload(); }
+      catch(err){ alert(err.message || 'Ошибка'); ub.disabled = false; }
+      return;
+    }
+    const mb = e.target && e.target.closest ? e.target.closest('.nc-admin-message-action') : null;
+    if (mb){
+      const messageId = parseInt(mb.getAttribute('data-message-id') || '0', 10);
+      const action = mb.getAttribute('data-action') || 'hide';
+      if (!messageId) return;
+      mb.disabled = true;
+      try{
+        const j = await post('/api/admin/moderation/message-action', {message_id:messageId, action});
+        const hidden = !!(j && j.message && j.message.deleted_at);
+        const row = document.querySelector('[data-message-row="'+messageId+'"]');
+        if (row){
+          const badge = row.querySelector('[data-message-state]');
+          if (badge){ badge.textContent = hidden ? 'hidden' : 'visible'; badge.classList.toggle('is-warn', hidden); badge.classList.toggle('is-ok', !hidden); }
+        }
+        const btns = document.querySelectorAll('.nc-admin-message-action[data-message-id="'+messageId+'"]');
+        btns.forEach(function(btn){ btn.disabled = false; btn.setAttribute('data-action', hidden ? 'restore' : 'hide'); btn.textContent = hidden ? 'Показать' : 'Скрыть'; });
+      }catch(err){ alert(err.message || 'Ошибка'); mb.disabled = false; }
+      return;
+    }
+    const rb = e.target && e.target.closest ? e.target.closest('.nc-admin-report-action') : null;
+    if (rb){
+      const reportId = parseInt(rb.getAttribute('data-report-id') || '0', 10);
+      const action = rb.getAttribute('data-action') || 'resolve';
+      if (!reportId) return;
+      const moderatorNote = action === 'resolve' || action === 'dismiss' ? (prompt('Комментарий модератора (необязательно):', '') || '') : '';
+      rb.disabled = true;
+      try{ await post('/api/admin/moderation/report-action', {report_id:reportId, action, moderator_note:moderatorNote}); location.reload(); }
+      catch(err){ alert(err.message || 'Ошибка'); rb.disabled = false; }
+    }
+  }, true);
+})();
+</script>
+{% endblock %}

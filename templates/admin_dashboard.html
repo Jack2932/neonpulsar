@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="auth-wrapper" style="align-items:flex-start; padding-top:32px; padding-bottom:32px;">
+  <div class="auth-card glass-card" style="max-width:1180px; width:min(1180px, 96vw);">
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+      <div>
+        <h2 class="auth-title">Админ-панель</h2>
+        <div class="auth-subtitle">Теперь это уже не только security-раздел, а общий центр для пользователей, серверов и защиты входа.</div>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <a class="nc-btn ghost" href="/chat">Вернуться в чат</a>
+        <a class="nc-btn" href="/admin/security">Безопасность</a>
+      </div>
+    </div>
+
+    <div class="nc-vv-section nc-vv-section-first nc-security-dashboard" style="display:block; margin-top:18px;">
+      <div class="nc-vv-h2">Сводка за 24 часа</div>
+      <div class="nc-security-stats">
+        <div class="nc-security-stat">
+          <div class="nc-security-stat-label">Всего событий</div>
+          <div class="nc-security-stat-value">{{ stats.attempts_24h }}</div>
+        </div>
+        <div class="nc-security-stat">
+          <div class="nc-security-stat-label">Неудачных попыток</div>
+          <div class="nc-security-stat-value">{{ stats.failed_24h }}</div>
+        </div>
+        <div class="nc-security-stat">
+          <div class="nc-security-stat-label">Активные блокировки</div>
+          <div class="nc-security-stat-value">{{ stats.active_blocks }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nc-vv-section">
+      <div class="nc-vv-h2">Разделы админки</div>
+      <div class="nc-vv-muted">Быстрые переходы в основные зоны управления проектом.</div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px; margin-top:14px;">
+        <a href="/admin/security" class="glass-card" style="display:block; padding:16px; text-decoration:none; color:inherit; border-radius:18px;">
+          <div class="nc-device-title"><span class="nc-audit-badge is-bad">Security</span> Центр безопасности</div>
+          <div class="nc-device-sub" style="margin-top:8px;">Логи входов, блокировки, экспорт, очистка, фильтры по IP и логину.</div>
+        </a>
+        <a href="/admin/users" class="glass-card" style="display:block; padding:16px; text-decoration:none; color:inherit; border-radius:18px;">
+          <div class="nc-device-title"><span class="nc-audit-badge">Users</span> Пользователи</div>
+          <div class="nc-device-sub" style="margin-top:8px;">Список аккаунтов, статусы, сессии, сообщения, быстрый logout и disable.</div>
+        </a>
+        <a href="/admin/servers" class="glass-card" style="display:block; padding:16px; text-decoration:none; color:inherit; border-radius:18px;">
+          <div class="nc-device-title"><span class="nc-audit-badge is-ok">Servers</span> Серверы</div>
+          <div class="nc-device-sub" style="margin-top:8px;">Сводка по серверам, каналам, участникам, сообщениям и создателям.</div>
+        </a>
+        <a href="/admin/moderation" class="glass-card" style="display:block; padding:16px; text-decoration:none; color:inherit; border-radius:18px;">
+          <div class="nc-device-title"><span class="nc-audit-badge is-warn">Mod</span> Модерация</div>
+          <div class="nc-device-sub" style="margin-top:8px;">Жалобы, просмотр спорных сообщений, hide/restore и быстрый переход к нарушителям.</div>
+        </a>
+        <a href="/admin/roles" class="glass-card" style="display:block; padding:16px; text-decoration:none; color:inherit; border-radius:18px;">
+          <div class="nc-device-title"><span class="nc-audit-badge">Roles</span> Админ-роли</div>
+          <div class="nc-device-sub" style="margin-top:8px;">Выдача прав на security, users, servers, moderation и другие разделы.</div>
+        </a>
+        <a href="/admin/support" class="glass-card" style="display:block; padding:16px; text-decoration:none; color:inherit; border-radius:18px;">
+          <div class="nc-device-title"><span class="nc-audit-badge is-warn">Support</span> Поддержка</div>
+          <div class="nc-device-sub" style="margin-top:8px;">Тикеты пользователей, очередь саппортов, назначение ответственных и быстрые ответы.</div>
+        </a>
+        <a href="/admin/audit" class="glass-card" style="display:block; padding:16px; text-decoration:none; color:inherit; border-radius:18px;">
+          <div class="nc-device-title"><span class="nc-audit-badge is-ok">Audit</span> Логи действий</div>
+          <div class="nc-device-sub" style="margin-top:8px;">Журнал банов, мутов, киков, выдачи ролей и остальных действий админов.</div>
+        </a>
+      </div>
+    </div>
+
+    <div class="nc-vv-section">
+      <div class="nc-vv-h2">Быстрые действия</div>
+      <div class="nc-devices-action-buttons" style="margin-top:12px; justify-content:flex-start;">
+        <a class="nc-btn" href="/admin/users?status=online">Пользователи онлайн</a>
+        <a class="nc-btn ghost" href="/admin/servers?sort=recent">Новые серверы</a>
+        <a class="nc-btn ghost" href="/admin/security?view=blocks&active=1">Активные блокировки</a>
+        <a class="nc-btn ghost" href="/admin/security?view=attempts&kind=invalid">Неверные логины</a>
+        <a class="nc-btn ghost" href="/admin/moderation?report_status=open">Открытые жалобы</a>
+        <a class="nc-btn ghost" href="/admin/roles">Права модераторов</a>
+        <a class="nc-btn ghost" href="/admin/support?status=open">Открытые тикеты</a>
+        <a class="nc-btn ghost" href="/admin/audit?active=1">Активные санкции</a>
+      </div>
+    </div>
+
+    <div class="nc-vv-section">
+      <div class="nc-vv-h2">Поддержка</div>
+      <div class="nc-vv-muted">Быстрый срез по обращениям пользователей и нагрузке на саппорт.</div>
+      <div class="nc-security-stats" style="margin-top:12px;">
+        <div class="nc-security-stat">
+          <div class="nc-security-stat-label">Открытые тикеты</div>
+          <div class="nc-security-stat-value">{{ support_stats.open }}</div>
+        </div>
+        <div class="nc-security-stat">
+          <div class="nc-security-stat-label">В работе</div>
+          <div class="nc-security-stat-value">{{ support_stats.pending }}</div>
+        </div>
+        <div class="nc-security-stat">
+          <div class="nc-security-stat-label">Новые за 24 часа</div>
+          <div class="nc-security-stat-value">{{ support_stats.new_24h }}</div>
+        </div>
+        <div class="nc-security-stat">
+          <div class="nc-security-stat-label">Закрыто за 24 часа</div>
+          <div class="nc-security-stat-value">{{ support_stats.closed_24h }}</div>
+        </div>
+      </div>
+      <div class="nc-devices-action-buttons" style="margin-top:12px; justify-content:flex-start;">
+        <a class="nc-btn" href="/admin/support">Открыть поддержку</a>
+        <a class="nc-btn ghost" href="/admin/support/analytics">Открыть аналитику</a>
+        <a class="nc-btn ghost" href="/support">Пользовательский центр</a>
+      </div>
+    </div>
+
+        <div class="nc-vv-section">
+      <div class="nc-vv-h2">Поддержка · live-widget</div>
+      <div class="nc-vv-muted">Мини-виджет саппорта прямо в общей админке.</div>
+      <div class="nc-security-stats" style="margin-top:12px;">
+        <div class="nc-security-stat"><div class="nc-security-stat-label">Открытые</div><div class="nc-security-stat-value" id="dashSupportOpen">{{ support_widget.stats.open }}</div></div>
+        <div class="nc-security-stat"><div class="nc-security-stat-label">Ждут меня</div><div class="nc-security-stat-value" id="dashSupportMine">{{ support_widget.notifications.my_waiting or 0 }}</div></div>
+        <div class="nc-security-stat"><div class="nc-security-stat-label">Упоминания</div><div class="nc-security-stat-value" id="dashSupportMentions">{{ support_widget.notifications.unread_mentions or support_widget.inbox_counts.unread_mentions or 0 }}</div></div>
+        <div class="nc-security-stat"><div class="nc-security-stat-label">Overdue</div><div class="nc-security-stat-value" id="dashSupportOverdue">{{ support_widget.inbox_counts.overdue or 0 }}</div></div>
+      </div>
+      <div class="nc-devices-action-buttons" style="margin-top:12px; justify-content:flex-start;">
+        <a class="nc-btn" href="/admin/support/inbox?focus=mine">Мой inbox</a>
+        <a class="nc-btn ghost" href="/admin/support?queue=unassigned">Без саппорта</a>
+        <a class="nc-btn ghost" href="/admin/support/inbox?focus=overdue">Overdue</a>
+      </div>
+    </div>
+
+<div class="nc-vv-section">
+      <div class="nc-vv-h2">Самый шумный IP</div>
+      <div class="nc-vv-muted">Полезно, чтобы быстро замечать странную активность и сразу переходить к фильтрации.</div>
+      <div class="nc-audit-list">
+        <div class="nc-audit-item">
+          <div class="nc-device-left">
+            <div class="nc-device-meta">
+              <div class="nc-device-title">
+                <span class="nc-audit-badge is-warn">Топ IP</span>
+                <span class="nc-audit-login">{{ stats.top_ip.ip_address if stats.top_ip else '—' }}</span>
+              </div>
+              <div class="nc-device-sub">Событий за 24 часа: {{ stats.top_ip.count if stats.top_ip else 0 }}</div>
+            </div>
+          </div>
+          {% if stats.top_ip %}
+          <div class="nc-device-actions">
+            <a class="nc-btn ghost" href="/admin/security?q={{ stats.top_ip.ip_address }}">Фильтровать</a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="nc-vv-section">
+      <div class="nc-vv-h2">Последние алерты</div>
+      <div class="nc-vv-muted">Показывает блокировки, лимиты и неверные логины за последнюю неделю.</div>
+      <div class="nc-audit-list">
+        {% for row in stats.recent_alerts %}
+        <div class="nc-audit-item">
+          <div class="nc-device-left">
+            <div class="nc-device-meta">
+              <div class="nc-device-title">
+                <span class="nc-audit-badge is-bad">{{ row.status }}</span>
+                <span class="nc-audit-login">{{ row.login_value or (row.ip_address or '—') }}</span>
+              </div>
+              <div class="nc-device-sub">{{ row.created_at }} · IP: {{ row.ip_address or '—' }}{% if row.note %} · {{ row.note }}{% endif %}</div>
+            </div>
+          </div>
+          <div class="nc-device-actions">
+            {% if row.ip_address %}<a class="nc-btn ghost" href="/admin/security?q={{ row.ip_address }}">IP</a>{% endif %}
+            {% if row.login_value %}<a class="nc-btn ghost" href="/admin/security?q={{ row.login_value }}">Логин</a>{% endif %}
+          </div>
+        </div>
+        {% else %}
+        <div class="nc-settings-muted">Пока тихо — заметных алертов нет.</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(function bindAdminDashboardSupportLive(){
+  function attach(){
+    try{
+      if(!window.io) return setTimeout(attach, 600);
+      if(window.__ncAdminDashSupportBound) return;
+      const sock = window.__ncSupportSocket || io();
+      window.__ncSupportSocket = sock;
+      window.__ncAdminDashSupportBound = true;
+      sock.on('support_live_update', function(payload){
+        try{
+          const widget = payload && payload.widget ? payload.widget : {};
+          const stats = widget.stats || {};
+          const notif = widget.notifications || {};
+          const counts = widget.inbox_counts || {};
+          const set = (id, value) => { const el = document.getElementById(id); if(el) el.textContent = Number(value || 0); };
+          set('dashSupportOpen', stats.open);
+          set('dashSupportMine', notif.my_waiting);
+          set('dashSupportMentions', notif.unread_mentions || counts.unread_mentions);
+          set('dashSupportOverdue', counts.overdue);
+        }catch(_e){}
+      });
+    }catch(_e){ setTimeout(attach, 1200); }
+  }
+  attach();
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,76 @@
+/* Stage A1 — core communication stabilizer */
+#friends-view.is-hidden{
+  display:none !important;
+}
+
+.chat-main.friends-mode #chat-messages,
+.chat-main.friends-mode #message-form{
+  display:none !important;
+}
+
+#message-form,
+.chat-input{
+  overflow:visible;
+}
+
+#emoji-pop.nc-core-emoji-docked,
+body #emoji-pop.nc-core-emoji-docked{
+  position:fixed !important;
+  inset:auto auto auto auto !important;
+  transform:none !important;
+  margin:0 !important;
+  width:min(360px, calc(100vw - 20px));
+  max-height:min(440px, calc(100vh - 20px));
+  border-radius:22px;
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 26px 70px rgba(0,0,0,.42), 0 10px 24px rgba(0,0,0,.24);
+  overflow:hidden;
+  z-index:10050;
+}
+
+#friends-view .friends-tab.is-active{
+  box-shadow:0 0 0 1px rgba(111,219,255,.30), 0 10px 22px rgba(7,23,46,.34);
+}
+
+body:not(.nc-server-mode) .dm-home-nav{
+  display:flex !important;
+  flex-direction:column !important;
+}
+body:not(.nc-server-mode) .sidebar-search{
+  display:block !important;
+}
+body.nc-server-mode .dm-home-nav,
+body.nc-server-mode .sidebar-search{
+  display:none !important;
+}
+
+@media (max-width: 980px){
+  .layout.dc-layout{
+    grid-template-columns:56px minmax(0,1fr) !important;
+    gap:10px;
+  }
+  #sidebar{
+    position:fixed;
+    z-index:1200;
+    left:74px;
+    top:10px;
+    bottom:10px;
+    width:min(320px, calc(100vw - 94px));
+    transform:translateX(-118%);
+    transition:transform .22s ease;
+  }
+  body.nc-mobile-chat #sidebar,
+  body.nc-mobile-sidebar-open #sidebar{
+    transform:translateX(0);
+  }
+  .members-card,
+  #members-card,
+  .layout.dc-layout > aside:last-child{
+    display:none !important;
+  }
+  #emoji-pop.nc-core-emoji-docked,
+  body #emoji-pop.nc-core-emoji-docked{
+    width:min(360px, calc(100vw - 20px));
+    max-height:min(58vh, 440px);
+  }
+}

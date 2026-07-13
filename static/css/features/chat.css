@@ -1,0 +1,232 @@
+/* Semantic stylesheet */
+
+/* FIX116: All-10 extras
+   - PiP mini-window for screenshare
+   - Snapshot capture UI
+   - Whiteboard overlay (sync)
+   - Call status badges (online/busy/ghost)
+   - Sticky timecode bar in chat
+   - Stronger speaking glow
+*/
+
+/* ---------- Speaking glow (works with existing data-speaking="1") ---------- */
+.participant-tile, .voice-participant{ position: relative; }
+.participant-tile[data-speaking="1"], .voice-participant[data-speaking="1"]{
+  box-shadow: 0 0 0 1px rgba(125,255,233,.18), 0 0 18px rgba(125,255,233,.18), 0 0 46px rgba(125,255,233,.10);
+}
+.participant-tile[data-speaking="1"]::after,
+.voice-participant[data-speaking="1"]::after{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  border-radius: 18px;
+  pointer-events:none;
+  background: radial-gradient(120px 60px at 20% 20%, rgba(125,255,233,.28), rgba(125,255,233,0)),
+              radial-gradient(100px 60px at 80% 10%, rgba(255,120,233,.14), rgba(255,120,233,0)),
+              radial-gradient(140px 80px at 50% 95%, rgba(120,255,190,.12), rgba(120,255,190,0));
+  opacity: .75;
+  filter: blur(6px);
+  animation: ncSpeakPulse 1.35s ease-in-out infinite;
+}
+@keyframes ncSpeakPulse{
+  0%{ transform: scale(.98); opacity: .55; }
+  50%{ transform: scale(1.02); opacity: .85; }
+  100%{ transform: scale(.98); opacity: .55; }
+}
+
+/* ---------- Call status badge on tiles ---------- */
+.participant-tile .nc-call-status,
+.voice-participant .nc-call-status{
+  position:absolute;
+  top:8px;
+  left:8px;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:4px 7px;
+  border-radius: 999px;
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: .3px;
+  background: rgba(10,14,24,.55);
+  border: 1px solid rgba(255,255,255,.10);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: rgba(235,250,255,.92);
+}
+.participant-tile .nc-call-status .dot,
+.voice-participant .nc-call-status .dot{
+  width:8px; height:8px; border-radius:50%;
+  box-shadow: 0 0 10px rgba(125,255,233,.35);
+  background: rgba(125,255,233,.85);
+}
+.participant-tile[data-call-status="busy"] .nc-call-status .dot,
+.voice-participant[data-call-status="busy"] .nc-call-status .dot{ background: rgba(255,200,120,.95); box-shadow: 0 0 10px rgba(255,200,120,.35); }
+.participant-tile[data-call-status="ghost"] .nc-call-status .dot,
+.voice-participant[data-call-status="ghost"] .nc-call-status .dot{ background: rgba(180,190,210,.85); box-shadow: 0 0 10px rgba(180,190,210,.25); }
+.participant-tile[data-call-status="ghost"],
+.voice-participant[data-call-status="ghost"]{ opacity: .78; }
+
+/* ---------- PiP (mini screenshare) ---------- */
+.nc-pip{
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  width: 320px;
+  max-width: min(380px, calc(100vw - 28px));
+  aspect-ratio: 16/9;
+  z-index: 9998;
+  border-radius: 18px;
+  overflow: hidden;
+  background: rgba(8,12,20,.72);
+  border: 1px solid rgba(120,255,233,.20);
+  box-shadow: 0 20px 50px rgba(0,0,0,.48);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.nc-pip.is-hidden{ display:none; }
+.nc-pip video{ width:100%; height:100%; object-fit: cover; display:block; }
+.nc-pip .bar{
+  position:absolute;
+  top:8px;
+  left:8px;
+  right:8px;
+  display:flex;
+  justify-content: space-between;
+  align-items:center;
+  pointer-events:auto;
+}
+.nc-pip .title{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 10px;
+  border-radius:999px;
+  font-size: 12px;
+  font-weight: 800;
+  background: rgba(0,0,0,.35);
+  border: 1px solid rgba(255,255,255,.10);
+  color: rgba(235,250,255,.92);
+  user-select:none;
+}
+.nc-pip .actions{ display:flex; gap:8px; }
+.nc-pip .mini-btn{
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.35);
+  color: rgba(235,250,255,.92);
+  cursor: pointer;
+}
+.nc-pip .mini-btn:hover{ background: rgba(255,255,255,.08); }
+.nc-pip .drag-hint{
+  position:absolute;
+  inset:0;
+  cursor: grab;
+}
+.nc-pip.is-dragging .drag-hint{ cursor: grabbing; }
+
+/* ---------- Whiteboard overlay ---------- */
+.nc-wb{
+  position: fixed;
+  inset: 0;
+  z-index: 9997;
+  background: rgba(5,8,14,.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.nc-wb.is-hidden{ display:none; }
+.nc-wb .panel{
+  position:absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: rgba(10,14,24,.65);
+  border: 1px solid rgba(120,255,233,.20);
+  box-shadow: 0 16px 40px rgba(0,0,0,.45);
+}
+.nc-wb .panel .lbl{ font-size: 12px; font-weight: 800; color: rgba(235,250,255,.92); letter-spacing:.2px; }
+.nc-wb .panel input[type="color"]{ width: 32px; height: 32px; border: none; background: transparent; padding:0; }
+.nc-wb .panel input[type="range"]{ width: 130px; }
+.nc-wb .panel .wb-btn{
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.25);
+  color: rgba(235,250,255,.92);
+  font-weight: 800;
+  cursor: pointer;
+}
+.nc-wb .panel .wb-btn:hover{ background: rgba(255,255,255,.08); }
+.nc-wb canvas{
+  position:absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+/* ---------- Sticky timecode bar ---------- */
+.nc-timecode-bar{
+  position: sticky;
+  top: 8px;
+  z-index: 30;
+  margin: 8px auto 0;
+  width: fit-content;
+  max-width: calc(100% - 24px);
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(10,14,24,.55);
+  border: 1px solid rgba(255,255,255,.10);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-size: 12px;
+  font-weight: 800;
+  color: rgba(235,250,255,.92);
+  pointer-events: none;
+}
+
+/* Fix116: tiny text/emoji buttons added to the voice toolbar */
+#voice-toolbar #vctl-pip,
+#voice-toolbar #vctl-snap,
+#voice-toolbar #vctl-wb,
+#voice-toolbar #vctl-status,
+#voice-toolbar #vctl-heat{
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .2px;
+}
+
+/* ---------- Online badge: extra NEO polish (sheen + pulse) ---------- */
+/* Fix117: allow online badge to anchor inside sidebar header */
+.sidebar .server-header{ position: relative; }
+
+#nc-online-counter.nc-online-badge{ overflow:hidden; }
+#nc-online-counter.nc-online-badge::before{
+  content:"";
+  position:absolute;
+  inset:-40% -60%;
+  background: linear-gradient(120deg, rgba(0,0,0,0) 35%, rgba(125,255,233,.16) 50%, rgba(0,0,0,0) 65%);
+  transform: translateX(-60%) rotate(10deg);
+  animation: ncOnlineSheen 5.8s ease-in-out infinite;
+  pointer-events:none;
+}
+#nc-online-counter .nc-online-dot{ animation: ncOnlineDot 1.65s ease-in-out infinite; }
+@keyframes ncOnlineDot{
+  0%,100%{ transform: scale(.92); filter: brightness(1); }
+  50%{ transform: scale(1.16); filter: brightness(1.25); }
+}
+@keyframes ncOnlineSheen{
+  0%,55%{ transform: translateX(-60%) rotate(10deg); opacity: 0; }
+  60%{ opacity: .85; }
+  75%{ opacity: .55; }
+  100%{ transform: translateX(120%) rotate(10deg); opacity: 0; }
+}

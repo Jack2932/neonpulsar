@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="auth-wrapper" style="align-items:flex-start; padding-top:32px; padding-bottom:32px;">
+  <div class="auth-card glass-card" style="max-width:1280px; width:min(1280px, 97vw);">
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+      <div><h2 class="auth-title">High-risk модерация</h2><div class="auth-subtitle">Отдельная очередь подозрительных сообщений и жалоб по запрещённым темам.</div></div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;"><a class="nc-btn ghost" href="/admin/moderation">Модерация</a><a class="nc-btn ghost" href="/admin">Админка</a></div>
+    </div>
+    <div class="nc-vv-section" style="margin-top:18px;">
+      <div class="nc-vv-h2">Подозрительные жалобы / сообщения</div>
+      <div class="nc-audit-list" style="margin-top:12px;">
+        {% for row in rows %}
+        <div class="nc-audit-item">
+          <div class="nc-device-left"><div class="nc-device-meta">
+            <div class="nc-device-title"><span class="nc-audit-badge is-bad">{{ row.reason }}</span> #{{ row.id }} · {{ row.username or ('user #' ~ row.target_user_id) }}</div>
+            <div class="nc-device-sub">{{ row.created_at }} · канал {{ row.channel_name or ('#' ~ row.channel_id) }}</div>
+            <div class="nc-device-sub">{{ row.content }}</div>
+          </div></div>
+          <div class="nc-device-actions" style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="nc-btn ghost hr-msg" data-message-id="{{ row.message_id }}">Скрыть сообщение</button>
+            {% if row.target_user_id %}<button class="nc-btn ghost hr-ban" data-user-id="{{ row.target_user_id }}">Бан</button>{% endif %}
+          </div>
+        </div>
+        {% else %}<div class="nc-settings-muted">Пока пусто.</div>{% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  async function post(url,data){ const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify(data||{})}); const j=await r.json().catch(()=>({})); if(!r.ok||j.ok===false) throw new Error(j.error||j.message||('HTTP '+r.status)); return j; }
+  document.addEventListener('click', async (e)=>{
+    const mb=e.target.closest('.hr-msg'); if(mb){ try{ await post('/api/admin/moderation/message-action',{message_id:parseInt(mb.dataset.messageId||'0',10),action:'hide'}); location.reload(); }catch(err){ alert(err.message||String(err)); } return; }
+    const bb=e.target.closest('.hr-ban'); if(bb){ try{ await post('/api/admin/users/punish',{user_id:parseInt(bb.dataset.userId||'0',10),action:'ban',reason:'high-risk moderation'}); location.reload(); }catch(err){ alert(err.message||String(err)); } }
+  });
+})();
+</script>
+{% endblock %}

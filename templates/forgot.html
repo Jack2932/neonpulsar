@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="auth-wrapper">
+  <div class="auth-card glass-card">
+    {% include "_np_logo.html" %}
+    <h2 class="auth-title">Восстановление пароля</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-list">
+        {% for cat, msg in messages %}
+          <div class="flash flash-{{ cat }}">{{ msg }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+    {% endwith %}
+
+    <form method="post" class="auth-form">
+      <label>Почта</label>
+      <input type="email" name="email" autocomplete="email" placeholder="name@example.com" required>
+      <button type="submit" class="btn-primary">Отправить ссылку</button>
+      <div class="auth-help">Если почта есть в базе, придёт письмо со ссылкой (60 минут).</div>
+    </form>
+
+    <div class="auth-alt">
+      Вспомнил? <a href="{{ url_for('login') }}">Вернуться ко входу</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

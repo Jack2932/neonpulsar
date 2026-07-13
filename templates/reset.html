@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="auth-wrapper">
+  <div class="auth-card glass-card">
+    {% include "_np_logo.html" %}
+    <h2 class="auth-title">Новый пароль</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-list">
+        {% for cat, msg in messages %}
+          <div class="flash flash-{{ cat }}">{{ msg }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+    {% endwith %}
+
+    <form method="post" class="auth-form">
+      <label>Пароль <span class="hint">(8–21, сложный)</span></label>
+      <div class="pw-rules">Нужно: заглавная + строчная + цифра + символ. Нельзя: 123456, abcdef, много одинаковых подряд.</div>
+      <input type="password" name="password" id="reset-password" autocomplete="new-password" placeholder="8–21 символ" minlength="8" maxlength="21" required>
+
+      <div class="pw-meter" aria-live="polite" data-pw-meter data-password="reset-password">
+        <div class="pw-meter-track"><div class="pw-meter-bar lvl-0" id="pw-bar-reset"></div></div>
+        <div class="pw-meter-text" id="pw-text-reset">Введи пароль</div>
+        <ul class="pw-meter-list" id="pw-list-reset"></ul>
+      </div>
+      <label>Повтори пароль</label>
+      <input type="password" name="password2" autocomplete="new-password" placeholder="ещё раз" minlength="8" maxlength="21" required>
+      <button type="submit" class="btn-primary">Сохранить</button>
+      <div class="auth-help">После сохранения можно войти обычным способом.</div>
+    </form>
+
+    <div class="auth-alt">
+      <a href="{{ url_for('login') }}">Назад ко входу</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

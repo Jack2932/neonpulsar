@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="auth-wrapper">
+    <div class="auth-card glass-card">
+        {% include "_np_logo.html" %}
+        <h2 class="auth-title">Двухфакторная аутентификация</h2>
+        <div class="auth-subtitle">Аккаунт: <b>{{ username }}</b></div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-list">
+                {% for cat, msg in messages %}
+                    <div class="flash flash-{{ cat }}">{{ msg }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% endwith %}
+
+        <form method="post" class="auth-form">
+            <label>Код из приложения (6 цифр)</label>
+            <input type="text" name="code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="000000" autocomplete="one-time-code">
+
+            <div class="auth-help" style="margin:10px 0;">или</div>
+
+            <label>Код восстановления</label>
+            <input type="text" name="recovery_code" placeholder="XXXX-XXXX-XXXX" autocomplete="off">
+
+            {% if auth_challenge and auth_challenge.required %}
+            <div class="auth-help" style="margin-top:10px;">{{ auth_challenge.prompt }}</div>
+            <input type="text" name="captcha_answer" inputmode="numeric" placeholder="Ответ" autocomplete="off" required>
+            {% endif %}
+
+            <button type="submit" class="btn-primary">Подтвердить</button>
+            <div class="auth-help">Назад к <a href="{{ url_for('login') }}">входу</a></div>
+        </form>
+    </div>
+</div>
+{% endblock %}

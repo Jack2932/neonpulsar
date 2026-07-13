@@ -1,0 +1,1360 @@
+/* Semantic stylesheet */
+
+/* Server Settings / App Settings overlay (Discord-like layout, Neon Pulsar palette) */
+.svs-overlay{
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(0,0,0,.55);
+  backdrop-filter: blur(6px);
+}
+/*
+  Defensive hiding:
+  If JS crashes mid-toggle and only aria-hidden/hidden is set,
+  we still must not block clicks on the main UI.
+*/
+.svs-overlay.is-hidden{ display:none !important; }
+.svs-overlay[aria-hidden="true"]{ display:none !important; pointer-events:none !important; }
+/* hidden attribute must ALWAYS win (author styles can override UA default) */
+.svs-overlay[hidden]{ display:none !important; pointer-events:none !important; }
+
+/* Global safety: ensure any [hidden] element never captures clicks */
+[hidden]{ display:none !important; pointer-events:none !important; }
+
+.svs-shell{
+  width: min(1080px, 100%);
+  height: min(720px, 100%);
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  overflow: hidden;
+  border-radius: 16px;
+  box-shadow: 0 24px 80px rgba(0,0,0,.45);
+  min-height:0;
+}
+
+.svs-sidebar{
+  background: rgba(10, 16, 22, .72);
+  border-right: 1px solid rgba(255,255,255,.06);
+  display:flex;
+  flex-direction:column;
+  gap: 10px;
+  padding: 14px 12px;
+  min-height:0; overflow:hidden;
+}
+
+.svs-side-top{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 6px 10px 6px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.svs-side-title{
+  font-weight: 700;
+  letter-spacing: .2px;
+}
+.svs-side-group{
+  padding: 6px;
+}
+.svs-side-h{
+  font-size: 12px;
+  opacity: .72;
+  margin: 10px 8px 6px 8px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.svs-tab{
+  width: 100%;
+  text-align:left;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  padding: 10px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  opacity: .9;
+}
+.svs-tab:hover{ background: rgba(255,255,255,.06); }
+.svs-tab.is-active{
+  background: rgba(50, 255, 195, .12);
+  outline: 1px solid rgba(50,255,195,.16);
+  opacity: 1;
+}
+
+.svs-content{
+  background: rgba(6, 10, 15, .55);
+  padding: 18px 18px 16px 18px;
+  overflow:auto;
+  position: relative;
+  min-height:0;
+}
+
+.svs-page{ display:none; }
+.svs-page.is-active{ display:block; }
+
+.svs-h1{
+  font-size: 20px;
+  font-weight: 800;
+  margin: 4px 0 14px;
+}
+.svs-section{
+  padding: 14px;
+  border-radius: 14px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.06);
+  margin-bottom: 12px;
+}
+.svs-row{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 10px 0;
+  border-top: 1px solid rgba(255,255,255,.05);
+}
+.svs-row:first-child{ border-top:0; padding-top: 0; }
+.svs-row:last-child{ padding-bottom: 0; }
+
+.svs-row .meta{
+  min-width: 220px;
+}
+.svs-row .meta .t{
+  font-weight: 700;
+}
+.svs-row .meta .s{
+  opacity:.72;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.svs-select, .svs-input{
+  width: min(420px, 100%);
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.22);
+  color: inherit;
+}
+
+.svs-actions{
+  display:flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content:flex-end;
+}
+.svs-meter{
+  height: 10px;
+  width: min(420px, 100%);
+  border-radius: 999px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.08);
+  overflow:hidden;
+}
+.svs-meter > span{
+  display:block;
+  height: 100%;
+  width: 0%;
+  background: rgba(50,255,195,.75);
+}
+
+.svs-video-preview{
+  width: min(420px, 100%);
+  aspect-ratio: 16 / 9;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.25);
+  overflow:hidden;
+}
+.svs-video-preview video{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.svs-savebar{
+  position: sticky;
+  bottom: 0;
+  margin-top: 16px;
+  padding: 10px;
+  border-radius: 14px;
+  background: rgba(10,16,22,.82);
+  border: 1px solid rgba(255,255,255,.08);
+  display:none;
+  align-items:center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.svs-savebar.is-active{ display:flex; }
+
+.svs-savebar .txt{ opacity:.85; font-size: 13px; }
+
+
+/* ===== Server Settings pages (Overview / Members / Roles / Invites) ===== */
+.svs-card{
+  background: rgba(0,0,0,.18);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.svs-subh{
+  font-weight: 700;
+  letter-spacing: .2px;
+  margin: 0 0 10px 0;
+  opacity: .92;
+}
+
+.svs-two{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+@media (max-width: 920px){
+  .svs-two{ grid-template-columns: 1fr; }
+}
+
+.svs-row-top{ padding-top: 0; border-top: 0; }
+
+.svs-iconline{
+  display:flex;
+  align-items:center;
+  gap: 12px;
+  margin: 6px 0 12px 0;
+}
+
+.svs-actions-left{ justify-content:flex-start; }
+
+.svs-server-icon{
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.10);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  position: relative;
+}
+.svs-server-icon img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.svs-server-icon span{
+  font-weight: 900;
+  font-size: 26px;
+  opacity: .9;
+}
+
+.svs-banner-grid{
+  display:grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  margin: 6px 0 14px 0;
+}
+@media (max-width: 920px){
+  .svs-banner-grid{ grid-template-columns: repeat(6, 1fr); }
+}
+@media (max-width: 520px){
+  .svs-banner-grid{ grid-template-columns: repeat(4, 1fr); }
+}
+
+.svs-banner-swatch{
+  aspect-ratio: 1 / 1;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.06);
+  cursor:pointer;
+  position: relative;
+  overflow:hidden;
+}
+.svs-banner-swatch:hover{
+  outline: 2px solid rgba(50,255,195,.35);
+}
+.svs-banner-swatch.is-selected{
+  outline: 2px solid rgba(50,255,195,.75);
+}
+
+.svs-preview{
+  margin-top: 10px;
+}
+.svs-preview-card{
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.10);
+  overflow:hidden;
+  background: rgba(0,0,0,.18);
+}
+.svs-preview-banner{
+  height: 78px;
+  background: rgba(50,255,195,.18);
+}
+.svs-preview-body{
+  padding: 12px;
+  display:flex;
+  gap: 12px;
+  align-items:center;
+}
+.svs-preview-ava{
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.25);
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex: 0 0 auto;
+}
+.svs-preview-ava img{ width:100%; height:100%; object-fit:cover; }
+.svs-preview-ava span{ font-weight:900; font-size:22px; opacity:.9; }
+.svs-preview-meta{ display:flex; flex-direction:column; gap:4px; min-width:0; }
+.svs-preview-name{ font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.svs-preview-sub{ opacity:.72; font-size: 12px; }
+.svs-preview-tag{ opacity:.85; font-size: 12px; }
+
+.svs-pill{
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.22);
+  font-size: 12px;
+  opacity: .9;
+}
+
+.svs-members-top{
+  display:flex;
+  gap: 10px;
+  align-items:center;
+}
+.svs-search{ width: 100%; }
+
+.svs-members{
+  margin-top: 12px;
+  display:flex;
+  flex-direction:column;
+  gap: 8px;
+}
+.svs-member{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 10px;
+  border-radius: 12px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.06);
+}
+.svs-member-left{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  min-width: 0;
+}
+.svs-m-ava{
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.10);
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex: 0 0 auto;
+  position:relative;
+}
+.svs-m-ava img{ width:100%; height:100%; object-fit:cover; }
+.svs-m-ava .dot{
+  position:absolute;
+  right: -1px;
+  bottom: -1px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid rgba(10,16,22,.9);
+  background: rgba(255,255,255,.35);
+}
+.svs-m-ava .dot.is-online{ background: rgba(50,255,195,.95); }
+.svs-m-name{
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.svs-m-sub{ font-size: 12px; opacity: .72; }
+.svs-member-right{
+  display:flex;
+  gap: 10px;
+  align-items:center;
+}
+.svs-mini-select{
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.22);
+  color: inherit;
+}
+
+.svs-roles{
+  display:grid;
+  grid-template-columns: 360px 1fr;
+  gap: 14px;
+}
+@media (max-width: 920px){
+  .svs-roles{ grid-template-columns: 1fr; }
+}
+.svs-roles-head{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  margin-bottom: 10px;
+}
+.svs-roles-items{
+  display:flex;
+  flex-direction:column;
+  gap: 8px;
+}
+.svs-role-item{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 12px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.06);
+  cursor:pointer;
+}
+.svs-role-item:hover{ outline: 2px solid rgba(50,255,195,.25); }
+.svs-role-item.is-selected{ outline: 2px solid rgba(50,255,195,.75); }
+.svs-role-left{ display:flex; align-items:center; gap:10px; min-width:0; }
+.svs-role-dot{ width: 10px; height: 10px; border-radius: 50%; border: 1px solid rgba(255,255,255,.18); }
+.svs-role-name{ font-weight: 750; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.svs-role-empty{ opacity:.75; padding: 14px; }
+.svs-role-form.is-hidden{ display:none; }
+.svs-color{ width: 70px; height: 42px; border-radius: 12px; border: 1px solid rgba(255,255,255,.10); background: rgba(0,0,0,.22); }
+
+.svs-invite{
+  display:flex;
+  flex-direction:column;
+  gap: 10px;
+}
+.svs-note{ opacity:.72; font-size: 12px; }
+
+
+/* =========================
+   Server Invites (Discord-like)
+   ========================= */
+.svs-subhead{
+  margin: -8px 0 16px;
+  opacity: .85;
+  font-size: 13px;
+}
+.svs-mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+.svs-invite-friends-card{ padding: 0; overflow: hidden; }
+.svs-invite-search{ padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,.08); }
+.svs-search{ display:flex; align-items:center; gap:10px; background: rgba(0,0,0,.22); border: 1px solid rgba(255,255,255,.10); border-radius: 12px; padding: 10px 12px; }
+.svs-search-ico{ opacity:.65; font-size: 14px; }
+.svs-search-input{ border: none !important; background: transparent !important; padding: 0 !important; height: 18px; }
+.svs-search-input:focus{ outline: none !important; }
+
+.svs-invite-friends{
+  max-height: 420px;
+  overflow: auto;
+  padding: 8px;
+}
+.svs-invite-friend{
+  display:flex;
+  align-items:center;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 12px;
+}
+.svs-invite-friend:hover{ background: rgba(255,255,255,.06); }
+.svs-invite-friend .meta{
+  flex: 1;
+  min-width: 0;
+}
+.svs-invite-friend .name{
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.svs-invite-friend .sub{
+  opacity:.72;
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.svs-invite-friend .btn{
+  height: 32px;
+  padding: 0 12px;
+}
+.svs-invite-friend .btn.is-sent{
+  opacity: .8;
+}
+.svs-invite-friends-note{
+  padding: 10px 14px 14px;
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+
+.svs-linklike{
+  margin-top: 8px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: rgba(160,210,255,.95);
+  cursor: pointer;
+  text-align: left;
+  font-size: 12px;
+}
+.svs-linklike:hover{ text-decoration: underline; }
+
+/* v44: simple modal for invite settings */
+.svs-modal{
+  position: fixed;
+  inset: 0;
+  display: none;
+  z-index: 99999;
+}
+.svs-modal.active{ display: block; }
+.svs-modal__backdrop{
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.62);
+}
+.svs-modal__panel{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(520px, calc(100vw - 28px));
+  background: rgba(32, 34, 37, .98);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.55);
+  overflow: hidden;
+}
+.svs-modal__header{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.svs-modal__title{ font-weight: 700; }
+.svs-modal__close{
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(255,255,255,.04);
+  color: rgba(255,255,255,.85);
+  cursor: pointer;
+}
+.svs-modal__body{ padding: 14px 16px; }
+.svs-modal__footer{
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 12px 16px;
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+.svs-label{ display:block; font-size: 12px; opacity:.75; margin-bottom: 6px; }
+
+
+/* v45: invite settings checkbox */
+.svs-check input[type="checkbox"]{
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent, #5865F2);
+}
+.svs-check span{
+  font-size: 14px;
+}
+
+
+/*
+  NeonChat fix12: Discord-like "model" icon buttons (no visible squares)
+  Goal: icon buttons look like Discord voice controls (transparent base, bg only on hover/active)
+  Customizable via CSS variables (can be set from JS).
+*/
+
+:root{
+  /* Icon button geometry */
+  --dc-ic-size: 32px;
+  --dc-ic-size-sm: 30px;
+  --dc-ic-radius: 6px;
+  --dc-ic-radius-lg: 10px;
+
+  /* Colors (Discord-ish) */
+  --dc-ic-fg: rgba(181,186,193,1);          /* #B5BAC1 */
+  --dc-ic-fg-hover: rgba(219,222,225,1);    /* #DBDEE1 */
+  --dc-ic-bg-hover: rgba(79,84,92,0.35);    /* #4F545C */
+  --dc-ic-bg-active: rgba(79,84,92,0.55);
+  --dc-ic-bg-on: rgba(79,84,92,0.35);
+  --dc-ic-ring: 0 0 0 2px rgba(88,101,242,0.35);
+
+  /* Accents */
+  --dc-danger: rgba(237,66,69,1);           /* #ED4245 */
+  --dc-success: rgba(35,165,90,1);          /* #23A55A */
+}
+
+/* Helper: all visual layers MUST follow shape */
+.icon-btn,
+.call-icon-btn,
+.call-control,
+.nc-tp-mini{
+  border-radius: var(--dc-ic-radius);
+}
+.icon-btn::before, .icon-btn::after,
+.call-icon-btn::before, .call-icon-btn::after,
+.call-control::before, .call-control::after,
+.nc-tp-mini::before, .nc-tp-mini::after{
+  border-radius: inherit !important;
+}
+.btn-ripple{ border-radius: inherit; overflow:hidden; }
+
+/* === Discord model style for icon-type buttons === */
+html[data-btn-skin] .icon-btn,
+html[data-btn-skin] .call-icon-btn,
+html[data-btn-skin] .call-control,
+html[data-btn-skin] .nc-tp-mini{
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: var(--dc-ic-fg) !important;
+  padding: 0 !important;
+  min-width: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  user-select: none;
+  transition: background-color 120ms ease, color 120ms ease, transform 120ms ease, box-shadow 120ms ease;
+}
+
+/* Base sizes */
+html[data-btn-skin] .icon-btn{ width: var(--dc-ic-size); height: var(--dc-ic-size); }
+html[data-btn-skin] .icon-btn.sm{ width: var(--dc-ic-size-sm); height: var(--dc-ic-size-sm); }
+html[data-btn-skin] .call-icon-btn{ width: var(--dc-ic-size); height: var(--dc-ic-size); }
+
+/* Call controls are a bit larger in big call window */
+html[data-btn-skin] .call-controls-main .call-control,
+html[data-btn-skin] .call-controls-incoming .call-control{
+  width: 40px;
+  height: 40px;
+  border-radius: var(--dc-ic-radius-lg);
+}
+
+/* DM mini call bar should match screenshot */
+html[data-btn-skin] .voice-mini .icon-btn.sm{
+  width: 32px;
+  height: 32px;
+  border-radius: var(--dc-ic-radius);
+}
+
+/* Hover/active background appears only when interacting */
+html[data-btn-skin] .icon-btn:hover,
+html[data-btn-skin] .call-icon-btn:hover,
+html[data-btn-skin] .call-control:hover,
+html[data-btn-skin] .nc-tp-mini:hover{
+  background: var(--dc-ic-bg-hover) !important;
+  color: var(--dc-ic-fg-hover) !important;
+}
+
+html[data-btn-skin] .icon-btn:active,
+html[data-btn-skin] .call-icon-btn:active,
+html[data-btn-skin] .call-control:active,
+html[data-btn-skin] .nc-tp-mini:active{
+  background: var(--dc-ic-bg-active) !important;
+  transform: scale(0.96);
+}
+
+/* Elevated mode: tiny shadow on hover to feel like a "model" */
+html[data-btn-skin="elevated"] .icon-btn:hover,
+html[data-btn-skin="elevated"] .call-icon-btn:hover,
+html[data-btn-skin="elevated"] .call-control:hover,
+html[data-btn-skin="elevated"] .nc-tp-mini:hover{
+  box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+}
+
+/* Flat mode: no motion (Discord-like calm) */
+html[data-btn-skin="flat"] .icon-btn:hover,
+html[data-btn-skin="flat"] .call-icon-btn:hover,
+html[data-btn-skin="flat"] .call-control:hover,
+html[data-btn-skin="flat"] .nc-tp-mini:hover{
+  transform: none;
+}
+
+/* Focus ring */
+html[data-btn-skin] .icon-btn:focus-visible,
+html[data-btn-skin] .call-icon-btn:focus-visible,
+html[data-btn-skin] .call-control:focus-visible,
+html[data-btn-skin] .nc-tp-mini:focus-visible{
+  outline: none !important;
+  box-shadow: var(--dc-ic-ring) !important;
+}
+
+/* Toggled/on state: keep background subtle, but allow icon color accents */
+html[data-btn-skin] .icon-btn.toggled,
+html[data-btn-skin] .call-control.toggled,
+html[data-btn-skin] .call-control.is-on,
+html[data-btn-skin] .icon-btn.is-on{
+  background: var(--dc-ic-bg-on) !important;
+  color: var(--dc-ic-fg-hover) !important;
+}
+
+/* Muted / danger state for mic/sound buttons: icon becomes red like Discord */
+html[data-btn-skin] .icon-btn.danger:not(:hover),
+html[data-btn-skin] .call-control.danger:not(:hover){
+  background: transparent !important;
+  color: var(--dc-danger) !important;
+}
+
+/* End-call button should stay "filled" */
+html[data-btn-skin] #btn-end-call.call-control.danger{
+  background: rgba(237,66,69,0.90) !important;
+  color: #fff !important;
+}
+html[data-btn-skin] #btn-end-call.call-control.danger:hover{
+  background: rgba(237,66,69,1) !important;
+}
+html[data-btn-skin] #btn-end-call.call-control.danger:active{
+  background: rgba(210,57,60,1) !important;
+}
+
+/* Small dropdown caret buttons (if present) */
+html[data-btn-skin] .icon-btn.caret,
+html[data-btn-skin] .call-control.caret{
+  width: 24px;
+  height: 32px;
+  border-radius: 6px;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce){
+  html:not(.force-motion)[data-btn-skin] .icon-btn,
+  html:not(.force-motion)[data-btn-skin] .call-icon-btn,
+  html:not(.force-motion)[data-btn-skin] .call-control,
+  html:not(.force-motion)[data-btn-skin] .nc-tp-mini{
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
+/* Ripple should be subtle and follow button shape */
+html[data-btn-skin] .icon-btn.btn-ripple .ripple,
+html[data-btn-skin] .call-icon-btn.btn-ripple .ripple,
+html[data-btn-skin] .call-control.btn-ripple .ripple,
+html[data-btn-skin] .nc-tp-mini.btn-ripple .ripple{
+  background: rgba(255,255,255,0.28) !important;
+  mix-blend-mode: normal !important;
+}
+
+
+
+/* ==== FIX19: Make call controls feel alive (Discord-like, no squares) ==== */
+
+/* keep icons perfectly centered */
+.icon-btn svg.i, .call-control svg.i, .call-icon-btn svg.i{
+  width:20px; height:20px;
+  display:block;
+}
+
+/* per-button hover vibes (light, not annoying) */
+#btn-toggle-mic:hover, #btn-voice-mic:hover, #me-mic:hover{ animation: ncWiggle 620ms cubic-bezier(.2,.9,.2,1); }
+#btn-toggle-sound:hover, #btn-voice-sound:hover, #me-deafen:hover{ animation: ncFloat 900ms cubic-bezier(.2,.9,.2,1) infinite alternate; }
+#btn-call-video:hover, #btn-header-call:hover{ animation: ncFlip 520ms cubic-bezier(.2,.9,.2,1); }
+#btn-share-screen:hover{ animation: ncSlide 520ms cubic-bezier(.2,.9,.2,1); }
+#btn-end-call:hover{ animation: ncShake 420ms cubic-bezier(.2,.9,.2,1); }
+#btn-header-group-call:hover{ animation: ncPulse 780ms cubic-bezier(.2,.9,.2,1) infinite; }
+
+/* FIX22: fallback hover animation for ANY icon button (so it's never "dead")
+   Specific per-button rules above will still override this when present. */
+html.force-motion .icon-btn:hover svg.i,
+html.force-motion .call-control:hover svg.i,
+html.force-motion .call-icon-btn:hover svg.i,
+html.force-motion .nc-tp-mini:hover svg.i{
+  transform-origin: 50% 50%;
+  animation: ncIconBop 240ms cubic-bezier(.2,.9,.2,1) both;
+}
+@keyframes ncIconBop{
+  0%{ transform: translateY(0) scale(1); }
+  60%{ transform: translateY(-1px) scale(1.06); }
+  100%{ transform: translateY(0) scale(1); }
+}
+
+/* click burst class */
+.icon-btn.fx-tap, .call-control.fx-tap, .call-icon-btn.fx-tap{
+  animation: ncTapPop 180ms cubic-bezier(.2,.9,.2,1);
+}
+@keyframes ncTapPop{ from{ transform: translateY(0) scale(1);} to{ transform: translateY(-1px) scale(1.06);} }
+
+/* unique click classes (added by JS) */
+.icon-btn.fx-mic, .call-control.fx-mic{ animation: ncWiggle 620ms cubic-bezier(.2,.9,.2,1); }
+.icon-btn.fx-sound, .call-control.fx-sound{ animation: ncFloatOnce 620ms cubic-bezier(.2,.9,.2,1); }
+.icon-btn.fx-cam, .call-control.fx-cam{ animation: ncFlip 520ms cubic-bezier(.2,.9,.2,1); }
+.icon-btn.fx-screen, .call-control.fx-screen{ animation: ncSlide 520ms cubic-bezier(.2,.9,.2,1); }
+.icon-btn.fx-hang, .call-control.fx-hang{ animation: ncShake 420ms cubic-bezier(.2,.9,.2,1); }
+.icon-btn.fx-group, .call-control.fx-group{ animation: ncPulseOnce 620ms cubic-bezier(.2,.9,.2,1); }
+
+/* gear: spin on hover + on click */
+#btn-voice-settings:hover svg, #gm-settings:hover svg, #me-settings:hover svg, #ss-settings:hover svg,
+#btn-header-settings:hover svg, #btn-call-settings:hover svg,
+.icon-btn.fx-gear svg, .call-control.fx-gear svg{
+  transform-origin: 50% 50%;
+  animation: ncGearSpin 1.1s linear infinite;
+}
+@keyframes ncGearSpin{ to{ transform: rotate(360deg);} }
+
+@keyframes ncWiggle{
+  0%{ transform: translateY(0) rotate(0deg); }
+  25%{ transform: translateY(-1px) rotate(-6deg); }
+  60%{ transform: translateY(-1px) rotate(7deg); }
+  100%{ transform: translateY(0) rotate(0deg); }
+}
+@keyframes ncShake{
+  0%{ transform: translateX(0); }
+  20%{ transform: translateX(-2px); }
+  40%{ transform: translateX(2px); }
+  60%{ transform: translateX(-2px); }
+  80%{ transform: translateX(2px); }
+  100%{ transform: translateX(0); }
+}
+@keyframes ncFloat{
+  from{ transform: translateY(0); }
+  to{ transform: translateY(-2px); }
+}
+@keyframes ncFloatOnce{
+  0%{ transform: translateY(0); }
+  50%{ transform: translateY(-3px); }
+  100%{ transform: translateY(0); }
+}
+@keyframes ncFlip{
+  0%{ transform: rotate(0deg); }
+  100%{ transform: rotate(22deg); }
+}
+@keyframes ncSlide{
+  0%{ transform: translateX(0); }
+  60%{ transform: translateX(3px); }
+  100%{ transform: translateX(0); }
+}
+@keyframes ncPulse{
+  0%{ transform: scale(1); }
+  50%{ transform: scale(1.06); }
+  100%{ transform: scale(1); }
+}
+@keyframes ncPulseOnce{
+  0%{ transform: scale(1); }
+  55%{ transform: scale(1.10); }
+  100%{ transform: scale(1); }
+}
+
+
+
+/* ==== FIX23: stronger icon-only animations (mic trembles, headphones move, etc.) ==== */
+html.force-motion #btn-toggle-mic:hover svg.i,
+html.force-motion #btn-voice-mic:hover svg.i,
+html.force-motion #me-mic:hover svg.i{
+  transform-origin: 50% 60%;
+  animation: ncMicTremble 520ms cubic-bezier(.2,.9,.2,1);
+}
+html.force-motion #btn-toggle-sound:hover svg.i,
+html.force-motion #btn-voice-sound:hover svg.i{
+  transform-origin: 50% 55%;
+  animation: ncSpeakerTick 620ms cubic-bezier(.2,.9,.2,1);
+}
+html.force-motion #me-deafen:hover svg.i{
+  transform-origin: 50% 70%;
+  animation: ncHeadphonesBob 720ms cubic-bezier(.2,.9,.2,1);
+}
+
+/* FIX24: earcups slide toward each other (Discord-like “closing”) */
+html.force-motion #me-deafen:hover svg.i .hp-cup{
+  transform-box: fill-box;
+  transform-origin: center;
+}
+html.force-motion #me-deafen:hover svg.i .hp-cup-left{
+  animation: ncCupLeftIn 720ms cubic-bezier(.2,.9,.2,1);
+}
+html.force-motion #me-deafen:hover svg.i .hp-cup-right{
+  animation: ncCupRightIn 720ms cubic-bezier(.2,.9,.2,1);
+}
+html.force-motion #btn-toggle-music:hover svg.i{
+  transform-origin: 50% 70%;
+  animation: ncMusicBounce 700ms cubic-bezier(.2,.9,.2,1);
+}
+html.force-motion #btn-call-video:hover svg.i,
+html.force-motion #btn-header-call:hover svg.i{
+  transform-origin: 50% 50%;
+  animation: ncCamPeek 560ms cubic-bezier(.2,.9,.2,1);
+}
+html.force-motion #btn-share-screen:hover svg.i{
+  transform-origin: 50% 50%;
+  animation: ncScreenSlide 640ms cubic-bezier(.2,.9,.2,1);
+}
+html.force-motion #btn-end-call:hover svg.i{
+  transform-origin: 50% 55%;
+  animation: ncPhoneShake 420ms cubic-bezier(.2,.9,.2,1);
+}
+html.force-motion #btn-header-group-call:hover svg.i{
+  transform-origin: 50% 50%;
+  animation: ncGroupPulse 860ms cubic-bezier(.2,.9,.2,1) infinite;
+}
+
+/* subtle “alive” state when toggled (mute/deafen) */
+html.force-motion #btn-toggle-mic.toggled svg.i,
+html.force-motion #btn-voice-mic.toggled svg.i,
+html.force-motion #me-mic.toggled svg.i{
+  transform-origin: 50% 60%;
+  animation: ncMutedHum 1.15s ease-in-out infinite;
+}
+html.force-motion #btn-toggle-sound.toggled svg.i,
+html.force-motion #btn-voice-sound.toggled svg.i,
+html.force-motion #me-deafen.toggled svg.i{
+  transform-origin: 50% 70%;
+  animation: ncMutedHum 1.15s ease-in-out infinite;
+}
+
+@keyframes ncMicTremble{
+  0%{ transform: translateX(0) rotate(0deg) scale(1); }
+  12%{ transform: translateX(-1px) rotate(-6deg) scale(1.02); }
+  24%{ transform: translateX(1px) rotate(6deg) scale(1.02); }
+  36%{ transform: translateX(-1px) rotate(-5deg) scale(1.03); }
+  52%{ transform: translateX(1px) rotate(5deg) scale(1.03); }
+  70%{ transform: translateX(-0.5px) rotate(-3deg) scale(1.02); }
+  100%{ transform: translateX(0) rotate(0deg) scale(1); }
+}
+@keyframes ncHeadphonesBob{
+  0%{ transform: translateY(0) scale(1); }
+  30%{ transform: translateY(-1px) scale(1.03); }
+  60%{ transform: translateY(0) scale(1.02); }
+  100%{ transform: translateY(0) scale(1); }
+}
+
+@keyframes ncCupLeftIn{
+  0%{ transform: translateX(0) rotate(0deg) scale(1); }
+  30%{ transform: translateX(1.6px) rotate(6deg) scale(1.06); }
+  62%{ transform: translateX(1.0px) rotate(3deg) scale(1.03); }
+  100%{ transform: translateX(0) rotate(0deg) scale(1); }
+}
+@keyframes ncCupRightIn{
+  0%{ transform: translateX(0) rotate(0deg) scale(1); }
+  30%{ transform: translateX(-1.6px) rotate(-6deg) scale(1.06); }
+  62%{ transform: translateX(-1.0px) rotate(-3deg) scale(1.03); }
+  100%{ transform: translateX(0) rotate(0deg) scale(1); }
+}
+@keyframes ncSpeakerTick{
+  0%{ transform: translateX(0) rotate(0deg); }
+  30%{ transform: translateX(1px) rotate(6deg); }
+  60%{ transform: translateX(-1px) rotate(-6deg); }
+  100%{ transform: translateX(0) rotate(0deg); }
+}
+@keyframes ncMusicBounce{
+  0%{ transform: translateY(0) scale(1); }
+  35%{ transform: translateY(-2px) scale(1.05); }
+  70%{ transform: translateY(0) scale(1.02); }
+  100%{ transform: translateY(0) scale(1); }
+}
+@keyframes ncCamPeek{
+  0%{ transform: translateY(0) rotate(0deg); }
+  45%{ transform: translateY(-1px) rotate(16deg); }
+  100%{ transform: translateY(0) rotate(0deg); }
+}
+@keyframes ncScreenSlide{
+  0%{ transform: translateX(0) scale(1); }
+  35%{ transform: translateX(3px) scale(1.03); }
+  70%{ transform: translateX(-1px) scale(1.01); }
+  100%{ transform: translateX(0) scale(1); }
+}
+@keyframes ncPhoneShake{
+  0%{ transform: rotate(0deg); }
+  20%{ transform: rotate(-10deg); }
+  40%{ transform: rotate(10deg); }
+  60%{ transform: rotate(-8deg); }
+  80%{ transform: rotate(8deg); }
+  100%{ transform: rotate(0deg); }
+}
+@keyframes ncGroupPulse{
+  0%{ transform: scale(1); }
+  50%{ transform: scale(1.09); }
+  100%{ transform: scale(1); }
+}
+@keyframes ncMutedHum{
+  0%{ transform: translateY(0) scale(1); }
+  50%{ transform: translateY(-0.6px) scale(1.03); }
+  100%{ transform: translateY(0) scale(1); }
+}
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce){
+  html:not(.force-motion) #btn-toggle-mic:hover,
+  html:not(.force-motion) #btn-toggle-sound:hover,
+  html:not(.force-motion) #btn-voice-mic:hover,
+  html:not(.force-motion) #btn-voice-sound:hover,
+  html:not(.force-motion) #me-mic:hover,
+  html:not(.force-motion) #me-deafen:hover,
+  html:not(.force-motion) #btn-call-video:hover,
+  html:not(.force-motion) #btn-header-call:hover,
+  html:not(.force-motion) #btn-share-screen:hover,
+  html:not(.force-motion) #btn-end-call:hover,
+  html:not(.force-motion) #btn-header-group-call:hover{
+    animation:none !important;
+  }
+  html:not(.force-motion) #btn-header-settings:hover svg,
+  html:not(.force-motion) #btn-call-settings:hover svg{ animation:none !important; }
+}
+
+
+
+/* Neon Pulsar logo (PNG): no "double letters" overlay; only a subtle spark. */
+
+.np-wrap{
+  display:inline-block;
+  line-height:0;
+}
+
+/* PNG logo container */
+.np-wrap.np-img{
+  position:relative;
+  overflow:visible;
+}
+
+/* Base logo */
+.np-logo-img{
+  display:block;
+  width: 240px;
+  height:auto;
+  overflow:visible;
+  position: relative;
+  z-index: 1;
+  will-change: filter;
+  /* Slightly "bolder" feel without duplicating the letters */
+  filter:
+    drop-shadow(0 0 1px rgba(255,255,255,.25))
+    drop-shadow(0 0 10px rgba(42,245,255,.16))
+    drop-shadow(0 0 12px rgba(255,107,255,.10));
+}
+
+/* Moving spark: a small flare that travels along the center axis.
+   User request: NOT a wide "stripe" shimmer — a compact sparkle between letters. */
+.np-wrap.np-img::after{
+  content:"";
+  position:absolute;
+  top:50%;
+  left:-8%;
+  width:14px;
+  height:14px;
+  border-radius:999px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle at 50% 50%,
+    rgba(255,255,255,.70) 0%,
+    rgba(255,255,255,.26) 35%,
+    rgba(255,255,255,0) 72%
+  );
+  box-shadow:
+    0 0 10px rgba(255,255,255,.18),
+    0 0 16px rgba(122,243,255,.10),
+    0 0 16px rgba(255,124,251,.08);
+  filter: blur(.15px);
+  opacity:0;
+  pointer-events:none;
+  z-index: 2;
+  animation: npSparkDot 2.8s ease-in-out infinite;
+}
+
+@keyframes npSparkDot{
+  0%   { left: -8%; opacity: 0; }
+  10%  { opacity: .16; }
+  45%  { opacity: .32; }
+  70%  { opacity: .26; }
+  88%  { opacity: .14; }
+  100% { left: 108%; opacity: 0; }
+}
+
+/* Hover boost */
+.np-wrap.np-img:hover .np-logo-img{
+  filter:
+    drop-shadow(0 0 2px rgba(255,255,255,.28))
+    drop-shadow(0 0 12px rgba(42,245,255,.20))
+    drop-shadow(0 0 14px rgba(255,107,255,.12));
+}
+
+/* Small instance for the left rail: same idea, just subtler and faster.
+   IMPORTANT: render on a pure black, fully-rounded background (Discord-like). */
+.np-wrap.np-img.np-rail{
+  position: relative;
+  overflow: hidden;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  background: #000;
+  border-radius: 999px;
+}
+.np-wrap.np-img.np-rail::after{
+  width: 10px;
+  height: 10px;
+  animation: npRailDot 2.1s ease-in-out infinite;
+  box-shadow:
+    0 0 8px rgba(255,255,255,.14),
+    0 0 12px rgba(122,243,255,.08),
+    0 0 12px rgba(255,124,251,.06);
+}
+@keyframes npRailDot{
+  0%   { left: -15%; opacity: 0; }
+  14%  { opacity: .14; }
+  50%  { opacity: .24; }
+  84%  { opacity: .14; }
+  100% { left: 115%; opacity: 0; }
+}
+.np-wrap.np-img.np-rail .np-logo-img{
+  /* Slightly bigger letters, but still fully visible inside the circle */
+  width: 29px;
+  height: 29px;
+  filter: none;
+}
+
+/* Auth pages: keep the original app gradient background (no forced solid black). */
+.auth-wrapper{
+  background: transparent;
+}
+
+.auth-card .np-wrap{ display:block; text-align:center; }
+.auth-card .np-logo-img{
+  /* Logo size tuned so it fits nicely inside the card and doesn't crop */
+  width: min(360px, 100%);
+  max-width: 100%;
+  display: block;
+  margin: 10px auto 14px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce){
+  html:not(.force-motion) .np-logo-img,
+  html:not(.force-motion) .np-wrap.np-img::after{
+    animation: none !important;
+  }
+}
+
+
+/* Ensure the rail brand uses the same PNG sizing */
+/* Rail brand icon sizing: keep it smaller so the whole NP is visible */
+.dc-brand-btn .dc-brand-img.np-logo-img{
+  /* Make the NP a touch larger in the rail brand button */
+  width: 31px !important;
+  height: 31px !important;
+  object-fit: contain;
+}
+
+/* Rail brand button: PURE black background + rounded corners */
+/* Rail brand button: FULL black, true round shape */
+.dc-rail .dc-brand-btn,
+.dc-brand-btn{
+  background: #000 !important;
+  background-image: none !important;
+  border-radius: 50% !important;
+  overflow: hidden;
+  border: none !important;
+  box-shadow: none !important;
+  width: 46px !important;
+  height: 46px !important;
+  padding: 0 !important;
+  display: grid;
+  place-items: center;
+}
+
+/* Keep the hover state black too (skins set a gray hover bg) */
+.dc-rail .dc-brand-btn:hover,
+.dc-rail .dc-brand-btn:active,
+.dc-rail .dc-brand-btn:focus-visible,
+.dc-brand-btn:hover,
+.dc-brand-btn:active,
+.dc-brand-btn:focus-visible{
+  background: #000 !important;
+  background-image: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Disable older "brand hue/pulse/jitter" effects coming from legacy overrides.
+   User wants: no color cycling / no double overlays, only the subtle spark. */
+.dc-brand-btn .dc-brand-img,
+.dc-brand-btn:hover .dc-brand-img{
+  animation: none !important;
+  transform: none !important;
+  filter: none !important;
+}
+.dc-brand-btn,
+.dc-brand-btn:hover{
+  transform: none !important;
+}
+
+/* Disable any legacy pseudo-elements on the brand button itself.
+   The moving spark is rendered by .np-wrap.np-rail::after (above). */
+.dc-brand-btn::before,
+.dc-brand-btn::after{
+  content: none !important;
+  animation: none !important;
+  opacity: 0 !important;
+}
+
+
+
+/* FIX: rail logo hover effects must not expand clickable area into the sidebar. */
+#rail-brand, .dc-brand-btn{
+  position: relative;
+}
+.dc-brand-btn::before,
+.dc-brand-btn::after{
+  pointer-events: none !important;
+}
+
+
+/* Discord-like bottom-left user popout menu */
+
+.me-popout{
+  position: fixed;
+  z-index: 9999;
+  width: 360px;
+  max-width: calc(100vw - 24px);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 18px 50px rgba(0,0,0,.55);
+}
+
+.me-popout[hidden]{ display:none !important; }
+
+.me-popout-banner{
+  height: 92px;
+  background:
+    radial-gradient(160px 120px at 15% 40%, rgba(0,255,240,.20), transparent 70%),
+    radial-gradient(200px 140px at 80% 40%, rgba(255,0,200,.22), transparent 72%),
+    linear-gradient(135deg, rgba(255,255,255,.06), rgba(0,0,0,.06));
+}
+
+.me-popout-body{
+  padding: 12px 12px 12px;
+}
+
+.me-popout-user{
+  display:flex;
+  gap: 12px;
+  align-items:center;
+  margin-top: -44px;
+  padding-bottom: 10px;
+}
+
+.me-popout-avatar{
+  width: 76px;
+  height: 76px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.06);
+  border: 4px solid rgba(20,20,26,.95);
+  position: relative;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.me-popout-avatar.has-image{ background-size: cover; background-position: center; }
+
+.me-popout-avatar .avatar-initial{ font-weight: 800; font-size: 28px; opacity:.9 }
+
+.me-popout-avatar .presence-dot{
+  position:absolute;
+  right: 6px;
+  bottom: 6px;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  border: 3px solid rgba(20,20,26,.95);
+}
+
+.me-popout-names{ min-width:0; }
+.me-popout-name{ font-weight: 800; font-size: 18px; line-height: 1.1; }
+.me-popout-sub{ opacity:.7; font-size: 13px; margin-top: 3px; }
+
+.me-popout-actions{ display:flex; gap: 10px; }
+.me-popout-actions .me-btn{
+  flex:1;
+  border-radius: 10px;
+  padding: 9px 10px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.06);
+  color: rgba(255,255,255,.92);
+  cursor:pointer;
+  font-weight: 700;
+}
+.me-popout-actions .me-btn:hover{ background: rgba(255,255,255,.10); }
+.me-popout-actions .me-btn.ghost{ background: rgba(255,255,255,.03); }
+
+.me-popout-sep{ height:1px; background: rgba(255,255,255,.10); margin: 12px 0; }
+
+.me-popout-title{ font-size: 12px; opacity:.75; font-weight: 800; letter-spacing: .02em; margin-bottom: 6px; }
+
+.me-status-list{ display:flex; flex-direction: column; gap: 6px; }
+
+.me-status-btn{
+  width: 100%;
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.04);
+  cursor: pointer;
+  color: rgba(255,255,255,.92);
+}
+
+.me-status-btn:hover{ background: rgba(255,255,255,.08); }
+
+.me-status-btn .swatch{ width: 12px; height: 12px; border-radius: 999px; }
+.me-status-btn .label{ flex:1; text-align:left; font-weight: 700; }
+.me-status-btn .chev{ opacity:.65; font-size: 16px; }
+
+.me-submenu{
+  position: absolute;
+  top: 0;
+  left: calc(100% + 10px);
+  width: 220px;
+  border-radius: 14px;
+  overflow:hidden;
+  box-shadow: 0 18px 50px rgba(0,0,0,.55);
+}
+.me-submenu[hidden]{ display:none !important; }
+
+.me-submenu .me-submenu-body{ padding: 10px; }
+
+.me-submenu .me-subitem{
+  width:100%;
+  padding: 9px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.04);
+  cursor: pointer;
+  color: rgba(255,255,255,.92);
+  text-align:left;
+  font-weight: 700;
+}
+.me-submenu .me-subitem:hover{ background: rgba(255,255,255,.08); }
+
+/* Presence colors (reuse existing dot classes) */
+.swatch.is-online{ background: #2bd9a3; }
+.swatch.is-away{ background: #f3c243; }
+.swatch.is-dnd{ background: #ff4d4f; }
+.swatch.is-offline{ background: #6b7280; }
+.swatch.is-invisible{ background: #6b7280; box-shadow: inset 0 0 0 2px rgba(255,255,255,.25); }

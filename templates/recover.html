@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="auth-wrapper">
+  <div class="auth-card glass-card">
+    {% include "_np_logo.html" %}
+    <h2 class="auth-title">Восстановление по коду</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-list">
+        {% for cat, msg in messages %}
+          <div class="flash flash-{{ cat }}">{{ msg }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+    {% endwith %}
+
+    <form method="post" class="auth-form">
+      <label>Ник</label>
+      <input type="text" name="username" id="recover-username" autocomplete="username" maxlength="32" required>
+
+      <label>Код восстановления</label>
+      <input type="text" name="code" placeholder="XXXX-XXXX-XXXX" autocomplete="one-time-code" required>
+
+      <label>Новый пароль <span class="hint">(8–21, сложный)</span></label>
+      <div class="pw-rules">Нужно: заглавная + строчная + цифра + символ. Нельзя: 123456, abcdef, много одинаковых подряд.</div>
+      <input type="password" name="password" id="recover-password" autocomplete="new-password" minlength="8" maxlength="21" required>
+
+      <div class="pw-meter" aria-live="polite" data-pw-meter data-password="recover-password" data-username="recover-username">
+        <div class="pw-meter-track"><div class="pw-meter-bar lvl-0" id="pw-bar-recover"></div></div>
+        <div class="pw-meter-text" id="pw-text-recover">Введи пароль</div>
+        <ul class="pw-meter-list" id="pw-list-recover"></ul>
+      </div>
+
+      <label>Повтори пароль</label>
+      <input type="password" name="password2" autocomplete="new-password" minlength="8" maxlength="21" required>
+
+      <button type="submit" class="btn-primary">Сменить пароль</button>
+
+      <div class="auth-help">
+        Пароль по почте мы не восстанавливаем. Нужен один из твоих recovery-кодов.
+      </div>
+    </form>
+
+    <div class="auth-alt">
+      Вспомнил пароль? <a href="{{ url_for('login') }}">Войти</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

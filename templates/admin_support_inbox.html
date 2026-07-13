@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="auth-wrapper" style="align-items:flex-start; padding-top:32px; padding-bottom:32px;">
+  <div class="auth-card glass-card" style="max-width:1240px; width:min(1240px, 96vw);">
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+      <div>
+        <h2 class="auth-title">Support Inbox</h2>
+        <div class="auth-subtitle">Живой вид очереди поддержки: что ждёт именно тебя, где тебя позвали и какие тикеты ещё никем не подобраны. Роль: <b>{{ support_role_label(current_support_role) }}</b>.</div>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="nc-btn ghost" type="button" id="toggleSupportSoundBtn" onclick="toggleSupportSound()">🔔 Звук: вкл</button>
+        <a class="nc-btn ghost" href="/admin/support">Открыть панель</a>
+        <a class="nc-btn ghost" href="/admin">Админка</a>
+      </div>
+    </div>
+
+    <div class="nc-security-stats" style="margin-top:18px;">
+      <div class="nc-security-stat"><div class="nc-security-stat-label">Мои тикеты</div><div class="nc-security-stat-value" id="inboxAssignedCount">{{ inbox.counts.assigned_waiting }}</div></div>
+      <div class="nc-security-stat"><div class="nc-security-stat-label">Упоминания</div><div class="nc-security-stat-value" id="inboxMentionsCount">{{ inbox.counts.unread_mentions }}</div></div>
+      <div class="nc-security-stat"><div class="nc-security-stat-label">Без саппорта</div><div class="nc-security-stat-value" id="inboxHotCount">{{ inbox.counts.unassigned_hot }}</div></div>
+      <div class="nc-security-stat"><div class="nc-security-stat-label">Overdue</div><div class="nc-security-stat-value" id="inboxOverdueCount">{{ inbox.counts.overdue }}</div></div>
+    </div>
+
+    <div class="glass-card" style="padding:12px 14px; border-radius:16px; display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
+      <a class="nc-btn ghost" href="/admin/support/inbox" style="{% if not focus %}box-shadow:0 0 0 1px rgba(122,243,255,.38) inset;{% endif %}">Всё</a>
+      <a class="nc-btn ghost" href="/admin/support/inbox?focus=mine" style="{% if focus=='mine' %}box-shadow:0 0 0 1px rgba(122,243,255,.38) inset;{% endif %}">Только мои</a>
+      <a class="nc-btn ghost" href="/admin/support/inbox?focus=unassigned" style="{% if focus=='unassigned' %}box-shadow:0 0 0 1px rgba(122,243,255,.38) inset;{% endif %}">Только без саппорта</a>
+      <a class="nc-btn ghost" href="/admin/support/inbox?focus=overdue" style="{% if focus=='overdue' %}box-shadow:0 0 0 1px rgba(255,107,129,.38) inset;{% endif %}">Только overdue</a>
+      <div class="nc-settings-muted" style="align-self:center;">Быстрый фокус очереди без перезагрузки тикета.</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; margin-top:18px; align-items:start;">
+      <div class="glass-card" style="padding:14px; border-radius:18px; min-height:520px;">
+        <div class="nc-device-title">Ждут мой ответ</div>
+        <div class="nc-device-sub">Назначенные мне тикеты. Сверху те, где очередь за саппортом.</div>
+        <div class="nc-audit-list" id="assignedList" style="margin-top:12px; max-height:620px; overflow:auto;">
+          {% for row in inbox.assigned_waiting %}
+          <div class="nc-audit-item">
+            <div class="nc-device-title">#{{ row.id }} · {{ row.subject }}</div>
+            <div class="nc-device-sub">{{ row.priority }} · {{ row.status }} · ждёт: {{ row.waiting_for }}</div>
+            <div class="nc-device-sub">{% if row.sla %}<span class="nc-audit-badge {% if row.sla.is_overdue %}is-bad{% elif row.sla.waiting_for == 'user' %}is-ok{% else %}is-warn{% endif %}">{{ row.sla.label }}</span>{% endif %}</div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
+              <a class="nc-btn ghost" href="/admin/support?ticket={{ row.id }}">Открыть</a>
+              <button class="nc-btn ghost" type="button" onclick="takeTicket({{ row.id }}, this)">Взять</button>
+            </div>
+          </div>
+          {% else %}
+          <div class="nc-settings-muted">Пока пусто.</div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="glass-card" style="padding:14px; border-radius:18px; min-height:520px;">
+        <div class="nc-device-title">Упоминания</div>
+        <div class="nc-device-sub">Коллеги могут позвать тебя во внутренней заметке через @username.</div>
+        <div class="nc-audit-list" id="mentionsList" style="margin-top:12px; max-height:620px; overflow:auto;">
+          {% for row in inbox.mentions %}
+          <div class="nc-audit-item" style="opacity:{% if row.is_read %}.76{% else %}1{% endif %};">
+            <div class="nc-device-title">#{{ row.ticket_id }} · {{ row.from_username }}</div>
+            <div class="nc-device-sub">{{ row.subject }}</div>
+            <div style="margin-top:6px; white-space:pre-wrap; line-height:1.4;">{{ row.context_text }}</div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
+              <a class="nc-btn ghost" href="/admin/support?ticket={{ row.ticket_id }}">Открыть тикет</a>
+              {% if not row.is_read %}<button class="nc-btn ghost" type="button" onclick="markMentionRead({{ row.id }}, this)">Прочитано</button>{% endif %}
+            </div>
+          </div>
+          {% else %}
+          <div class="nc-settings-muted">Упоминаний пока нет.</div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="glass-card" style="padding:14px; border-radius:18px; min-height:520px;">
+        <div class="nc-device-title">Горячие без саппорта</div>
+        <div class="nc-device-sub">Срочные и свежие тикеты, которые ещё никем не взяты.</div>
+        <div class="nc-audit-list" id="hotList" style="margin-top:12px; max-height:620px; overflow:auto;">
+          {% for row in inbox.unassigned_hot %}
+          <div class="nc-audit-item">
+            <div class="nc-device-title">#{{ row.id }} · {{ row.subject }}</div>
+            <div class="nc-device-sub">{{ row.priority }} · {{ row.status }}</div>
+            <div class="nc-device-sub">{% if row.sla %}<span class="nc-audit-badge {% if row.sla.is_overdue %}is-bad{% else %}is-warn{% endif %}">{{ row.sla.label }}</span>{% endif %}</div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
+              <a class="nc-btn ghost" href="/admin/support?ticket={{ row.id }}">Открыть</a>
+              <button class="nc-btn" type="button" onclick="takeTicket({{ row.id }}, this)">Взять себе</button>
+            </div>
+          </div>
+          {% else %}
+          <div class="nc-settings-muted">Все тикеты уже распределены.</div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="glass-card" style="padding:14px; border-radius:18px; min-height:520px;">
+        <div class="nc-device-title">Overdue</div>
+        <div class="nc-device-sub">Тикеты, где дедлайн ответа саппорта уже прошёл.</div>
+        <div class="nc-audit-list" id="overdueList" style="margin-top:12px; max-height:620px; overflow:auto;">
+          {% for row in inbox.overdue %}
+          <div class="nc-audit-item">
+            <div class="nc-device-title">#{{ row.id }} · {{ row.subject }}</div>
+            <div class="nc-device-sub">{{ row.priority }} · {{ row.status }}{% if row.assigned_to %} · assigned{% endif %}</div>
+            <div class="nc-device-sub">{% if row.sla %}<span class="nc-audit-badge is-bad">{{ row.sla.label }}</span>{% endif %}</div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
+              <a class="nc-btn ghost" href="/admin/support?queue=overdue&ticket={{ row.id }}">Открыть</a>
+              <button class="nc-btn ghost" type="button" onclick="takeTicket({{ row.id }}, this)">Взять</button>
+            </div>
+          </div>
+          {% else %}
+          <div class="nc-settings-muted">Просроченных тикетов нет.</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+const __focusFilter = {{ (focus or '')|tojson }};
+async function markMentionRead(id, btn){
+  const r = await fetch(`/api/admin/support/mentions/${id}/read`, {method:'POST'});
+  const j = await r.json().catch(()=>({ok:false}));
+  if(!j.ok) return alert(j.error || 'Не удалось отметить');
+  const card = btn.closest('.nc-audit-item');
+  if(card) card.style.opacity = '.76';
+  btn.remove();
+  refreshInboxLive();
+}
+function supportSoundEnabled(){
+  return localStorage.getItem('nc_support_sound') !== '0';
+}
+function refreshSupportSoundButton(){
+  const btn = document.getElementById('toggleSupportSoundBtn');
+  if(btn) btn.textContent = supportSoundEnabled() ? '🔔 Звук: вкл' : '🔕 Звук: выкл';
+}
+function toggleSupportSound(){
+  localStorage.setItem('nc_support_sound', supportSoundEnabled() ? '0' : '1');
+  refreshSupportSoundButton();
+}
+function playSupportPing(){
+  if(!supportSoundEnabled()) return;
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = 880;
+    gain.gain.value = 0.02;
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start();
+    setTimeout(()=>{ osc.frequency.value = 660; }, 120);
+    setTimeout(()=>{ gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.18); }, 160);
+    setTimeout(()=>{ try{osc.stop(); ctx.close();}catch(_e){} }, 360);
+  }catch(_e){}
+}
+function showSupportToast(title, body, href){
+  let root = document.getElementById('supportToastRoot');
+  if(!root){
+    root = document.createElement('div');
+    root.id = 'supportToastRoot';
+    root.style.cssText = 'position:fixed; right:18px; bottom:18px; z-index:9999; display:grid; gap:10px; max-width:min(360px, calc(100vw - 24px));';
+    document.body.appendChild(root);
+  }
+  const card = document.createElement(href ? 'a' : 'div');
+  if(href) card.href = href;
+  card.style.cssText = 'display:block; text-decoration:none; color:inherit; padding:14px 16px; border-radius:18px; backdrop-filter:blur(18px); background:rgba(16,18,24,.84); border:1px solid rgba(255,255,255,.12); box-shadow:0 18px 48px rgba(0,0,0,.35);';
+  card.innerHTML = `<div style="font-weight:700; margin-bottom:4px;">${String(title||'Новое событие').replace(/</g,'&lt;')}</div><div style="opacity:.88; line-height:1.35; white-space:pre-wrap;">${String(body||'').replace(/</g,'&lt;')}</div>`;
+  root.appendChild(card);
+  setTimeout(()=>{ card.style.transition='opacity .25s ease, transform .25s ease'; card.style.opacity='0'; card.style.transform='translateY(8px)'; }, 5200);
+  setTimeout(()=>{ try{ card.remove(); }catch(_e){} }, 5600);
+}
+async function takeTicket(id, btn){
+  if(btn) btn.disabled = true;
+  try{
+    const r = await fetch(`/api/admin/support/tickets/${id}/assign`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({mode:'me'})});
+    const j = await r.json().catch(()=>({ok:false}));
+    if(!j.ok) throw new Error(j.error || 'Не удалось взять тикет');
+    showSupportToast('Тикет взят', `#${id} теперь назначен на тебя`, `/admin/support?ticket=${id}`);
+    refreshInboxLive();
+  }catch(e){
+    alert(e.message || 'Не удалось взять тикет');
+    if(btn) btn.disabled = false;
+  }
+}
+function renderTicketCard(row, mode){
+  const sla = row.sla || null;
+  const slaClass = !sla ? '' : (sla.is_overdue ? 'is-bad' : (sla.waiting_for === 'user' ? 'is-ok' : 'is-warn'));
+  const sub = mode === 'assigned' ? `${row.priority} · ${row.status} · ждёт: ${row.waiting_for}` : `${row.priority} · ${row.status}`;
+  const action = mode === 'hot' ? `<button class="nc-btn" type="button" onclick="takeTicket(${row.id}, this)">Взять себе</button>` : `<button class="nc-btn ghost" type="button" onclick="takeTicket(${row.id}, this)">Взять</button>`;
+  return `<div class="nc-audit-item"><div class="nc-device-title">#${row.id} · ${String(row.subject || '').replace(/</g,'&lt;')}</div><div class="nc-device-sub">${sub}</div><div class="nc-device-sub">${sla ? `<span class="nc-audit-badge ${slaClass}">${String(sla.label || '').replace(/</g,'&lt;')}</span>` : ''}</div><div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;"><a class="nc-btn ghost" href="/admin/support?ticket=${row.id}">Открыть</a>${action}</div></div>`;
+}
+function renderMentionCard(row){
+  const opacity = row.is_read ? '.76' : '1';
+  return `<div class="nc-audit-item" style="opacity:${opacity};"><div class="nc-device-title">#${row.ticket_id} · ${String(row.from_username || 'staff').replace(/</g,'&lt;')}</div><div class="nc-device-sub">${String(row.subject || '').replace(/</g,'&lt;')}</div><div style="margin-top:6px; white-space:pre-wrap; line-height:1.4;">${String(row.context_text || '').replace(/</g,'&lt;')}</div><div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;"><a class="nc-btn ghost" href="/admin/support?ticket=${row.ticket_id}">Открыть тикет</a>${row.is_read ? '' : `<button class="nc-btn ghost" type="button" onclick="markMentionRead(${row.id}, this)">Прочитано</button>`}</div></div>`;
+}
+let __inboxBaseTitle = document.title;
+let __prevInboxCounts = null;
+refreshSupportSoundButton();
+async function refreshInboxLive(){
+  try{
+    const r = await fetch('/api/admin/support/inbox', {headers:{'Accept':'application/json'}});
+    const j = await r.json();
+    if(!j.ok) return;
+    const inbox = j.inbox || {assigned_waiting:[], mentions:[], unassigned_hot:[], counts:{}};
+    document.getElementById('inboxAssignedCount').textContent = inbox.counts?.assigned_waiting ?? 0;
+    document.getElementById('inboxMentionsCount').textContent = inbox.counts?.unread_mentions ?? 0;
+    document.getElementById('inboxHotCount').textContent = inbox.counts?.unassigned_hot ?? 0;
+    const overdueCountEl = document.getElementById('inboxOverdueCount'); if(overdueCountEl) overdueCountEl.textContent = inbox.counts?.overdue ?? 0;
+    document.getElementById('assignedList').innerHTML = inbox.assigned_waiting?.length ? inbox.assigned_waiting.map(r => renderTicketCard(r, 'assigned')).join('') : '<div class="nc-settings-muted">Пока пусто.</div>';
+    document.getElementById('mentionsList').innerHTML = inbox.mentions?.length ? inbox.mentions.map(renderMentionCard).join('') : '<div class="nc-settings-muted">Упоминаний пока нет.</div>';
+    document.getElementById('hotList').innerHTML = inbox.unassigned_hot?.length ? inbox.unassigned_hot.map(r => renderTicketCard(r, 'hot')).join('') : '<div class=\"nc-settings-muted\">Все тикеты уже распределены.</div>';
+    const overdueRows = inbox.overdue || [];
+    const overdueList = document.getElementById('overdueList');
+    if(overdueList) overdueList.innerHTML = overdueRows.length ? overdueRows.map(r => renderTicketCard(r, 'assigned')).join('') : '<div class=\"nc-settings-muted\">Просроченных тикетов нет.</div>';
+    const assignedCard = document.getElementById('assignedList').closest('.glass-card');
+    const mentionsCard = document.getElementById('mentionsList').closest('.glass-card');
+    const hotCard = document.getElementById('hotList').closest('.glass-card');
+    const overdueCard = overdueList ? overdueList.closest('.glass-card') : null;
+    [assignedCard, mentionsCard, hotCard, overdueCard].forEach(function(card){ if(card) card.style.display = 'block'; });
+    if(__focusFilter === 'mine'){ if(mentionsCard) mentionsCard.style.display='none'; if(hotCard) hotCard.style.display='none'; if(overdueCard) overdueCard.style.display='none'; }
+    else if(__focusFilter === 'unassigned'){ if(assignedCard) assignedCard.style.display='none'; if(mentionsCard) mentionsCard.style.display='none'; if(overdueCard) overdueCard.style.display='none'; }
+    else if(__focusFilter === 'overdue'){ if(assignedCard) assignedCard.style.display='none'; if(mentionsCard) mentionsCard.style.display='none'; if(hotCard) hotCard.style.display='none'; }
+    const counts = {assigned: Number(inbox.counts?.assigned_waiting || 0), mentions: Number(inbox.counts?.unread_mentions || 0), hot: Number(inbox.counts?.unassigned_hot || 0)};
+    if(__prevInboxCounts){
+      if(counts.mentions > __prevInboxCounts.mentions){
+        playSupportPing();
+        showSupportToast('Новое упоминание', `Тебя позвали во внутренней заметке. Новых: ${counts.mentions - __prevInboxCounts.mentions}`, '/admin/support/inbox');
+      }
+      if(counts.assigned > __prevInboxCounts.assigned){
+        playSupportPing();
+        showSupportToast('Новый тикет ждёт тебя', `В очереди появилось ещё ${counts.assigned - __prevInboxCounts.assigned} тикет(ов).`, '/admin/support/inbox');
+      }
+      if(counts.hot > __prevInboxCounts.hot){
+        showSupportToast('Появились горячие тикеты', `Без саппорта сейчас: ${counts.hot}`, '/admin/support/inbox');
+      }
+    }
+    __prevInboxCounts = counts;
+    const ping = counts.mentions + counts.assigned;
+    document.title = ping > 0 ? `(${ping}) Support Inbox · ${__inboxBaseTitle}` : __inboxBaseTitle;
+  }catch(_e){}
+}
+setInterval(refreshInboxLive, 45000);
+setTimeout(refreshInboxLive, 2500);
+(function bindSupportInboxLive(){
+  function attach(){
+    try{
+      if(!window.io) return setTimeout(attach, 600);
+      if(window.__ncSupportInboxSocketBound) return;
+      const sock = window.__ncSupportSocket || io();
+      window.__ncSupportSocket = sock;
+      window.__ncSupportInboxSocketBound = true;
+      sock.on('support_live_update', function(){ refreshInboxLive(); });
+    }catch(_e){ setTimeout(attach, 1200); }
+  }
+  attach();
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,217 @@
+/* v50: make idle screenshare preview feel like one full live stage */
+.ss-preview{
+  min-height: 380px !important;
+}
+
+.ss-preview-placeholder{
+  position: absolute !important;
+  inset: 42px 14px 14px 14px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: stretch !important;
+  justify-content: stretch !important;
+  overflow: hidden !important;
+}
+
+.ss-preview-scene{
+  position: relative !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  min-height: 100% !important;
+  margin: 0 !important;
+  padding: 24px 26px 22px !important;
+  border-radius: 24px !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-rows: auto auto minmax(0, 1fr) auto auto !important;
+  align-content: stretch !important;
+  justify-items: start !important;
+  gap: 12px !important;
+  overflow: hidden !important;
+  background:
+    radial-gradient(120% 140% at 100% 100%, rgba(39, 214, 255, 0.18) 0%, rgba(39, 214, 255, 0) 52%),
+    radial-gradient(100% 110% at 0% 0%, rgba(217, 82, 255, 0.20) 0%, rgba(217, 82, 255, 0) 46%),
+    linear-gradient(135deg, rgba(7, 11, 28, 0.98) 0%, rgba(9, 15, 34, 0.95) 46%, rgba(7, 9, 23, 0.98) 100%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.08),
+    inset 0 0 0 1px rgba(118, 197, 255, 0.08),
+    0 18px 42px rgba(0,0,0,0.30) !important;
+}
+
+.ss-preview-scene::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0)),
+    radial-gradient(58% 60% at 50% 46%, rgba(90, 94, 255, 0.10), transparent 70%);
+}
+
+.ss-preview-kicker,
+.ss-preview-title,
+.ss-preview-copy,
+.ss-preview-sources,
+.ss-preview-hints{
+  position: relative;
+  z-index: 1;
+}
+
+.ss-preview-kicker{
+  padding: 10px 16px !important;
+  border-radius: 999px !important;
+  font-size: 11px !important;
+  letter-spacing: .18em !important;
+}
+
+.ss-preview-title{
+  max-width: 14ch !important;
+  margin: 0 !important;
+  font-size: clamp(32px, 1.4vw + 22px, 44px) !important;
+  line-height: 0.93 !important;
+  letter-spacing: -0.05em !important;
+  text-wrap: balance !important;
+}
+
+.ss-preview-copy{
+  max-width: 52ch !important;
+  margin: 0 !important;
+  font-size: 15px !important;
+  line-height: 1.36 !important;
+  color: rgba(229, 237, 251, 0.88) !important;
+}
+
+.ss-preview-sources{
+  width: 100% !important;
+  margin-top: auto !important;
+  align-self: end !important;
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+}
+
+.ss-source-card{
+  min-width: 0 !important;
+  min-height: 82px !important;
+  padding: 16px 16px !important;
+  gap: 12px !important;
+  border-radius: 18px !important;
+  align-items: center !important;
+  background:
+    linear-gradient(180deg, rgba(18, 29, 53, 0.90), rgba(7, 13, 28, 0.94)) !important;
+  border: 1px solid rgba(126, 202, 255, 0.16) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.05),
+    0 12px 26px rgba(0,0,0,0.24) !important;
+}
+
+.ss-source-card-copy{
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+.ss-source-card-title,
+.ss-source-card-sub{
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+.ss-source-card-title{
+  font-size: 15px !important;
+  line-height: 1.08 !important;
+}
+
+.ss-source-card-sub{
+  display: block !important;
+  margin-top: 4px !important;
+  font-size: 11px !important;
+  line-height: 1.22 !important;
+}
+
+.ss-preview-hints{
+  margin-top: 2px !important;
+  width: 100% !important;
+  justify-content: flex-start !important;
+}
+
+.ss-preview-tip{
+  min-height: 32px !important;
+  padding: 0 12px !important;
+  font-size: 11px !important;
+}
+
+@media (max-width: 980px){
+  .ss-preview-scene{
+    padding: 20px 20px 18px !important;
+    gap: 10px !important;
+  }
+
+  .ss-preview-title{
+    font-size: clamp(26px, 1vw + 20px, 34px) !important;
+  }
+
+  .ss-preview-copy{
+    max-width: 44ch !important;
+    font-size: 13px !important;
+  }
+
+  .ss-preview-sources{
+    gap: 10px !important;
+  }
+
+  .ss-source-card{
+    min-height: 72px !important;
+    padding: 13px 12px !important;
+    gap: 10px !important;
+  }
+
+  .ss-source-card-title{
+    font-size: 13px !important;
+  }
+
+  .ss-source-card-sub{
+    font-size: 10px !important;
+  }
+}
+
+@media (max-height: 920px){
+  .ss-preview{
+    min-height: 320px !important;
+  }
+
+  .ss-preview-scene{
+    padding: 18px 18px 16px !important;
+    gap: 9px !important;
+  }
+
+  .ss-preview-title{
+    font-size: clamp(24px, 1vw + 18px, 30px) !important;
+    max-width: 13ch !important;
+  }
+
+  .ss-preview-copy{
+    font-size: 12.5px !important;
+    max-width: 42ch !important;
+  }
+
+  .ss-source-card{
+    min-height: 64px !important;
+    padding: 11px 10px !important;
+  }
+
+  .ss-source-card-icon{
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 13px !important;
+  }
+
+  .ss-source-card-title{
+    font-size: 12px !important;
+  }
+
+  .ss-source-card-sub{
+    font-size: 9.5px !important;
+  }
+}

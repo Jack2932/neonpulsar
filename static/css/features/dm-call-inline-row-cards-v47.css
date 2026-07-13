@@ -1,0 +1,63 @@
+/* =========================
+   v47 — DM call control bar width / alignment hotfix
+   Fixes the stretched/uneven control panel seen after v46.
+   ========================= */
+
+/* Make the DM bottom wrapper hug the content instead of reserving a wide row */
+body .layout.dc-layout #call-bar.call-hud[data-layout="dm"] .call-bottom,
+#call-bar.call-hud[data-layout="dm"] .call-bottom{
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: -moz-fit-content !important;
+  width: fit-content !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  flex: 0 0 auto !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Kill old absolute/drag transforms and force a snug pill around visible buttons only */
+body .layout.dc-layout #call-bar.call-hud[data-layout="dm"] .call-controls-main,
+#call-bar.call-hud[data-layout="dm"] .call-controls-main{
+  position: relative !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  top: auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+  width: -moz-fit-content !important;
+  width: fit-content !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  flex: 0 0 auto !important;
+  margin: 0 auto !important;
+  white-space: nowrap !important;
+  transform: translate3d(0, var(--nc-callbar-y, 0px), 0) !important;
+}
+
+/* Ensure hidden placeholders do not reserve any width in DM */
+body .layout.dc-layout #call-bar.call-hud[data-layout="dm"] #btn-call-more,
+body .layout.dc-layout #call-bar.call-hud[data-layout="dm"] .call-control.ghost,
+#call-bar.call-hud[data-layout="dm"] #btn-call-more,
+#call-bar.call-hud[data-layout="dm"] .call-control.ghost{
+  display: none !important;
+  width: 0 !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+}
+
+/* Keep the bar visually centered on narrow widths too */
+@media (max-width: 760px){
+  body .layout.dc-layout #call-bar.call-hud[data-layout="dm"] .call-controls-main,
+  #call-bar.call-hud[data-layout="dm"] .call-controls-main{
+    gap: 6px !important;
+  }
+}

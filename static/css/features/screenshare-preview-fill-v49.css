@@ -1,0 +1,202 @@
+/* v49: make idle screenshare preview fill the whole stage and remove ellipsis */
+.ss-preview{
+  min-height: 360px !important;
+}
+
+.ss-preview-placeholder{
+  padding: 0 !important;
+  display: flex !important;
+  align-items: stretch !important;
+  justify-content: stretch !important;
+}
+
+.ss-preview-scene{
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 28px 30px !important;
+  border-radius: 30px !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  align-content: center !important;
+  justify-items: start !important;
+  gap: 14px !important;
+  background:
+    radial-gradient(120% 130% at 100% 100%, rgba(33, 211, 255, 0.14) 0%, rgba(33, 211, 255, 0) 52%),
+    radial-gradient(120% 120% at 0% 0%, rgba(213, 78, 255, 0.18) 0%, rgba(213, 78, 255, 0) 48%),
+    linear-gradient(135deg, rgba(8, 13, 32, 0.96) 0%, rgba(11, 18, 39, 0.92) 52%, rgba(9, 11, 28, 0.96) 100%) !important;
+}
+
+.ss-preview-kicker{
+  padding: 10px 16px !important;
+  font-size: 11px !important;
+  letter-spacing: .18em !important;
+}
+
+.ss-preview-title{
+  max-width: 15ch !important;
+  font-size: clamp(34px, 2vw + 16px, 52px) !important;
+  line-height: 0.92 !important;
+  letter-spacing: -0.05em !important;
+  text-wrap: balance !important;
+}
+
+.ss-preview-copy{
+  max-width: 56ch !important;
+  font-size: 16px !important;
+  line-height: 1.35 !important;
+  color: rgba(227, 236, 250, 0.86) !important;
+}
+
+.ss-preview-sources{
+  width: min(100%, 860px) !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 14px !important;
+}
+
+.ss-source-card{
+  min-width: 0 !important;
+  min-height: 84px !important;
+  gap: 12px !important;
+  padding: 16px 18px !important;
+  border-radius: 18px !important;
+  align-items: center !important;
+}
+
+.ss-source-card-icon{
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 12px !important;
+  font-size: 15px !important;
+}
+
+.ss-source-card-title{
+  font-size: 16px !important;
+  line-height: 1.08 !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+.ss-source-card-sub{
+  display: block !important;
+  margin-top: 4px !important;
+  font-size: 12px !important;
+  line-height: 1.18 !important;
+}
+
+.ss-preview-hints{
+  width: auto !important;
+  gap: 8px !important;
+}
+
+.ss-preview-tip{
+  min-height: 32px !important;
+  padding: 0 12px !important;
+  font-size: 11px !important;
+  line-height: 1 !important;
+}
+
+@media (max-width: 1100px){
+  .ss-preview-scene{
+    padding: 22px 24px !important;
+    gap: 12px !important;
+  }
+
+  .ss-preview-title{
+    font-size: clamp(28px, 1.6vw + 16px, 40px) !important;
+    max-width: 14ch !important;
+  }
+
+  .ss-preview-copy{
+    max-width: 48ch !important;
+    font-size: 14px !important;
+  }
+
+  .ss-source-card{
+    min-height: 74px !important;
+    padding: 14px 14px !important;
+  }
+
+  .ss-source-card-title{
+    font-size: 14px !important;
+  }
+}
+
+@media (max-width: 820px){
+  .ss-preview-scene{
+    padding: 18px !important;
+    align-content: start !important;
+  }
+
+  .ss-preview-title{
+    font-size: 24px !important;
+    max-width: 13ch !important;
+  }
+
+  .ss-preview-copy{
+    font-size: 12.5px !important;
+    max-width: 38ch !important;
+  }
+
+  .ss-preview-sources{
+    gap: 8px !important;
+  }
+
+  .ss-source-card{
+    min-height: 62px !important;
+    gap: 8px !important;
+    padding: 10px 10px !important;
+  }
+
+  .ss-source-card-icon{
+    width: 30px !important;
+    height: 30px !important;
+    border-radius: 10px !important;
+    font-size: 12px !important;
+  }
+
+  .ss-source-card-title{
+    font-size: 12px !important;
+  }
+
+  .ss-source-card-sub{
+    font-size: 10px !important;
+  }
+}
+
+@media (max-height: 900px){
+  .ss-preview{
+    min-height: 320px !important;
+  }
+
+  .ss-preview-scene{
+    padding: 20px 22px !important;
+    gap: 10px !important;
+  }
+
+  .ss-preview-title{
+    font-size: clamp(24px, 1.2vw + 14px, 34px) !important;
+    max-width: 14ch !important;
+  }
+
+  .ss-preview-copy{
+    font-size: 13px !important;
+    max-width: 42ch !important;
+  }
+
+  .ss-source-card{
+    min-height: 66px !important;
+    padding: 11px 12px !important;
+  }
+
+  .ss-source-card-title{
+    font-size: 13px !important;
+  }
+
+  .ss-source-card-sub{
+    font-size: 10.5px !important;
+  }
+}

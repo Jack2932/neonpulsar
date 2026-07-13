@@ -1,0 +1,139 @@
+/* Stage B1 — composer & message interaction */
+
+#message-form.nc-composer-active{
+  box-shadow: 0 16px 40px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+#message-form.nc-has-text .nc-send-hidden,
+#message-form.nc-has-upload .nc-send-hidden{
+  display:inline-flex !important;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  min-width: 42px;
+  height: 38px;
+  padding: 0 12px;
+  margin-left: 2px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0.04)),
+    linear-gradient(135deg, color-mix(in srgb, var(--accent-soft, #7AF3FF) 76%, transparent), color-mix(in srgb, var(--accent, #FF7CFB) 78%, transparent));
+  color: rgba(255,255,255,0.96);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.28);
+}
+
+#message-form.nc-has-text .nc-send-hidden .i,
+#message-form.nc-has-upload .nc-send-hidden .i{
+  width: 16px;
+  height: 16px;
+}
+
+#message-form.nc-has-text .nc-send-hidden span,
+#message-form.nc-has-upload .nc-send-hidden span{
+  display:none;
+}
+
+#message-form.nc-has-text #btn-gift,
+#message-form.nc-has-upload #btn-gift{
+  opacity: .56;
+}
+
+.nc-replybar{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin: 0 0 8px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.03)),
+    rgba(10, 16, 28, 0.76);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.22);
+}
+
+.nc-replybar.is-hidden{ display:none; }
+
+.nc-replybar-accent{
+  width:4px;
+  min-width:4px;
+  align-self:stretch;
+  border-radius:999px;
+  background: linear-gradient(180deg, var(--accent-soft, #7AF3FF), var(--accent, #FF7CFB));
+  box-shadow: 0 0 18px color-mix(in srgb, var(--accent-soft, #7AF3FF) 55%, transparent);
+}
+
+.nc-replybar-body{
+  min-width:0;
+  flex:1;
+}
+
+.nc-replybar-label{
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color: color-mix(in srgb, var(--accent-soft, #7AF3FF) 88%, white);
+  margin-bottom:3px;
+}
+
+.nc-replybar-meta{
+  display:flex;
+  align-items:baseline;
+  gap:8px;
+  min-width:0;
+}
+
+.nc-replybar-user{
+  font-size:13px;
+  font-weight:700;
+  color: rgba(255,255,255,0.96);
+  white-space:nowrap;
+}
+
+.nc-replybar-snippet{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:13px;
+  color: rgba(255,255,255,0.64);
+}
+
+.nc-replybar-close{
+  width:32px;
+  height:32px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.82);
+  cursor:pointer;
+}
+
+.nc-replybar-close:hover{
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.96);
+}
+
+@media (max-width: 720px){
+  #message-form.nc-has-text .nc-send-hidden,
+  #message-form.nc-has-upload .nc-send-hidden{
+    min-width: 38px;
+    width: 38px;
+    padding: 0;
+  }
+
+  .nc-replybar{
+    padding: 9px 10px;
+    border-radius: 12px;
+    gap: 10px;
+  }
+
+  .nc-replybar-user,
+  .nc-replybar-snippet{
+    font-size: 12px;
+  }
+}

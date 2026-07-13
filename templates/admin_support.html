@@ -1,0 +1,832 @@
+{% extends "base.html" %}
+{% block body %}
+<style>
+.nc-support-workspace{display:grid;grid-template-columns:minmax(320px,var(--support-queue-width,420px)) 10px minmax(0,1fr);gap:0;margin-top:16px;align-items:start;}
+.nc-support-queue-pane{min-width:0;padding-right:8px;}
+.nc-support-view-pane{min-width:0;padding-left:8px;}
+.nc-support-resizer{width:10px;cursor:col-resize;position:relative;align-self:stretch;min-height:560px;}
+.nc-support-resizer::before{content:"";position:absolute;left:50%;top:8px;bottom:8px;width:2px;transform:translateX(-50%);border-radius:999px;background:linear-gradient(180deg, rgba(122,243,255,.18), rgba(126,92,255,.45), rgba(122,243,255,.18));}
+.nc-support-resizer:hover::before,.nc-support-resizer.is-dragging::before{background:linear-gradient(180deg, rgba(122,243,255,.36), rgba(126,92,255,.72), rgba(122,243,255,.36));box-shadow:0 0 16px rgba(126,92,255,.35);}
+.nc-support-dropdock{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px;}
+.nc-support-dropzone-grid{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+.nc-support-dropzone{padding:10px 12px;border-radius:14px;border:1px dashed rgba(255,255,255,.18);background:rgba(255,255,255,.03);transition:.18s ease;user-select:none;}
+.nc-support-dropzone.is-over{border-color:rgba(122,243,255,.55);background:rgba(122,243,255,.09);transform:translateY(-1px);}
+.nc-support-ticket-link{position:relative;}
+.nc-support-ticket-link.is-dragging{opacity:.55;transform:scale(.995);}
+.nc-support-inline-reply{display:none;margin-top:10px;padding:10px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);}
+.nc-support-inline-reply.is-open{display:grid;gap:8px;}
+.nc-support-inline-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.nc-support-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:12px 0;}
+.nc-support-select-chip{padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);font-size:13px;}
+.nc-support-kanban{display:none;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;max-height:800px;overflow:hidden;}
+.nc-support-kanban.is-visible{display:grid;}
+.nc-support-kanban-col{display:grid;grid-template-rows:auto 1fr;gap:10px;min-height:420px;padding:12px;border-radius:18px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);overflow:hidden;}
+.nc-support-kanban-list{display:grid;gap:10px;overflow:auto;padding-right:4px;}
+.nc-support-kanban-col.is-over{border-color:rgba(122,243,255,.5);box-shadow:0 0 0 1px rgba(122,243,255,.24) inset, 0 0 22px rgba(122,243,255,.10);}
+.nc-support-mini-card{padding:12px;border-radius:16px;border:1px solid rgba(255,255,255,.08);background:rgba(7,10,18,.48);cursor:pointer;}
+.nc-support-mini-card.is-selected{border-color:rgba(122,243,255,.42);box-shadow:0 0 0 1px rgba(122,243,255,.18) inset;}
+.nc-support-mini-card.is-dragging{opacity:.5;}
+.nc-support-batchbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:10px 12px;border-radius:16px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);margin-bottom:12px;}
+.nc-support-batchbar[hidden]{display:none !important;}
+.nc-support-view-toggle.is-active{box-shadow:0 0 0 1px rgba(122,243,255,.34) inset;background:rgba(122,243,255,.08);}
+.nc-support-ticket-check{accent-color:#7af3ff;width:16px;height:16px;}
+@media (max-width: 980px){.nc-support-workspace{grid-template-columns:1fr;}.nc-support-resizer{display:none;}.nc-support-queue-pane{padding-right:0;}.nc-support-view-pane{padding-left:0;margin-top:14px;}.nc-support-dropdock{grid-template-columns:1fr;}}
+</style>
+<div class="auth-wrapper" style="align-items:flex-start; padding-top:32px; padding-bottom:32px;">
+  <div class="auth-card glass-card" style="max-width:1320px; width:min(1320px, 96vw);">
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+      <div>
+        <h2 class="auth-title">Саппорт-панель</h2>
+        <div class="auth-subtitle">Очередь поддержки, назначение ответственных, ответы клиентам, шаблоны и SLA-контроль. Твоя роль: <b>{{ support_role_label(current_support_role) }}</b>.</div>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <a class="nc-btn ghost" href="/admin">Назад в админку</a>
+        <button class="nc-btn ghost" type="button" id="toggleSupportSoundBtn" onclick="toggleSupportSound()">🔔 Звук: вкл</button><a class="nc-btn ghost" href="/support">Пользовательский центр</a><a class="nc-btn ghost" href="/admin/support/inbox">Support Inbox</a><a class="nc-btn ghost" href="/help">Публичная страница</a><a class="nc-btn" href="/admin/support/analytics">Analytics</a>
+      </div>
+    </div>
+
+    <div class="nc-security-stats" style="margin-top:18px;">
+      <div class="nc-security-stat"><div class="nc-security-stat-label">Открытые</div><div class="nc-security-stat-value">{{ stats.open }}</div></div>
+      <div class="nc-security-stat"><div class="nc-security-stat-label">В работе</div><div class="nc-security-stat-value">{{ stats.pending }}</div></div>
+      <div class="nc-security-stat"><div class="nc-security-stat-label">Новые за 24ч</div><div class="nc-security-stat-value">{{ stats.new_24h }}</div></div>
+      <div class="nc-security-stat"><div class="nc-security-stat-label">Закрыто за 24ч</div><div class="nc-security-stat-value">{{ stats.closed_24h }}</div></div>
+    </div>
+
+    <div class="nc-security-stats" style="margin-top:12px;">
+      <div class="nc-security-stat"><div class="nc-security-stat-label">First reply, мин</div><div class="nc-security-stat-value">{{ analytics_mini.stats.avg_first_response_min if analytics_mini.stats.avg_first_response_min is not none else '—' }}</div></div>
+      <div class="nc-security-stat"><div class="nc-security-stat-label">CSAT</div><div class="nc-security-stat-value">{{ analytics_mini.stats.csat_avg if analytics_mini.stats.csat_avg is not none else '—' }}</div></div>
+      <div class="nc-security-stat"><div class="nc-security-stat-label">Overdue сейчас</div><div class="nc-security-stat-value">{{ analytics_mini.stats.overdue_now }}</div></div>
+      <div class="nc-security-stat"><div class="nc-security-stat-label">Создано 7д</div><div class="nc-security-stat-value">{{ analytics_mini.trend_7d.created }}</div></div>
+      <div class="nc-security-stat"><div class="nc-security-stat-label">Закрыто 7д</div><div class="nc-security-stat-value">{{ analytics_mini.trend_7d.closed }}</div></div>
+    </div>
+
+    <div class="nc-security-stats" style="margin-top:12px;">
+      <div class="nc-security-stat"><div class="nc-security-stat-label">Новые события</div><div class="nc-security-stat-value"><span id="liveUnseenEvents">{{ support_notifications.unseen_events }}</span></div></div>
+      <div class="nc-security-stat"><div class="nc-security-stat-label">Без саппорта</div><div class="nc-security-stat-value"><span id="liveUnassignedOpen">{{ support_notifications.unassigned_open }}</span></div></div>
+      <div class="nc-security-stat"><div class="nc-security-stat-label">Ждут меня</div><div class="nc-security-stat-value"><span id="liveMyWaiting">{{ support_notifications.my_waiting }}</span></div></div>
+      <div class="nc-security-stat"><div class="nc-security-stat-label">Новые тикеты</div><div class="nc-security-stat-value"><span id="liveNewOpen">{{ support_notifications.new_open }}</span></div></div>
+      <div class="nc-security-stat"><div class="nc-security-stat-label">Упоминания</div><div class="nc-security-stat-value" id="liveMentionsCount">{{ support_notifications.unread_mentions }}</div></div>
+      <div class="nc-security-stat"><div class="nc-security-stat-label">Overdue</div><div class="nc-security-stat-value" id="liveOverdueCount">{{ support_inbox.counts.overdue }}</div></div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-top:16px;">
+      <div class="glass-card" style="padding:14px; border-radius:16px;">
+        <div class="nc-device-title">Ждут мой ответ</div>
+        <div class="nc-device-sub">{{ support_inbox.counts.assigned_waiting }} тикетов в моём инбоксе.</div>
+        {% for row in support_inbox.assigned_waiting[:3] %}<a href="/admin/support?ticket={{ row.id }}" class="nc-audit-item" style="display:block; text-decoration:none; color:inherit; margin-top:8px;"><div class="nc-device-title">#{{ row.id }} · {{ row.subject }}</div><div class="nc-device-sub">{{ row.priority }} · {{ row.waiting_for }}</div></a>{% else %}<div class="nc-settings-muted" style="margin-top:8px;">Пусто.</div>{% endfor %}
+      </div>
+      <div class="glass-card" style="padding:14px; border-radius:16px;">
+        <div class="nc-device-title">Упоминания команды</div>
+        <div class="nc-device-sub">Внутренние заметки с @username.</div>
+        {% for row in support_inbox.mentions[:3] %}<a href="/admin/support?ticket={{ row.ticket_id }}" class="nc-audit-item" style="display:block; text-decoration:none; color:inherit; margin-top:8px; opacity:{% if row.is_read %}.75{% else %}1{% endif %};"><div class="nc-device-title">#{{ row.ticket_id }} · {{ row.from_username }}</div><div class="nc-device-sub">{{ row.context_text }}</div></a>{% else %}<div class="nc-settings-muted" style="margin-top:8px;">Пока никто не звал.</div>{% endfor %}
+      </div>
+      <div class="glass-card" style="padding:14px; border-radius:16px;">
+        <div class="nc-device-title">Горячие без саппорта</div>
+        <div class="nc-device-sub">{{ support_inbox.counts.unassigned_hot }} новых или срочных без ответственного.</div>
+        {% for row in support_inbox.unassigned_hot[:3] %}<a href="/admin/support?ticket={{ row.id }}" class="nc-audit-item" style="display:block; text-decoration:none; color:inherit; margin-top:8px;"><div class="nc-device-title">#{{ row.id }} · {{ row.subject }}</div><div class="nc-device-sub">{{ row.priority }} · {{ row.status }}</div></a>{% else %}<div class="nc-settings-muted" style="margin-top:8px;">Все под контролем.</div>{% endfor %}
+      </div>
+    </div>
+
+    <div class="glass-card" style="padding:14px; border-radius:16px; margin-top:16px;">
+      <div class="nc-vv-h2">Команда поддержки</div>
+      <div class="nc-vv-muted">Роли: Support / Senior Support / Head Support.</div>
+      <div style="overflow:auto; margin-top:10px;">
+        <table style="width:100%; min-width:780px; border-collapse:collapse; font-size:14px;">
+          <thead><tr><th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Пользователь</th><th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Роль</th><th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Категории</th><th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Скиллы</th><th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Лимит</th><th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Сохранить</th></tr></thead>
+          <tbody>
+            {% for uid, profile in support_profiles.items() %}
+              {% if user_map.get(uid) or uid == current_user.id %}
+              <tr><td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);">{{ user_map[uid].username if user_map.get(uid) else ('#' ~ uid) }}</td><td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);"><div style="display:grid; gap:8px;"><span class="nc-audit-badge is-warn">{{ support_role_label(profile.role_level) }}</span><select class="auth-input nc-support-role-select" data-user-id="{{ uid }}" style="max-width:220px;"><option value="support" {% if profile.role_level == 'support' %}selected{% endif %}>Support</option><option value="senior_support" {% if profile.role_level == 'senior_support' %}selected{% endif %}>Senior Support</option><option value="head_support" {% if profile.role_level == 'head_support' %}selected{% endif %}>Head Support</option></select></div></td><td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);"><input class="auth-input nc-support-categories-input" data-user-id="{{ uid }}" value="{{ profile.categories_csv or '' }}" placeholder="security, billing, ui"></td><td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);"><input class="auth-input nc-support-skills-input" data-user-id="{{ uid }}" value="{{ profile.skills_csv or '' }}" placeholder="technical, voice, mobile"></td><td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);"><input class="auth-input nc-support-max-active-input" data-user-id="{{ uid }}" type="number" min="0" max="500" value="{{ profile.max_active or 0 }}" style="max-width:110px;"><div class="nc-settings-muted" style="margin-top:6px;">0 = без лимита</div></td><td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);"><div style="display:grid; gap:8px;"><button type="button" class="nc-btn ghost nc-support-role-save" data-user-id="{{ uid }}">Сохранить</button><div class="nc-settings-muted" style="max-width:220px;">Категории и скиллы помогают автоназначению выбирать подходящего саппорта.</div></div></td></tr>
+              {% endif %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="glass-card" style="padding:14px; border-radius:16px; margin-top:16px;">
+      <div class="nc-vv-h2">SLA rules</div>
+      <div class="nc-vv-muted">Правила first reply / next reply / auto-escalation. Поддерживаются * wildcard и точные category + priority.</div>
+      <div style="overflow:auto; margin-top:10px;">
+        <table style="width:100%; min-width:980px; border-collapse:collapse; font-size:14px;">
+          <thead><tr><th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Category</th><th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Priority</th><th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">First, мин</th><th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Next, мин</th><th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Escalate, мин</th><th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Мин. роль</th><th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Вкл</th><th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Сохранить</th></tr></thead>
+          <tbody>
+            {% for row in sla_rules %}
+            <tr>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);"><input class="auth-input nc-sla-category" data-rule-id="{{ row.id }}" value="{{ row.category or '*' }}" placeholder="*"></td>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);"><select class="auth-input nc-sla-priority" data-rule-id="{{ row.id }}"><option value="*" {% if (row.priority or '*') == '*' %}selected{% endif %}>*</option><option value="low" {% if row.priority == 'low' %}selected{% endif %}>low</option><option value="normal" {% if row.priority == 'normal' %}selected{% endif %}>normal</option><option value="high" {% if row.priority == 'high' %}selected{% endif %}>high</option><option value="urgent" {% if row.priority == 'urgent' %}selected{% endif %}>urgent</option></select></td>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);"><input class="auth-input nc-sla-first" data-rule-id="{{ row.id }}" type="number" min="5" max="10080" value="{{ row.first_reply_minutes or 0 }}"></td>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);"><input class="auth-input nc-sla-next" data-rule-id="{{ row.id }}" type="number" min="5" max="10080" value="{{ row.next_reply_minutes or 0 }}"></td>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);"><input class="auth-input nc-sla-escalate" data-rule-id="{{ row.id }}" type="number" min="5" max="10080" value="{{ row.escalate_after_minutes or 0 }}"></td>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);"><select class="auth-input nc-sla-role" data-rule-id="{{ row.id }}"><option value="support" {% if row.required_role == 'support' %}selected{% endif %}>Support</option><option value="senior_support" {% if row.required_role == 'senior_support' %}selected{% endif %}>Senior Support</option><option value="head_support" {% if row.required_role == 'head_support' %}selected{% endif %}>Head Support</option></select></td>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);"><label style="display:flex; align-items:center; gap:8px;"><input class="nc-sla-enabled" data-rule-id="{{ row.id }}" type="checkbox" {% if row.is_enabled %}checked{% endif %}><span>{{ 'on' if row.is_enabled else 'off' }}</span></label></td>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);"><button type="button" class="nc-btn ghost nc-sla-save" data-rule-id="{{ row.id }}">Сохранить</button></td>
+            </tr>
+            {% endfor %}
+            <tr>
+              <td style="padding:10px;"><input class="auth-input nc-sla-category" data-rule-id="0" value="*" placeholder="*"></td>
+              <td style="padding:10px;"><select class="auth-input nc-sla-priority" data-rule-id="0"><option value="*" selected>*</option><option value="low">low</option><option value="normal">normal</option><option value="high">high</option><option value="urgent">urgent</option></select></td>
+              <td style="padding:10px;"><input class="auth-input nc-sla-first" data-rule-id="0" type="number" min="5" max="10080" value="240"></td>
+              <td style="padding:10px;"><input class="auth-input nc-sla-next" data-rule-id="0" type="number" min="5" max="10080" value="720"></td>
+              <td style="padding:10px;"><input class="auth-input nc-sla-escalate" data-rule-id="0" type="number" min="5" max="10080" value="30"></td>
+              <td style="padding:10px;"><select class="auth-input nc-sla-role" data-rule-id="0"><option value="support" selected>Support</option><option value="senior_support">Senior Support</option><option value="head_support">Head Support</option></select></td>
+              <td style="padding:10px;"><label style="display:flex; align-items:center; gap:8px;"><input class="nc-sla-enabled" data-rule-id="0" type="checkbox" checked><span>new</span></label></td>
+              <td style="padding:10px;"><button type="button" class="nc-btn nc-sla-save" data-rule-id="0">Добавить</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="glass-card" style="padding:12px 14px; border-radius:16px; display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
+      <a class="nc-btn ghost" href="/admin/support{% if selected %}?ticket={{ selected.id }}{% endif %}" style="{% if not queue %}box-shadow:0 0 0 1px rgba(122,243,255,.38) inset;{% endif %}">Вся очередь</a>
+      <a class="nc-btn ghost" href="/admin/support?queue=mine{% if selected %}&ticket={{ selected.id }}{% endif %}" style="{% if queue=='mine' %}box-shadow:0 0 0 1px rgba(122,243,255,.38) inset;{% endif %}">Только мои</a>
+      <a class="nc-btn ghost" href="/admin/support?queue=unassigned{% if selected %}&ticket={{ selected.id }}{% endif %}" style="{% if queue=='unassigned' %}box-shadow:0 0 0 1px rgba(122,243,255,.38) inset;{% endif %}">Только без саппорта</a>
+      <a class="nc-btn ghost" href="/admin/support?queue=overdue{% if selected %}&ticket={{ selected.id }}{% endif %}" style="{% if queue=='overdue' %}box-shadow:0 0 0 1px rgba(255,107,129,.38) inset;{% endif %}">Только overdue</a>
+      <div class="nc-settings-muted" style="align-self:center;">Быстрые фильтры очереди без ручного выбора полей.</div>
+    </div>
+
+    <form method="get" class="glass-card" style="padding:14px; border-radius:16px; display:grid; grid-template-columns:2fr repeat(5,1fr) auto; gap:10px; margin-top:16px;">
+      <input type="hidden" name="queue" value="{{ queue }}"><input class="auth-input" name="q" value="{{ q }}" placeholder="Поиск по теме, id, пользователю или почте">
+      <select class="auth-input" name="status">
+        <option value="">Все статусы</option>
+        <option value="open" {% if status=='open' %}selected{% endif %}>open</option>
+        <option value="pending" {% if status=='pending' %}selected{% endif %}>pending</option>
+        <option value="closed" {% if status=='closed' %}selected{% endif %}>closed</option>
+      </select>
+      <select class="auth-input" name="priority">
+        <option value="">Любой приоритет</option>
+        <option value="low" {% if priority=='low' %}selected{% endif %}>low</option>
+        <option value="normal" {% if priority=='normal' %}selected{% endif %}>normal</option>
+        <option value="high" {% if priority=='high' %}selected{% endif %}>high</option>
+        <option value="urgent" {% if priority=='urgent' %}selected{% endif %}>urgent</option>
+      </select>
+      <select class="auth-input" name="assigned">
+        <option value="" {% if not assigned %}selected{% endif %}>Любой ответственный</option>
+        <option value="unassigned" {% if assigned=='unassigned' %}selected{% endif %}>Без саппорта</option>
+        <option value="me" {% if assigned=='me' %}selected{% endif %}>Назначено мне</option>
+        <option value="any" {% if assigned=='any' %}selected{% endif %}>Назначено кому-то</option>
+      </select>
+      <input class="auth-input" name="tag" value="{{ tag }}" placeholder="Тег"><input class="auth-input" name="attachment_q" value="{{ attachment_q }}" placeholder="Вложение / файл"><button class="nc-btn" type="submit">Фильтр</button>
+    </form>
+
+    <div style="display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin-top:16px;">
+      <div class="glass-card" style="padding:14px; border-radius:16px;">
+        <div class="nc-device-title">Качество саппорта</div>
+        <div class="nc-device-sub">{% if avg_rating %}{{ avg_rating.value }} / 5 · отзывов: {{ avg_rating.count }}{% else %}Пока нет оценок{% endif %}</div>
+      </div>
+      <div class="glass-card" style="padding:14px; border-radius:16px;">
+        <div class="nc-device-title">Архив вложений</div>
+        <div class="nc-device-sub">{% if attachment_q %}Поиск: {{ attachment_q }} · найдено {{ attachment_results|length }}{% else %}Ищи по имени файла или теме тикета прямо сверху{% endif %}</div>
+        {% if attachment_results %}<div class="nc-audit-list" style="margin-top:10px; max-height:180px; overflow:auto;">{% for a in attachment_results[:12] %}<div class="nc-audit-item"><div class="nc-device-title"><a href="/admin/support?ticket={{ a.ticket_id }}" style="color:inherit; text-decoration:none;">#{{ a.ticket_id }}</a> · {{ a.file_name }}</div><div class="nc-device-sub">{{ a.username or 'user' }} · {{ a.subject }}</div></div>{% endfor %}</div>{% endif %}
+      </div>
+    </div>
+
+    <div class="nc-support-workspace" id="supportWorkspace">
+      <div class="nc-support-queue-pane">
+        <div class="nc-support-dropdock">
+          <div class="glass-card" style="padding:12px; border-radius:16px;">
+            <div class="nc-device-title">Drag & drop · статус</div>
+            <div class="nc-device-sub">Перетащи тикет на статус, чтобы быстро обновить очередь без открытия карточки.</div>
+            <div class="nc-support-dropzone-grid">
+              <div class="nc-support-dropzone" data-drop-kind="status" data-drop-value="open">open</div>
+              <div class="nc-support-dropzone" data-drop-kind="status" data-drop-value="pending">pending</div>
+              <div class="nc-support-dropzone" data-drop-kind="status" data-drop-value="closed">closed</div>
+            </div>
+          </div>
+          <div class="glass-card" style="padding:12px; border-radius:16px;">
+            <div class="nc-device-title">Drag & drop · приоритет</div>
+            <div class="nc-device-sub">Так можно быстро кидать тикет в urgent / high / normal / low.</div>
+            <div class="nc-support-dropzone-grid">
+              <div class="nc-support-dropzone" data-drop-kind="priority" data-drop-value="urgent">urgent</div>
+              <div class="nc-support-dropzone" data-drop-kind="priority" data-drop-value="high">high</div>
+              <div class="nc-support-dropzone" data-drop-kind="priority" data-drop-value="normal">normal</div>
+              <div class="nc-support-dropzone" data-drop-kind="priority" data-drop-value="low">low</div>
+            </div>
+          </div>
+        </div>
+        <div class="nc-support-toolbar">
+          <div class="nc-support-select-chip" id="supportHotkeysHint">Hotkeys: J/K · E ответ · N заметка · Ctrl+Enter отправить · 1/2/3 статус</div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button type="button" class="nc-btn ghost nc-support-view-toggle is-active" data-view="list">Список</button>
+            <button type="button" class="nc-btn ghost nc-support-view-toggle" data-view="kanban">Kanban</button>
+          </div>
+        </div>
+        <div class="nc-support-batchbar" id="supportBatchBar" hidden>
+          <span class="nc-device-sub" id="supportBatchCount">Выбрано: 0</span>
+          <button type="button" class="nc-btn ghost" data-batch-action="claim">Взять себе</button>
+          <button type="button" class="nc-btn ghost" data-batch-action="pending">→ pending</button>
+          <button type="button" class="nc-btn ghost" data-batch-action="closed">→ closed</button>
+          <button type="button" class="nc-btn ghost" data-batch-action="urgent">→ urgent</button>
+          <button type="button" class="nc-btn ghost" data-batch-action="normal">→ normal</button>
+          <button type="button" class="nc-btn ghost" data-batch-action="claim_pending">Взять + pending</button>
+          <button type="button" class="nc-btn ghost" data-batch-action="clear">Сбросить выделение</button>
+        </div>
+        <div class="nc-audit-list" id="supportQueueList" style="max-height:800px; overflow:auto;">
+        {% for row in tickets %}
+        <a href="/admin/support?ticket={{ row.id }}{% if q %}&q={{ q|urlencode }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if priority %}&priority={{ priority }}{% endif %}{% if assigned %}&assigned={{ assigned }}{% endif %}" class="nc-audit-item" style="display:block; text-decoration:none; color:inherit; border:{% if selected and selected.id == row.id %}1px solid rgba(126,92,255,.55){% else %}1px solid transparent{% endif %};">
+          <div class="nc-device-meta">
+            <div class="nc-device-title">
+              <span class="nc-audit-badge {% if row.status == 'open' %}is-bad{% elif row.status == 'pending' %}is-warn{% else %}is-ok{% endif %}">{{ row.status }}</span>
+              <span class="nc-audit-badge {% if row.priority in ['urgent','high'] %}is-bad{% elif row.priority == 'normal' %}is-warn{% else %}is-ok{% endif %}">{{ row.priority }}</span>
+              #{{ row.id }}
+            </div>
+            <div class="nc-device-sub" style="margin-top:6px;"><b>{{ row.subject }}</b></div>
+            <div class="nc-device-sub">{{ user_map[row.user_id].username if user_map.get(row.user_id) else ('user #' ~ row.user_id) }} · {{ row.category }} · {{ row.last_message_at.strftime('%d.%m.%Y %H:%M') if row.last_message_at else '—' }}</div>
+            <div class="nc-device-sub">Ответственный: {% if row.assigned_to and user_map.get(row.assigned_to) %}{{ user_map[row.assigned_to].username }} · {{ support_role_label((support_profiles[row.assigned_to].role_level if support_profiles.get(row.assigned_to) else 'support')) }}{% elif row.assigned_to %}#{{ row.assigned_to }}{% else %}не назначен{% endif %}</div>
+            <div class="nc-device-sub">SLA: <span class="nc-audit-badge {% if sla_map.get(row.id) and sla_map[row.id].is_overdue %}is-bad{% elif sla_map.get(row.id) and sla_map[row.id].waiting_for == 'user' %}is-ok{% else %}is-warn{% endif %}">{{ sla_map[row.id].label if sla_map.get(row.id) else '—' }}</span></div>
+          </div>
+        </a>
+        {% else %}
+        <div class="nc-settings-muted">По этому фильтру тикетов нет.</div>
+        {% endfor %}
+        </div>
+        <div class="nc-support-kanban" id="supportKanbanBoard"></div>
+      </div>
+
+      <div class="nc-support-resizer" id="supportQueueResizer" title="Потяни, чтобы изменить ширину очереди"></div>
+
+      <div class="nc-support-view-pane">
+      <div class="glass-card" id="supportSelectedPane" style="padding:16px; border-radius:18px; min-height:560px;">
+        {% if selected %}
+          <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+            <div>
+              <div class="nc-device-title">#{{ selected.id }} · {{ selected.subject }}</div>
+              <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;"><a class="nc-btn ghost" href="/admin/support/tickets/{{ selected.id }}">Открыть профиль тикета</a></div>
+              <div class="nc-device-sub">Пользователь: {{ user_map[selected.user_id].username if user_map.get(selected.user_id) else ('#' ~ selected.user_id) }} · категория {{ selected.category }} · приоритет {{ selected.priority }}</div>
+              <div class="nc-device-sub">Создан: {{ selected.created_at.strftime('%d.%m.%Y %H:%M') if selected.created_at else '—' }} · обновлён: {{ selected.last_message_at.strftime('%d.%m.%Y %H:%M') if selected.last_message_at else '—' }}</div>
+              <div class="nc-device-sub">SLA: <span class="nc-audit-badge {% if selected_sla and selected_sla.is_overdue %}is-bad{% elif selected_sla and selected_sla.waiting_for == 'user' %}is-ok{% else %}is-warn{% endif %}">{{ selected_sla.label if selected_sla else '—' }}</span> {% if selected_sla and selected_sla.due_at %}· дедлайн {{ selected_sla.due_at.strftime('%d.%m.%Y %H:%M') }}{% endif %}</div>
+              {% if tag_list(selected) %}<div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">{% for tg in tag_list(selected) %}<a href="/admin/support?tag={{ tg|urlencode }}" class="nc-audit-badge is-warn" style="text-decoration:none;">#{{ tg }}</a>{% endfor %}</div>{% endif %}
+              {% if selected.satisfaction_rating %}<div class="nc-device-sub" style="margin-top:8px;">Оценка клиента: {{ '★' * selected.satisfaction_rating }}{{ '☆' * (5 - selected.satisfaction_rating) }}{% if selected.satisfaction_comment %} · {{ selected.satisfaction_comment }}{% endif %}</div>{% endif %}
+            </div>
+            <div class="nc-device-actions">
+              <button class="nc-btn ghost" type="button" onclick="assignTicket({{ selected.id }}, 'me')">Взять себе</button>
+              <button class="nc-btn ghost" type="button" onclick="assignTicket({{ selected.id }}, 'clear')">Снять</button>
+              <button class="nc-btn ghost" type="button" onclick="setStatus({{ selected.id }}, 'open')">open</button>
+              <button class="nc-btn ghost" type="button" onclick="setStatus({{ selected.id }}, 'pending')">pending</button>
+              <button class="nc-btn ghost" type="button" onclick="setStatus({{ selected.id }}, 'closed')">closed</button>
+              <button class="nc-btn ghost" type="button" onclick="setPriority({{ selected.id }}, 'urgent')">urgent</button>
+              <button class="nc-btn ghost" type="button" onclick="setPriority({{ selected.id }}, 'normal')">normal</button>
+            </div>
+          </div>
+          <div class="glass-card" style="padding:12px; border-radius:14px; margin-top:12px;">
+            <div class="nc-device-title">Canned workflows</div>
+            <div class="nc-device-sub">Быстрые сценарии для саппорта: взять тикет, ответить и перевести в нужный статус одной кнопкой.</div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
+              <button class="nc-btn ghost" type="button" onclick="runSelectedWorkflow('claim_pending')">Взять + pending</button>
+              <button class="nc-btn ghost" type="button" onclick="runSelectedWorkflow('reply_pending')">Ответить + pending</button>
+              <button class="nc-btn ghost" type="button" onclick="runSelectedWorkflow('reply_close')">Ответить + закрыть</button>
+            </div>
+          </div>
+
+          <div class="glass-card" style="padding:12px; border-radius:14px; margin-top:12px;">
+  <div style="display:grid; grid-template-columns:minmax(220px,1fr) auto; gap:10px; align-items:end;">
+    <div>
+      <div class="nc-device-title">Теги тикета</div>
+      <input class="auth-input" id="ticketTagsInput" value="{{ (selected.tags_csv or '') if selected else '' }}" placeholder="bug, billing, refund, urgent">
+      <div class="nc-device-sub">До 10 тегов через запятую.</div>
+    </div>
+    <button class="nc-btn ghost" type="button" onclick="saveTicketTags({{ selected.id }})">Сохранить теги</button>
+  </div>
+</div>
+
+<div class="glass-card" style="padding:12px; border-radius:14px; margin-top:12px;">
+  <div class="nc-device-title">Редактор быстрых ответов</div>
+  <div class="nc-device-sub">Шаблоны теперь можно использовать как макросы по категориям: billing / security / system / support.</div>
+  <div style="display:grid; grid-template-columns:220px minmax(0,1fr); gap:12px; margin-top:10px;">
+    <div class="nc-audit-list" style="max-height:220px; overflow:auto;">{% for qr in support_quick_replies %}<button type="button" class="nc-audit-item nc-reply-editor-pick" data-id="{{ qr.id }}" data-title="{{ qr.title|e }}" data-body="{{ qr.body|e }}" data-scope="{{ qr.scope|default('support')|e }}" style="width:100%; text-align:left;"><div class="nc-device-title">{{ qr.title }}</div><div class="nc-device-sub">{{ qr.scope|default('support') }}</div></button>{% endfor %}</div>
+    <form id="savedReplyEditor" class="glass-card" style="padding:12px; border-radius:14px; display:grid; gap:10px;">
+      <input type="hidden" id="savedReplyId" value="0">
+      <input class="auth-input" id="savedReplyTitle" maxlength="120" placeholder="Название шаблона">
+      <select class="auth-input" id="savedReplyScope"><option value="support">support</option><option value="billing">billing</option><option value="security">security</option><option value="system">system</option></select>
+      <input class="auth-input" id="savedReplySort" type="number" value="0" placeholder="Порядок">
+      <textarea class="auth-input" id="savedReplyBody" rows="5" maxlength="4000" placeholder="Текст шаблона"></textarea>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="nc-btn" type="button" onclick="saveSavedReply()">Сохранить шаблон</button>
+        <button class="nc-btn ghost" type="button" onclick="resetSavedReplyEditor()">Новый</button>
+        <button class="nc-btn ghost" type="button" onclick="deleteSavedReply()">Удалить</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% if selected_events %}<div class="glass-card" style="padding:12px; border-radius:14px; margin-top:12px;">
+  <div class="nc-device-title">Таймлайн тикета</div>
+  <div class="nc-device-sub">Последние изменения, назначения и ответы. Полная история — в профиле тикета.</div>
+  <div class="nc-audit-list" style="margin-top:10px; max-height:180px; overflow:auto;">{% for ev in selected_events[:8] %}<div class="nc-audit-item"><div class="nc-device-title">{{ ev.event_type }}</div><div class="nc-device-sub">{% if ev.actor_user_id and user_map.get(ev.actor_user_id) %}{{ user_map[ev.actor_user_id].username }} · {% endif %}{{ ev.created_at.strftime('%d.%m.%Y %H:%M') if ev.created_at else '—' }}{% if ev.event_value %} · {{ ev.event_value }}{% endif %}</div>{% if ev.body %}<div style="margin-top:6px; white-space:pre-wrap; opacity:.9;">{{ ev.body }}</div>{% endif %}</div>{% endfor %}</div>
+</div>{% endif %}
+
+<div class="nc-audit-list" style="margin-top:14px; max-height:430px; overflow:auto;">
+            {% for msg in messages %}
+            <div class="nc-audit-item" style="opacity:{% if msg.is_internal %}.82{% else %}1{% endif %};">
+              <div class="nc-device-left">
+                <div class="nc-device-meta">
+                  <div class="nc-device-title">
+                    <span class="nc-audit-badge {% if msg.is_internal %}is-bad{% elif msg.is_staff %}is-warn{% else %}is-ok{% endif %}">{% if msg.is_internal %}Internal{% elif msg.is_staff %}Staff{% else %}User{% endif %}</span>
+                    {{ user_map[msg.author_user_id].username if msg.author_user_id and user_map.get(msg.author_user_id) else ('Support' if msg.is_staff else 'System') }}
+                  </div>
+                  <div class="nc-device-sub">{{ msg.created_at.strftime('%d.%m.%Y %H:%M') if msg.created_at else '—' }}</div>
+                  <div style="margin-top:8px; white-space:pre-wrap; line-height:1.45;">{{ msg.body }}</div>
+                  {% if attachment_map.get(msg.id) %}<div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">{% for a in attachment_map[msg.id] %}<a href="{{ a.file_url }}" target="_blank" class="nc-btn ghost" style="text-decoration:none; max-width:220px; overflow:hidden; text-overflow:ellipsis;">{% if a.is_image %}🖼{% else %}📎{% endif %} {{ a.file_name }}</a>{% endfor %}</div>{% endif %}
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:14px;">
+            <form id="staffReplyForm" class="glass-card" style="padding:14px; border-radius:16px; display:grid; gap:10px;" enctype="multipart/form-data">
+              <div class="nc-device-title">Ответ пользователю</div>
+              <textarea class="auth-input" id="staffReplyBody" name="body" rows="6" maxlength="4000" placeholder="Ответ саппорта" required></textarea>
+              <input class="auth-input" type="file" name="files" multiple>
+              <div style="display:flex; gap:8px; flex-wrap:wrap;">{% for qr in selected_reply_macros %}<button type="button" class="nc-btn ghost nc-quick-reply" data-target="staffReplyBody" data-body="{{ qr.body|e }}">{{ qr.title }}</button>{% endfor %}</div>
+              <button class="nc-btn" type="submit">Отправить ответ</button>
+            </form>
+            <form id="staffNoteForm" class="glass-card" style="padding:14px; border-radius:16px; display:grid; gap:10px;" enctype="multipart/form-data">
+              <div class="nc-device-title">Внутренняя заметка</div><div class="nc-device-sub">Можно тегнуть коллегу через @username — ему прилетит упоминание в support inbox.</div>
+              <textarea class="auth-input" id="staffNoteBody" name="body" rows="6" maxlength="4000" placeholder="Только для команды поддержки" required></textarea>
+              <input class="auth-input" type="file" name="files" multiple>
+              <button class="nc-btn ghost" type="submit">Сохранить заметку</button>
+            </form>
+          </div>
+        {% else %}
+          <div class="nc-settings-muted">Выбери тикет слева, чтобы открыть переписку.</div>
+        {% endif %}
+      </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+const __initialSelectedTicketId = {{ selected.id if selected else 0 }};
+let __supportCurrentTicketId = __initialSelectedTicketId || 0;
+let __supportQueueRefreshLock = false;
+let __supportDraggedTicketId = 0;
+let __supportQueueData = [];
+let __supportSelectedIds = new Set();
+let __supportQueueView = localStorage.getItem('nc_support_queue_view') || 'list';
+let __supportHotkeyLock = false;
+
+function escapeHtml(v){ return String(v == null ? '' : v).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s])); }
+function formatSupportDt(iso){ if(!iso) return '—'; try{ const d=new Date(iso); if(Number.isNaN(d.getTime())) return '—'; return d.toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});}catch(_e){ return '—'; } }
+function supportBadgeClass(kind, value){ value = String(value || '').toLowerCase(); if(kind === 'status') return value === 'open' ? 'is-bad' : (value === 'pending' ? 'is-warn' : 'is-ok'); if(kind === 'priority') return (value === 'urgent' || value === 'high') ? 'is-bad' : (value === 'normal' ? 'is-warn' : 'is-ok'); if(kind === 'sla') return value === 'overdue' ? 'is-bad' : (value === 'user' ? 'is-ok' : 'is-warn'); return 'is-warn'; }
+function supportCurrentParams(extra){ const params = new URLSearchParams(window.location.search || ''); if(extra){ Object.keys(extra).forEach(k => { const v = extra[k]; if(v == null || v === '' || v === 0) params.delete(k); else params.set(k, String(v)); }); } return params; }
+function supportSetUrl(ticketId){ const params = supportCurrentParams({ticket: ticketId || null}); const next = `${window.location.pathname}${params.toString() ? '?' + params.toString() : ''}`; window.history.replaceState({ticketId: ticketId || 0}, '', next); }
+
+async function saveTicketTags(id){
+  const tags = document.getElementById('ticketTagsInput');
+  const r = await fetch(`/api/admin/support/tickets/${id}/tags`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({tags: tags ? tags.value : ''})});
+  const j = await r.json().catch(()=>({ok:false}));
+  if(j.ok){ showSupportToast('Теги сохранены', 'Обновляю карточку тикета…'); await refreshSupportQueueAndSelection({forceTicket:id}); }
+  else alert(j.error || 'Не удалось сохранить теги');
+}
+function resetSavedReplyEditor(){
+  document.getElementById('savedReplyId').value = '0';
+  document.getElementById('savedReplyTitle').value = '';
+  document.getElementById('savedReplyScope').value = 'support';
+  document.getElementById('savedReplySort').value = '0';
+  document.getElementById('savedReplyBody').value = '';
+}
+async function saveSavedReply(){
+  const id = parseInt(document.getElementById('savedReplyId').value || '0', 10);
+  const payload = {title: document.getElementById('savedReplyTitle').value, body: document.getElementById('savedReplyBody').value, scope: document.getElementById('savedReplyScope').value, sort_order: parseInt(document.getElementById('savedReplySort').value || '0', 10)};
+  const url = id > 0 ? `/api/admin/support/saved-replies/${id}` : '/api/admin/support/saved-replies';
+  const r = await fetch(url, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
+  const j = await r.json().catch(()=>({ok:false}));
+  if(j.ok){ showSupportToast('Шаблон сохранён', 'Список обновится без перезагрузки.'); setTimeout(()=>window.location.reload(), 180); }
+  else alert(j.error || 'Не удалось сохранить шаблон');
+}
+async function deleteSavedReply(){
+  const id = parseInt(document.getElementById('savedReplyId').value || '0', 10);
+  if(!(id > 0)) return;
+  if(!confirm('Удалить шаблон?')) return;
+  const r = await fetch(`/api/admin/support/saved-replies/${id}/delete`, {method:'POST'});
+  const j = await r.json().catch(()=>({ok:false}));
+  if(j.ok){ showSupportToast('Шаблон удалён', 'Список обновится без перезагрузки.'); setTimeout(()=>window.location.reload(), 180); }
+  else alert(j.error || 'Не удалось удалить шаблон');
+}
+
+async function assignTicket(id, mode){
+  const r = await fetch(`/api/admin/support/tickets/${id}/assign`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({mode})});
+  const j = await r.json().catch(()=>({ok:false}));
+  if(j.ok){ showSupportToast('Ответственный обновлён', mode === 'me' ? 'Тикет назначен на тебя.' : 'Ответственный снят.'); await refreshSupportQueueAndSelection({forceTicket:id, preserveScroll:true}); } else alert('Не удалось изменить ответственного');
+}
+async function setStatus(id, status){
+  const r = await fetch(`/api/admin/support/tickets/${id}/status`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({status})});
+  const j = await r.json().catch(()=>({ok:false}));
+  if(j.ok){ showSupportToast('Статус обновлён', `Теперь: ${status}`); await refreshSupportQueueAndSelection({forceTicket:id, preserveScroll:true}); } else alert('Не удалось поменять статус');
+}
+async function setPriority(id, priority){
+  const r = await fetch(`/api/admin/support/tickets/${id}/priority`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({priority})});
+  const j = await r.json().catch(()=>({ok:false}));
+  if(j.ok){ showSupportToast('Приоритет обновлён', `Теперь: ${priority}`); await refreshSupportQueueAndSelection({forceTicket:id, preserveScroll:true}); } else alert('Не удалось поменять приоритет');
+}
+async function sendQuickReply(ticketId, body, btn, opts){
+  opts = opts || {};
+  const text = String(body || '').trim();
+  if(!ticketId || !text) return false;
+  if(btn) btn.disabled = true;
+  const fd = new FormData();
+  fd.append('body', text);
+  const r = await fetch(`/api/admin/support/tickets/${ticketId}/reply`, {method:'POST', body:fd});
+  const j = await r.json().catch(()=>({ok:false}));
+  if(btn) btn.disabled = false;
+  if(j.ok){ if(!opts.silent) showSupportToast('Быстрый ответ отправлен', `Тикет #${ticketId} обновлён.`); if(!opts.skipRefresh) await refreshSupportQueueAndSelection({forceTicket: ticketId, preserveScroll:true}); return true; } else { alert(j.error || 'Не удалось отправить быстрый ответ'); return false; }
+}
+
+function renderSupportQueue(tickets, selectedId){
+  __supportQueueData = Array.isArray(tickets) ? tickets.slice() : [];
+  const root = document.getElementById('supportQueueList');
+  const kanban = document.getElementById('supportKanbanBoard');
+  if(root){
+    if(!Array.isArray(tickets) || !tickets.length){ root.innerHTML = '<div class="nc-settings-muted">По этому фильтру тикетов нет.</div>'; }
+    else {
+      const replyButtons = Array.from(document.querySelectorAll('.nc-quick-reply')).slice(0, 6).map(btn => ({title: btn.textContent || 'Шаблон', body: btn.getAttribute('data-body') || ''})).filter(x => x.body);
+      root.innerHTML = tickets.map((row)=>{
+        const tid = Number(row.id||0);
+        const selected = tid === Number(selectedId||0);
+        const checked = __supportSelectedIds.has(tid);
+        const owner = row.username || `user #${row.user_id || 0}`;
+        const assignee = row.assigned_username ? `${escapeHtml(row.assigned_username)}${row.assigned_role_label ? ' · ' + escapeHtml(row.assigned_role_label) : ''}` : 'не назначен';
+        const sla = row.sla || {};
+        const slaKind = sla.is_overdue ? 'overdue' : sla.waiting_for;
+        const quickBtns = replyButtons.slice(0,3).map((qr, idx) => `<button type="button" class="nc-btn ghost nc-queue-macro" data-ticket-id="${tid}" data-macro-index="${idx}" data-body="${escapeHtml(qr.body)}">${escapeHtml(qr.title)}</button>`).join('');
+        return `<a href="#" draggable="true" data-ticket-id="${tid}" class="nc-audit-item nc-support-ticket-link" style="display:block; text-decoration:none; color:inherit; border:${selected ? '1px solid rgba(126,92,255,.55)' : '1px solid transparent'};">
+          <div style="display:flex; gap:10px; align-items:flex-start;">
+            <input type="checkbox" class="nc-support-ticket-check" data-ticket-check="${tid}" ${checked ? 'checked' : ''} onclick="event.stopPropagation()">
+            <div class="nc-device-meta" style="flex:1; min-width:0;">
+              <div class="nc-device-title"><span class="nc-audit-badge ${supportBadgeClass('status', row.status)}">${escapeHtml(row.status || '')}</span> <span class="nc-audit-badge ${supportBadgeClass('priority', row.priority)}">${escapeHtml(row.priority || '')}</span> #${tid}</div>
+              <div class="nc-device-sub" style="margin-top:6px;"><b>${escapeHtml(row.subject || '')}</b></div>
+              <div class="nc-device-sub">${escapeHtml(owner)} · ${escapeHtml(row.category || '')} · ${formatSupportDt(row.last_message_at)}</div>
+              <div class="nc-device-sub">Ответственный: ${assignee}</div>
+              <div class="nc-device-sub">SLA: <span class="nc-audit-badge ${supportBadgeClass('sla', slaKind)}">${escapeHtml(sla.label || '—')}</span></div>
+              <div class="nc-support-inline-actions">
+                <button type="button" class="nc-btn ghost nc-queue-assign" data-ticket-id="${tid}">Взять</button>
+                <button type="button" class="nc-btn ghost nc-queue-toggle-reply" data-ticket-id="${tid}">Быстрый ответ</button>
+                <button type="button" class="nc-btn ghost nc-queue-open" data-ticket-id="${tid}">Открыть</button>
+                <button type="button" class="nc-btn ghost nc-queue-workflow" data-ticket-id="${tid}" data-workflow="claim_pending">Взять + pending</button>
+              </div>
+              <div class="nc-support-inline-reply" id="queueReplyBox-${tid}">
+                <textarea class="auth-input nc-queue-reply-text" rows="3" data-ticket-id="${tid}" placeholder="Ответ без открытия карточки тикета"></textarea>
+                ${quickBtns ? `<div style="display:flex; gap:8px; flex-wrap:wrap;">${quickBtns}</div>` : ''}
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                  <button type="button" class="nc-btn nc-queue-send-reply" data-ticket-id="${tid}">Отправить</button>
+                  <button type="button" class="nc-btn ghost nc-queue-send-workflow" data-ticket-id="${tid}" data-workflow="reply_pending">Отправить + pending</button>
+                  <button type="button" class="nc-btn ghost nc-queue-send-workflow" data-ticket-id="${tid}" data-workflow="reply_close">Отправить + закрыть</button>
+                  <button type="button" class="nc-btn ghost nc-queue-close-reply" data-ticket-id="${tid}">Свернуть</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </a>`;
+      }).join('');
+    }
+  }
+  renderSupportKanban(tickets, selectedId);
+  updateSupportBatchBar();
+  refreshSupportQueueView();
+}
+
+function renderSupportKanban(tickets, selectedId){
+  const root = document.getElementById('supportKanbanBoard');
+  if(!root) return;
+  const groups = {open:[], pending:[], closed:[]};
+  (Array.isArray(tickets) ? tickets : []).forEach(row => { const key = ['open','pending','closed'].includes(String(row.status||'')) ? String(row.status||'') : 'open'; groups[key].push(row); });
+  const order = [['open','Open'],['pending','Pending'],['closed','Closed']];
+  root.innerHTML = order.map(([status,label]) => {
+    const items = groups[status] || [];
+    const cards = items.map(row => {
+      const tid = Number(row.id||0);
+      const selected = tid === Number(selectedId||0);
+      const checked = __supportSelectedIds.has(tid);
+      const sla = row.sla || {};
+      const assignee = row.assigned_username ? escapeHtml(row.assigned_username) : 'не назначен';
+      return `<div class="nc-support-mini-card ${selected ? 'is-selected' : ''}" draggable="true" data-ticket-id="${tid}" data-kanban-card="1">
+        <div style="display:flex; gap:8px; align-items:flex-start;">
+          <input type="checkbox" class="nc-support-ticket-check" data-ticket-check="${tid}" ${checked ? 'checked' : ''}>
+          <div style="flex:1; min-width:0;">
+            <div class="nc-device-title">#${tid} · ${escapeHtml(row.subject || '')}</div>
+            <div class="nc-device-sub">${escapeHtml(row.priority || '')} · ${escapeHtml(row.category || '')}</div>
+            <div class="nc-device-sub">${assignee}</div>
+            <div class="nc-device-sub">${escapeHtml((sla && sla.label) || '—')}</div>
+          </div>
+        </div>
+      </div>`;
+    }).join('') || '<div class="nc-settings-muted">Пусто.</div>';
+    return `<div class="nc-support-kanban-col" data-drop-kind="status" data-drop-value="${status}" data-kanban-col="1">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;"><div class="nc-device-title">${label}</div><span class="nc-audit-badge ${supportBadgeClass('status', status)}">${items.length}</span></div>
+      <div class="nc-support-kanban-list">${cards}</div>
+    </div>`;
+  }).join('');
+}
+
+function refreshSupportQueueView(){
+  const list = document.getElementById('supportQueueList');
+  const kanban = document.getElementById('supportKanbanBoard');
+  const isKanban = __supportQueueView === 'kanban';
+  if(list) list.style.display = isKanban ? 'none' : '';
+  if(kanban) kanban.classList.toggle('is-visible', isKanban);
+  document.querySelectorAll('.nc-support-view-toggle').forEach(btn => btn.classList.toggle('is-active', btn.getAttribute('data-view') === __supportQueueView));
+}
+
+function updateSupportBatchBar(){
+  const bar = document.getElementById('supportBatchBar');
+  const count = document.getElementById('supportBatchCount');
+  const size = __supportSelectedIds.size;
+  if(count) count.textContent = `Выбрано: ${size}`;
+  if(bar) bar.hidden = size < 1;
+}
+
+function supportSelectedTicketIds(fallbackDragged){
+  const ids = Array.from(__supportSelectedIds).filter(x => Number(x) > 0);
+  if(ids.length) return ids;
+  if(fallbackDragged && Number(__supportDraggedTicketId || 0) > 0) return [Number(__supportDraggedTicketId||0)];
+  if(Number(__supportCurrentTicketId||0) > 0) return [Number(__supportCurrentTicketId||0)];
+  return [];
+}
+
+async function runSupportWorkflow(ticketId, workflow, replyText){
+  const tid = Number(ticketId || 0);
+  if(!(tid > 0) || !workflow) return false;
+  if(workflow === 'claim_pending'){ await assignTicket(tid, 'me'); await setStatus(tid, 'pending'); return true; }
+  const text = String(replyText || '').trim();
+  if(!text) { alert('Сначала добавь текст ответа'); return false; }
+  const sent = await sendQuickReply(tid, text);
+  if(sent === false) return false;
+  if(workflow === 'reply_pending'){ await setStatus(tid, 'pending'); return true; }
+  if(workflow === 'reply_close'){ await setStatus(tid, 'closed'); return true; }
+  return true;
+}
+
+async function applySupportBatchAction(action){
+  const ids = supportSelectedTicketIds(true);
+  if(!ids.length) return;
+  const bar = document.getElementById('supportBatchBar');
+  if(bar) bar.style.pointerEvents = 'none';
+  try{
+    for(const tid of ids){
+      if(action === 'claim') await assignTicket(tid, 'me');
+      else if(action === 'pending') await setStatus(tid, 'pending');
+      else if(action === 'closed') await setStatus(tid, 'closed');
+      else if(action === 'urgent') await setPriority(tid, 'urgent');
+      else if(action === 'normal') await setPriority(tid, 'normal');
+      else if(action === 'claim_pending'){ await assignTicket(tid, 'me'); await setStatus(tid, 'pending'); }
+    }
+    if(action === 'clear') __supportSelectedIds.clear();
+    updateSupportBatchBar();
+    showSupportToast('Массовое действие выполнено', `Обработано тикетов: ${ids.length}`);
+    await refreshSupportQueueAndSelection({forceTicket: __supportCurrentTicketId || ids[0] || 0, preserveScroll:true});
+  } finally { if(bar) bar.style.pointerEvents = ''; }
+}
+
+async function runSelectedWorkflow(workflow){
+  const ticketId = Number(__supportCurrentTicketId || 0);
+  if(!(ticketId > 0)) return;
+  let replyText = '';
+  if(workflow === 'reply_pending' || workflow === 'reply_close'){ const ta = document.getElementById('staffReplyBody'); replyText = ta ? ta.value : ''; }
+  const ok = await runSupportWorkflow(ticketId, workflow, replyText);
+  if(ok && (workflow === 'reply_pending' || workflow === 'reply_close')){ const ta = document.getElementById('staffReplyBody'); if(ta) ta.value = ''; }
+}
+
+async function refreshSupportSelectedTicket(ticketId, opts){
+  opts = opts || {};
+  if(!(ticketId > 0)){
+    __supportCurrentTicketId = 0;
+    renderSupportSelectedTicket(null);
+    supportSetUrl(0);
+    return;
+  }
+  const messagesRoot = document.getElementById('supportSelectedMessages');
+  const prevScroll = messagesRoot ? messagesRoot.scrollTop : 0;
+  const prevHeight = messagesRoot ? messagesRoot.scrollHeight : 0;
+  const r = await fetch(`/api/admin/support/tickets/${ticketId}/view`, {headers:{'Accept':'application/json'}});
+  const j = await r.json().catch(()=>({ok:false}));
+  if(!j.ok){ renderSupportSelectedTicket(null); return; }
+  __supportCurrentTicketId = Number(ticketId || 0);
+  renderSupportSelectedTicket(j);
+  supportSetUrl(__supportCurrentTicketId);
+  const nextMessages = document.getElementById('supportSelectedMessages');
+  if(nextMessages && opts.preserveScroll){ nextMessages.scrollTop = Math.max(0, nextMessages.scrollHeight - prevHeight + prevScroll); }
+}
+
+async function refreshSupportQueue(opts){
+  opts = opts || {};
+  if(__supportQueueRefreshLock) return;
+  __supportQueueRefreshLock = true;
+  try{
+    const queueRoot = document.getElementById('supportQueueList');
+    const prevScroll = queueRoot ? queueRoot.scrollTop : 0;
+    const params = supportCurrentParams({ticket: (opts.forceTicket || __supportCurrentTicketId || null)});
+    const r = await fetch(`/api/admin/support/queue?${params.toString()}`, {headers:{'Accept':'application/json'}});
+    const j = await r.json().catch(()=>({ok:false}));
+    if(!j.ok) return;
+    const validIds = new Set((j.tickets || []).map(x => Number(x.id||0)).filter(Boolean));
+    __supportSelectedIds = new Set(Array.from(__supportSelectedIds).filter(x => validIds.has(Number(x))));
+    const selectedId = Number(opts.forceTicket || j.selected_id || 0);
+    renderSupportQueue(j.tickets || [], selectedId);
+    initSupportDropzones();
+    if(queueRoot && opts.preserveScroll) queueRoot.scrollTop = prevScroll;
+    if(selectedId !== Number(__supportCurrentTicketId || 0) || opts.forceTicket){ await refreshSupportSelectedTicket(selectedId, {preserveScroll: opts.preserveScroll}); }
+    else { renderSupportQueue(j.tickets || [], __supportCurrentTicketId || 0); }
+    if(!selectedId && (!j.tickets || !j.tickets.length)){ renderSupportSelectedTicket(null); }
+  }catch(_e){}
+  finally{ __supportQueueRefreshLock = false; }
+}
+
+async function refreshSupportQueueAndSelection(opts){
+  opts = opts || {};
+  await refreshSupportQueue(opts);
+  if(__supportCurrentTicketId > 0 && !opts.forceTicket){ await refreshSupportSelectedTicket(__supportCurrentTicketId, {preserveScroll: !!opts.preserveScroll}); }
+}
+
+(function(){
+  document.addEventListener('submit', async (e)=>{
+    const rf = e.target && e.target.id === 'staffReplyForm' ? e.target : null;
+    if(rf){
+      e.preventDefault();
+      const fd = new FormData(rf);
+      const r = await fetch(`/api/admin/support/tickets/${__supportCurrentTicketId}/reply`, {method:'POST', body:fd});
+      const j = await r.json().catch(()=>({ok:false}));
+      if(j.ok){ showSupportToast('Ответ отправлен', 'Переписка обновилась без перезагрузки.'); await refreshSupportQueueAndSelection({forceTicket: __supportCurrentTicketId, preserveScroll:false}); rf.reset(); } else alert('Не удалось отправить ответ');
+      return;
+    }
+    const nf = e.target && e.target.id === 'staffNoteForm' ? e.target : null;
+    if(nf){
+      e.preventDefault();
+      const fd = new FormData(nf); fd.append('is_internal','1');
+      const r = await fetch(`/api/admin/support/tickets/${__supportCurrentTicketId}/reply`, {method:'POST', body:fd});
+      const j = await r.json().catch(()=>({ok:false}));
+      if(j.ok){ showSupportToast('Заметка сохранена', 'Лента тикета обновилась.'); await refreshSupportQueueAndSelection({forceTicket: __supportCurrentTicketId, preserveScroll:true}); nf.reset(); } else alert('Не удалось сохранить заметку');
+      return;
+    }
+  });
+  document.addEventListener('click', async (e)=>{
+    const qr = e.target && e.target.closest ? e.target.closest('.nc-quick-reply') : null;
+    if(qr){ const target=document.getElementById(qr.getAttribute('data-target')); if(target){ target.value=qr.getAttribute('data-body')||''; target.focus(); } return; }
+    const pick = e.target && e.target.closest ? e.target.closest('.nc-reply-editor-pick') : null;
+    if(pick){ document.getElementById('savedReplyId').value = pick.getAttribute('data-id') || '0'; document.getElementById('savedReplyTitle').value = pick.getAttribute('data-title') || ''; document.getElementById('savedReplyScope').value = pick.getAttribute('data-scope') || 'support'; document.getElementById('savedReplyBody').value = pick.getAttribute('data-body') || ''; return; }
+    const save = e.target && e.target.closest ? e.target.closest('.nc-support-role-save') : null;
+    if(save){ const uid=parseInt(save.getAttribute('data-user-id')||'0',10); const sel=document.querySelector('.nc-support-role-select[data-user-id="'+uid+'"]'); const cats=document.querySelector('.nc-support-categories-input[data-user-id="'+uid+'"]'); const skills=document.querySelector('.nc-support-skills-input[data-user-id="'+uid+'"]'); const maxActive=document.querySelector('.nc-support-max-active-input[data-user-id="'+uid+'"]'); if(!uid||!sel) return; save.disabled=true; const r=await fetch('/api/admin/support/staff-profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:uid,role_level:sel.value,categories_csv:cats?cats.value:'',skills_csv:skills?skills.value:'',max_active:maxActive?maxActive.value:0})}); const j=await r.json().catch(()=>({ok:false})); if(j.ok) { showSupportToast('Профиль саппорта обновлён', 'Автораспределение уже будет учитывать новые правила.'); setTimeout(()=>window.location.reload(), 180); } else { alert(j.error||'Не удалось сохранить профиль'); save.disabled=false; } return; }
+    const slaSave = e.target && e.target.closest ? e.target.closest('.nc-sla-save') : null;
+    if(slaSave){ const rid=parseInt(slaSave.getAttribute('data-rule-id')||'0',10); const val=(cls)=>document.querySelector(cls+'[data-rule-id="'+rid+'"]'); slaSave.disabled=true; const r=await fetch('/api/admin/support/sla-rules',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:rid,category:val('.nc-sla-category')?.value||'*',priority:val('.nc-sla-priority')?.value||'*',first_reply_minutes:val('.nc-sla-first')?.value||240,next_reply_minutes:val('.nc-sla-next')?.value||720,escalate_after_minutes:val('.nc-sla-escalate')?.value||30,required_role:val('.nc-sla-role')?.value||'support',is_enabled:!!(val('.nc-sla-enabled')?.checked)})}); const j=await r.json().catch(()=>({ok:false})); if(j.ok){ showSupportToast(rid ? 'SLA rule обновлено' : 'SLA rule добавлено', 'Страница быстро обновится.'); setTimeout(()=>window.location.reload(), 180); } else { alert(j.error||'Не удалось сохранить SLA rule'); slaSave.disabled=false; } return; }
+    const quickToggle = e.target && e.target.closest ? e.target.closest('.nc-queue-toggle-reply') : null;
+    if(quickToggle){ const tid = parseInt(quickToggle.getAttribute('data-ticket-id') || '0', 10); if(tid > 0) toggleQueueInlineReply(tid); return; }
+    const quickClose = e.target && e.target.closest ? e.target.closest('.nc-queue-close-reply') : null;
+    if(quickClose){ const tid = parseInt(quickClose.getAttribute('data-ticket-id') || '0', 10); if(tid > 0) toggleQueueInlineReply(tid, false); return; }
+    const viewToggle = e.target && e.target.closest ? e.target.closest('.nc-support-view-toggle') : null;
+    if(viewToggle){ __supportQueueView = viewToggle.getAttribute('data-view') || 'list'; localStorage.setItem('nc_support_queue_view', __supportQueueView); refreshSupportQueueView(); return; }
+    const batchBtn = e.target && e.target.closest ? e.target.closest('[data-batch-action]') : null;
+    if(batchBtn){ const action = batchBtn.getAttribute('data-batch-action') || ''; if(action === 'clear'){ __supportSelectedIds.clear(); renderSupportQueue(__supportQueueData, __supportCurrentTicketId || 0); } else await applySupportBatchAction(action); return; }
+    const queueAssign = e.target && e.target.closest ? e.target.closest('.nc-queue-assign') : null;
+    if(queueAssign){ const tid = parseInt(queueAssign.getAttribute('data-ticket-id') || '0', 10); if(tid > 0) await assignTicket(tid, 'me'); return; }
+    const queueOpen = e.target && e.target.closest ? e.target.closest('.nc-queue-open') : null;
+    if(queueOpen){ const tid = parseInt(queueOpen.getAttribute('data-ticket-id') || '0', 10); if(tid > 0){ await refreshSupportSelectedTicket(tid, {preserveScroll:true}); await refreshSupportQueue({forceTicket:tid, preserveScroll:true}); } return; }
+    const queueMacro = e.target && e.target.closest ? e.target.closest('.nc-queue-macro') : null;
+    if(queueMacro){ const tid = parseInt(queueMacro.getAttribute('data-ticket-id') || '0', 10); const body = queueMacro.getAttribute('data-body') || ''; const ta = document.querySelector('.nc-queue-reply-text[data-ticket-id="'+tid+'"]'); if(ta){ ta.value = body; ta.focus(); } toggleQueueInlineReply(tid, true); return; }
+    const queueSend = e.target && e.target.closest ? e.target.closest('.nc-queue-send-reply') : null;
+    if(queueSend){ const tid = parseInt(queueSend.getAttribute('data-ticket-id') || '0', 10); const ta = document.querySelector('.nc-queue-reply-text[data-ticket-id="'+tid+'"]'); await sendQuickReply(tid, ta ? ta.value : '', queueSend); if(ta) ta.value=''; toggleQueueInlineReply(tid, false); return; }
+    const ticketCheck = e.target && e.target.closest ? e.target.closest('[data-ticket-check]') : null;
+    if(ticketCheck){ const tid = parseInt(ticketCheck.getAttribute('data-ticket-check') || '0', 10); if(tid > 0){ if(ticketCheck.checked) __supportSelectedIds.add(tid); else __supportSelectedIds.delete(tid); updateSupportBatchBar(); if(__supportQueueView === 'kanban') renderSupportKanban(__supportQueueData, __supportCurrentTicketId || 0); } return; }
+    const ticketLink = e.target && e.target.closest ? e.target.closest('.nc-support-ticket-link, [data-kanban-card]') : null;
+    if(ticketLink){ e.preventDefault(); const tid = parseInt(ticketLink.getAttribute('data-ticket-id') || '0', 10); if(tid > 0){ await refreshSupportSelectedTicket(tid, {preserveScroll:true}); await refreshSupportQueue({forceTicket:tid, preserveScroll:true}); } }
+  });
+  document.addEventListener('dragstart', (e)=>{ const link = e.target && e.target.closest ? e.target.closest('.nc-support-ticket-link, [data-kanban-card]') : null; if(!link) return; const tid = parseInt(link.getAttribute('data-ticket-id') || '0', 10); if(!(tid > 0)) return; __supportDraggedTicketId = tid; link.classList.add('is-dragging'); if(!__supportSelectedIds.has(tid)) { __supportSelectedIds.clear(); __supportSelectedIds.add(tid); updateSupportBatchBar(); } try{ e.dataTransfer.effectAllowed='move'; e.dataTransfer.setData('text/plain', String(tid)); }catch(_e){} });
+  document.addEventListener('dragend', (e)=>{ const link = e.target && e.target.closest ? e.target.closest('.nc-support-ticket-link, [data-kanban-card]') : null; if(link) link.classList.remove('is-dragging'); __supportDraggedTicketId = 0; document.querySelectorAll('.nc-support-dropzone.is-over, .nc-support-kanban-col.is-over').forEach(z=>z.classList.remove('is-over')); });
+})();
+initSupportDropzones();
+initSupportResizer();
+refreshSupportQueueView();
+
+
+function toggleQueueInlineReply(ticketId, openState){
+  const box = document.getElementById(`queueReplyBox-${ticketId}`);
+  if(!box) return;
+  const wantOpen = typeof openState === 'boolean' ? openState : !box.classList.contains('is-open');
+  box.classList.toggle('is-open', !!wantOpen);
+  if(wantOpen){ const ta = box.querySelector('textarea'); if(ta) ta.focus(); }
+}
+async function applyDroppedTicket(kind, value){
+  const ids = supportSelectedTicketIds(true);
+  if(!ids.length || !kind || !value) return;
+  for(const ticketId of ids){
+    if(kind === 'status') await setStatus(ticketId, value);
+    if(kind === 'priority') await setPriority(ticketId, value);
+  }
+  showSupportToast('Drag & drop применён', `Обновлено тикетов: ${ids.length}`);
+}
+function initSupportDropzones(){
+  document.querySelectorAll('.nc-support-dropzone, .nc-support-kanban-col').forEach(zone => {
+    if(zone.dataset.bound === '1') return;
+    zone.dataset.bound = '1';
+    zone.addEventListener('dragover', (e)=>{ if(__supportDraggedTicketId > 0){ e.preventDefault(); zone.classList.add('is-over'); } });
+    zone.addEventListener('dragleave', ()=>zone.classList.remove('is-over'));
+    zone.addEventListener('drop', async (e)=>{ e.preventDefault(); zone.classList.remove('is-over'); const kind = zone.getAttribute('data-drop-kind') || ''; const value = zone.getAttribute('data-drop-value') || ''; await applyDroppedTicket(kind, value); __supportDraggedTicketId = 0; });
+  });
+}
+function initSupportResizer(){
+  const wrap = document.getElementById('supportWorkspace');
+  const resizer = document.getElementById('supportQueueResizer');
+  if(!wrap || !resizer || window.innerWidth <= 980) return;
+  if(resizer.dataset.bound === '1') return;
+  resizer.dataset.bound = '1';
+  const key = 'nc_support_queue_width';
+  const saved = parseInt(localStorage.getItem(key) || '420', 10);
+  if(saved > 319 && saved < 760) wrap.style.setProperty('--support-queue-width', `${saved}px`);
+  let active = false;
+  const onMove = (e) => {
+    if(!active) return;
+    const rect = wrap.getBoundingClientRect();
+    const next = Math.max(320, Math.min(760, e.clientX - rect.left));
+    wrap.style.setProperty('--support-queue-width', `${next}px`);
+    localStorage.setItem(key, String(next));
+  };
+  const stop = () => { active = false; resizer.classList.remove('is-dragging'); window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', stop); };
+  resizer.addEventListener('mousedown', (e)=>{ active = true; resizer.classList.add('is-dragging'); e.preventDefault(); window.addEventListener('mousemove', onMove); window.addEventListener('mouseup', stop); });
+}
+
+function supportTypingContext(){ const el = document.activeElement; return !!(el && (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT' || el.isContentEditable)); }
+function supportOpenTicketByOffset(step){
+  const ids = __supportQueueData.map(x => Number(x.id||0)).filter(Boolean);
+  if(!ids.length) return;
+  const current = Number(__supportCurrentTicketId || ids[0]);
+  let idx = ids.indexOf(current);
+  if(idx < 0) idx = 0;
+  idx = Math.max(0, Math.min(ids.length - 1, idx + step));
+  const nextId = ids[idx];
+  refreshSupportSelectedTicket(nextId, {preserveScroll:true}).then(()=>refreshSupportQueue({forceTicket:nextId, preserveScroll:true}));
+}
+(function bindSupportHotkeys(){
+  if(window.__ncSupportHotkeysBound) return;
+  window.__ncSupportHotkeysBound = true;
+  document.addEventListener('keydown', async (e)=>{
+    if(!document.getElementById('supportWorkspace')) return;
+    const meta = e.ctrlKey || e.metaKey;
+    if(meta && e.key === 'Enter'){
+      const ae = document.activeElement;
+      if(ae && ae.closest && ae.closest('#staffReplyForm')){ e.preventDefault(); const btn=document.querySelector('#staffReplyForm button[type="submit"]'); if(btn) btn.click(); return; }
+      if(ae && ae.closest && ae.closest('#staffNoteForm')){ e.preventDefault(); const btn=document.querySelector('#staffNoteForm button[type="submit"]'); if(btn) btn.click(); return; }
+      if(ae && ae.classList && ae.classList.contains('nc-queue-reply-text')){ e.preventDefault(); const tid=parseInt(ae.getAttribute('data-ticket-id')||'0',10); const btn=document.querySelector('.nc-queue-send-reply[data-ticket-id="'+tid+'"]'); if(btn) btn.click(); return; }
+    }
+    if(supportTypingContext()) return;
+    if(e.key === 'j' || e.key === 'J'){ e.preventDefault(); supportOpenTicketByOffset(1); return; }
+    if(e.key === 'k' || e.key === 'K'){ e.preventDefault(); supportOpenTicketByOffset(-1); return; }
+    if(e.key === 'e' || e.key === 'E'){ e.preventDefault(); const ta=document.getElementById('staffReplyBody'); if(ta) ta.focus(); return; }
+    if(e.key === 'n' || e.key === 'N'){ e.preventDefault(); const ta=document.getElementById('staffNoteBody'); if(ta) ta.focus(); return; }
+    if(e.key === 'i' || e.key === 'I'){ if(__supportHotkeyLock){ e.preventDefault(); window.location.href='/admin/support/inbox'; return; } __supportHotkeyLock = true; setTimeout(()=>__supportHotkeyLock=false, 520); return; }
+    if(e.key === '1'){ e.preventDefault(); if(__supportCurrentTicketId) await setStatus(__supportCurrentTicketId, 'open'); return; }
+    if(e.key === '2'){ e.preventDefault(); if(__supportCurrentTicketId) await setStatus(__supportCurrentTicketId, 'pending'); return; }
+    if(e.key === '3'){ e.preventDefault(); if(__supportCurrentTicketId) await setStatus(__supportCurrentTicketId, 'closed'); return; }
+  });
+})();
+function supportSoundEnabled(){ return localStorage.getItem('nc_support_sound') !== '0'; }
+function refreshSupportSoundButton(){ const btn = document.getElementById('toggleSupportSoundBtn'); if(btn) btn.textContent = supportSoundEnabled() ? '🔔 Звук: вкл' : '🔕 Звук: выкл'; }
+function toggleSupportSound(){ localStorage.setItem('nc_support_sound', supportSoundEnabled() ? '0' : '1'); refreshSupportSoundButton(); }
+function playSupportPing(){ if(!supportSoundEnabled()) return; try{ const ctx = new (window.AudioContext || window.webkitAudioContext)(); const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.type='sine'; osc.frequency.value=820; gain.gain.value=0.02; osc.connect(gain); gain.connect(ctx.destination); osc.start(); setTimeout(()=>{ osc.frequency.value = 620; }, 120); setTimeout(()=>{ gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.18); }, 160); setTimeout(()=>{ try{osc.stop(); ctx.close();}catch(_e){} }, 360);}catch(_e){} }
+function showSupportToast(title, body, href){ let root = document.getElementById('supportToastRoot'); if(!root){ root = document.createElement('div'); root.id='supportToastRoot'; root.style.cssText='position:fixed; right:18px; bottom:18px; z-index:9999; display:grid; gap:10px; max-width:min(360px, calc(100vw - 24px));'; document.body.appendChild(root);} const card = document.createElement(href ? 'a' : 'div'); if(href) card.href=href; card.style.cssText='display:block; text-decoration:none; color:inherit; padding:14px 16px; border-radius:18px; backdrop-filter:blur(18px); background:rgba(16,18,24,.84); border:1px solid rgba(255,255,255,.12); box-shadow:0 18px 48px rgba(0,0,0,.35);'; card.innerHTML=`<div style="font-weight:700; margin-bottom:4px;">${String(title||'Новое событие').replace(/</g,'&lt;')}</div><div style="opacity:.88; line-height:1.35; white-space:pre-wrap;">${String(body||'').replace(/</g,'&lt;')}</div>`; root.appendChild(card); setTimeout(()=>{ card.style.transition='opacity .25s ease, transform .25s ease'; card.style.opacity='0'; card.style.transform='translateY(8px)'; }, 5200); setTimeout(()=>{ try{ card.remove(); }catch(_e){} }, 5600);}
+let __supportInboxBaseTitle = document.title;
+let __prevSupportNotif = null;
+refreshSupportSoundButton();
+async function refreshSupportLive(skipToast){
+  try{
+    const r = await fetch('/api/admin/support/inbox', {headers:{'Accept':'application/json'}});
+    const j = await r.json();
+    if(!j.ok) return;
+    const n = j.notifications || {};
+    const inbox = j.inbox || {};
+    const setText = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = String(val ?? 0); };
+    setText('liveUnseenEvents', n.unseen_events || 0);
+    setText('liveUnassignedOpen', n.unassigned_open || 0);
+    setText('liveMyWaiting', n.my_waiting || 0);
+    setText('liveNewOpen', n.new_open || 0);
+    setText('liveMentionsCount', n.unread_mentions || inbox.counts?.unread_mentions || 0);
+    setText('liveOverdueCount', inbox.counts?.overdue || 0);
+    const counts = {unseen: Number(n.unseen_events || 0), mentions: Number(n.unread_mentions || 0), mine: Number(n.my_waiting || 0), fresh: Number(n.new_open || 0), overdue: Number(inbox.counts?.overdue || 0)};
+    if(__prevSupportNotif && !skipToast){
+      if(counts.mentions > __prevSupportNotif.mentions){ playSupportPing(); showSupportToast('Новое упоминание', `У тебя +${counts.mentions - __prevSupportNotif.mentions} mention`, '/admin/support/inbox'); }
+      if(counts.mine > __prevSupportNotif.mine){ playSupportPing(); showSupportToast('Тикет ждёт твоего ответа', `Назначенных на тебя тикетов стало: ${counts.mine}`, '/admin/support/inbox'); }
+      if(counts.fresh > __prevSupportNotif.fresh){ showSupportToast('Новые тикеты', `Открытых новых за 24ч: ${counts.fresh}`, '/admin/support'); }
+      if(counts.overdue > __prevSupportNotif.overdue){ showSupportToast('Появились overdue', `Просроченных тикетов теперь: ${counts.overdue}`, '/admin/support?queue=overdue'); }
+    }
+    __prevSupportNotif = counts;
+    const total = counts.unseen + counts.mentions;
+    document.title = total > 0 ? `(${total}) Support · ${__supportInboxBaseTitle}` : __supportInboxBaseTitle;
+  }catch(_e){}
+}
+setInterval(refreshSupportLive, 45000);
+setTimeout(refreshSupportLive, 2500);
+setTimeout(()=>refreshSupportQueue({forceTicket:__supportCurrentTicketId || __initialSelectedTicketId || 0, preserveScroll:true}), 800);
+(function bindSupportLive(){
+  function attach(){
+    try{
+      if(!window.io) return setTimeout(attach, 600);
+      if(window.__ncSupportPanelSocketBound) return;
+      const sock = window.__ncSupportSocket || io();
+      window.__ncSupportSocket = sock;
+      window.__ncSupportPanelSocketBound = true;
+      sock.on('support_live_update', async function(payload){ refreshSupportLive(true); await refreshSupportQueueAndSelection({forceTicket:(payload && payload.ticket_id) ? (Number(__supportCurrentTicketId||0) || Number(payload.ticket_id||0)) : (__supportCurrentTicketId||0), preserveScroll:true}); });
+    }catch(_e){ setTimeout(attach, 1200); }
+  }
+  attach();
+})();
+</script>
+{% endblock %}

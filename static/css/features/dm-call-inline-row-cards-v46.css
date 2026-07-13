@@ -1,0 +1,332 @@
+/* =========================
+   v46 — DM call layout polish
+   Goal:
+   - keep the hangup button on the SAME row as the other controls
+   - give the 1:1 DM call avatars compact glass cards closer to the reference
+   ========================= */
+
+/* ---------- DM bottom control bar: one row, centered ---------- */
+#call-bar.call-hud[data-layout="dm"]{
+  --nc-dm-controls-pad: 104px !important;
+}
+
+#call-bar.call-hud[data-layout="dm"] .call-window{
+  position: relative !important;
+}
+
+#call-bar.call-hud[data-layout="dm"] .call-stage,
+#call-bar.call-hud[data-layout="dm"] .call-stage-main{
+  overflow: visible !important;
+}
+
+#call-bar.call-hud[data-layout="dm"] .call-stage-main{
+  padding-bottom: var(--nc-dm-controls-pad) !important;
+}
+
+#call-bar.call-hud[data-layout="dm"] .call-bottom{
+  position: absolute !important;
+  left: 50% !important;
+  bottom: 18px !important;
+  transform: translateX(-50%) !important;
+  width: auto !important;
+  max-width: calc(100% - 28px) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  display: flex !important;
+  justify-content: center !important;
+  z-index: 80 !important;
+}
+
+#call-bar.call-hud[data-layout="dm"] .call-controls-main{
+  position: relative !important;
+  left: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  width: auto !important;
+  max-width: none !important;
+  padding: 10px 12px !important;
+  border-radius: 20px !important;
+  background: linear-gradient(180deg, rgba(10, 25, 50, 0.96), rgba(6, 18, 38, 0.94)) !important;
+  border: 1px solid rgba(72, 214, 255, 0.28) !important;
+  box-shadow:
+    0 18px 42px rgba(0,0,0,0.48),
+    inset 0 1px 0 rgba(255,255,255,0.08) !important;
+  backdrop-filter: blur(16px) saturate(1.08) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(1.08) !important;
+  cursor: default !important;
+}
+
+#call-bar.call-hud[data-layout="dm"] .call-controls-main::before{
+  display: none !important;
+}
+
+#call-bar.call-hud[data-layout="dm"] .call-control{
+  flex: 0 0 auto !important;
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 12px !important;
+  background: linear-gradient(180deg, rgba(24, 42, 70, 0.92), rgba(11, 24, 44, 0.92)) !important;
+  border: 1px solid rgba(128, 198, 255, 0.18) !important;
+  color: #eaf4ff !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    0 8px 18px rgba(0,0,0,0.22) !important;
+}
+
+#call-bar.call-hud[data-layout="dm"] .call-control:hover{
+  background: linear-gradient(180deg, rgba(31, 54, 88, 0.96), rgba(13, 30, 55, 0.96)) !important;
+  border-color: rgba(128, 198, 255, 0.28) !important;
+}
+
+#call-bar.call-hud[data-layout="dm"] .call-control .i{
+  width: 18px !important;
+  height: 18px !important;
+}
+
+#call-bar.call-hud[data-layout="dm"] #btn-toggle-mic{ order: 1; }
+#call-bar.call-hud[data-layout="dm"] #btn-toggle-sound{ order: 2; }
+#call-bar.call-hud[data-layout="dm"] #btn-share-screen{ order: 3; }
+#call-bar.call-hud[data-layout="dm"] #btn-call-video{ order: 4; }
+#call-bar.call-hud[data-layout="dm"] #btn-toggle-music{ order: 5; }
+#call-bar.call-hud[data-layout="dm"] #btn-end-call{ order: 6; }
+
+/* disabled placeholder only wastes width in DM */
+#call-bar.call-hud[data-layout="dm"] #btn-call-more,
+#call-bar.call-hud[data-layout="dm"] .call-control.ghost{
+  display: none !important;
+}
+
+#call-bar.call-hud[data-layout="dm"] .call-control.danger{
+  width: 46px !important;
+  background: linear-gradient(180deg, rgba(182, 58, 92, 0.98), rgba(143, 38, 72, 0.98)) !important;
+  border: 1px solid rgba(255, 124, 156, 0.46) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.10),
+    0 12px 28px rgba(98, 19, 40, 0.34) !important;
+}
+
+#call-bar.call-hud[data-layout="dm"] .call-control.danger:hover{
+  filter: brightness(1.05) !important;
+}
+
+#call-bar.call-hud[data-layout="dm"] .call-control.toggled,
+#call-bar.call-hud[data-layout="dm"] .call-control.is-off{
+  background: linear-gradient(180deg, rgba(92, 36, 50, 0.98), rgba(62, 19, 31, 0.98)) !important;
+  border-color: rgba(255, 110, 135, 0.34) !important;
+}
+
+#call-bar.call-hud[data-layout="dm"] .call-control.is-on,
+#call-bar.call-hud[data-layout="dm"] .call-control.active{
+  background: linear-gradient(180deg, rgba(18, 76, 83, 0.96), rgba(11, 47, 54, 0.96)) !important;
+  border-color: rgba(72, 214, 255, 0.30) !important;
+}
+
+@media (max-width: 760px){
+  #call-bar.call-hud[data-layout="dm"]{
+    --nc-dm-controls-pad: 96px !important;
+  }
+  #call-bar.call-hud[data-layout="dm"] .call-controls-main{
+    gap: 6px !important;
+    padding: 9px 10px !important;
+  }
+  #call-bar.call-hud[data-layout="dm"] .call-control{
+    width: 40px !important;
+    height: 40px !important;
+  }
+}
+
+/* ---------- DM participants: compact glass cards ---------- */
+#call-bar.call-hud[data-layout="dm"]:not(.has-screen) .call-stage-main{
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  padding: 18px 20px var(--nc-dm-controls-pad) !important;
+}
+
+#call-bar.call-hud[data-layout="dm"]:not(.has-screen) #call-participants{
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: clamp(18px, 3vw, 28px) !important;
+  width: auto !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+#call-bar.call-hud[data-layout="dm"]:not(.has-screen) .participant-tile{
+  position: relative !important;
+  width: clamp(132px, 12vw, 160px) !important;
+  min-width: clamp(132px, 12vw, 160px) !important;
+  height: clamp(162px, 15vw, 192px) !important;
+  min-height: clamp(162px, 15vw, 192px) !important;
+  aspect-ratio: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+  padding: 16px 12px 14px !important;
+  border-radius: 22px !important;
+  overflow: hidden !important;
+  background:
+    radial-gradient(120px 90px at 24% 18%, rgba(94, 78, 255, 0.22), rgba(94, 78, 255, 0) 60%),
+    radial-gradient(120px 100px at 80% 18%, rgba(0, 230, 255, 0.16), rgba(0, 230, 255, 0) 64%),
+    linear-gradient(180deg, rgba(4, 16, 38, 0.94), rgba(3, 10, 24, 0.96)) !important;
+  border: 1px solid rgba(116, 201, 255, 0.16) !important;
+  box-shadow:
+    0 18px 42px rgba(0,0,0,0.42),
+    inset 0 1px 0 rgba(255,255,255,0.06) !important;
+}
+
+#call-bar.call-hud[data-layout="dm"]:not(.has-screen) .participant-tile::before{
+  content: "ONLINE" !important;
+  position: absolute !important;
+  top: 10px !important;
+  right: 10px !important;
+  left: auto !important;
+  width: auto !important;
+  height: auto !important;
+  transform: none !important;
+  border-radius: 999px !important;
+  padding: 3px 8px !important;
+  background: rgba(8, 32, 40, 0.88) !important;
+  border: 1px solid rgba(93, 255, 189, 0.20) !important;
+  color: #dffdf0 !important;
+  font-size: 8px !important;
+  font-weight: 800 !important;
+  letter-spacing: .10em !important;
+  line-height: 1 !important;
+  text-transform: uppercase !important;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.20) !important;
+  z-index: 3 !important;
+}
+
+#call-bar.call-hud[data-layout="dm"]:not(.has-screen) .participant-tile::after{
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  border-radius: inherit !important;
+  border: 1px solid rgba(255,255,255,0.04) !important;
+  pointer-events: none !important;
+}
+
+#call-bar.call-hud[data-layout="dm"]:not(.has-screen) .participant-avatar{
+  width: 78px !important;
+  height: 78px !important;
+  min-width: 78px !important;
+  min-height: 78px !important;
+  margin-top: 14px !important;
+  border-radius: 999px !important;
+  overflow: visible !important;
+  background: transparent !important;
+  border: 2px solid rgba(255,255,255,0.14) !important;
+  box-shadow:
+    0 0 0 5px rgba(7, 15, 28, 0.52),
+    0 14px 30px rgba(0,0,0,0.38) !important;
+}
+
+#call-bar.call-hud[data-layout="dm"]:not(.has-screen) .participant-avatar::before{
+  display: none !important;
+}
+
+#call-bar.call-hud[data-layout="dm"]:not(.has-screen) .participant-avatar .participant-avatar-inner{
+  position: absolute !important;
+  inset: 0 !important;
+  border-radius: 999px !important;
+  overflow: hidden !important;
+}
+
+#call-bar.call-hud[data-layout="dm"]:not(.has-screen) .participant-name{
+  display: block !important;
+  margin-top: 6px !important;
+  color: #f8fbff !important;
+  font-size: 16px !important;
+  line-height: 1.15 !important;
+  font-weight: 800 !important;
+  text-align: center !important;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.34) !important;
+}
+
+#call-bar.call-hud[data-layout="dm"]:not(.has-screen) .participant-sub{
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-top: auto !important;
+  min-height: 24px !important;
+  padding: 4px 10px !important;
+  border-radius: 999px !important;
+  background: rgba(255,255,255,0.07) !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  color: rgba(245, 248, 255, 0.82) !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: .08em !important;
+}
+
+#call-bar.call-hud[data-layout="dm"]:not(.has-screen) .participant-tile.is-self .participant-sub{
+  background: rgba(0, 229, 255, 0.10) !important;
+  border-color: rgba(0, 229, 255, 0.16) !important;
+  color: #d8fbff !important;
+}
+
+#call-bar.call-hud[data-layout="dm"]:not(.has-screen) .tile-name-badge,
+#call-bar.call-hud[data-layout="dm"]:not(.has-screen) .tile-more-btn,
+#call-bar.call-hud[data-layout="dm"]:not(.has-screen) .tile-react-btn,
+#call-bar.call-hud[data-layout="dm"]:not(.has-screen) .voice-bars{
+  display: none !important;
+}
+
+#call-bar.call-hud[data-layout="dm"]:not(.has-screen) .participant-tile[data-speaking="1"]{
+  border-color: rgba(72, 214, 255, 0.34) !important;
+  box-shadow:
+    0 0 0 1px rgba(72, 214, 255, 0.14),
+    0 24px 52px rgba(0,0,0,0.46) !important;
+}
+
+#call-bar.call-hud[data-layout="dm"]:not(.has-screen) .participant-tile[data-speaking="1"] .participant-avatar::after{
+  inset: -6px !important;
+  border-width: 2px !important;
+  box-shadow: 0 0 0 2px rgba(12, 22, 38, 0.56) !important;
+}
+
+#call-bar.call-hud[data-layout="dm"]:not(.has-screen) .participant-avatar .avatar-badge{
+  right: -4px !important;
+  bottom: -4px !important;
+  width: 22px !important;
+  height: 22px !important;
+  border-width: 2px !important;
+}
+
+@media (max-width: 900px){
+  #call-bar.call-hud[data-layout="dm"]:not(.has-screen) #call-participants{
+    gap: 14px !important;
+  }
+  #call-bar.call-hud[data-layout="dm"]:not(.has-screen) .participant-tile{
+    width: 128px !important;
+    min-width: 128px !important;
+    height: 156px !important;
+    min-height: 156px !important;
+    border-radius: 20px !important;
+  }
+  #call-bar.call-hud[data-layout="dm"]:not(.has-screen) .participant-avatar{
+    width: 72px !important;
+    height: 72px !important;
+    min-width: 72px !important;
+    min-height: 72px !important;
+  }
+  #call-bar.call-hud[data-layout="dm"]:not(.has-screen) .participant-name{
+    font-size: 14px !important;
+  }
+}

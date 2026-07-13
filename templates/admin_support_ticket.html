@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="auth-wrapper" style="align-items:flex-start; padding-top:32px; padding-bottom:32px;">
+  <div class="auth-card glass-card" style="max-width:1180px; width:min(1180px, 96vw);">
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+      <div>
+        <h2 class="auth-title">Профиль тикета #{{ ticket.id }}</h2>
+        <div class="auth-subtitle">Полная таймлиния, переписка и история изменений по обращению.</div>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <a class="nc-btn ghost" href="/admin/support?ticket={{ ticket.id }}">Назад в саппорт-панель</a>
+        <a class="nc-btn ghost" href="/admin">В админку</a>
+      </div>
+    </div>
+
+    <div class="nc-security-stats" style="margin-top:18px;">
+      <div class="nc-security-stat"><div class="nc-security-stat-label">Статус</div><div class="nc-security-stat-value" style="font-size:18px;">{{ ticket.status }}</div></div>
+      <div class="nc-security-stat"><div class="nc-security-stat-label">Приоритет</div><div class="nc-security-stat-value" style="font-size:18px;">{{ ticket.priority }}</div></div>
+      <div class="nc-security-stat"><div class="nc-security-stat-label">Ожидание</div><div class="nc-security-stat-value" style="font-size:18px;">{{ selected_sla.label if selected_sla else '—' }}</div></div>
+      <div class="nc-security-stat"><div class="nc-security-stat-label">Категория</div><div class="nc-security-stat-value" style="font-size:18px;">{{ ticket.category }}</div></div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:340px minmax(0,1fr); gap:16px; margin-top:16px;">
+      <div class="glass-card" style="padding:14px; border-radius:16px;">
+        <div class="nc-device-title">Карточка</div>
+        <div class="nc-device-sub" style="margin-top:8px;"><b>Тема:</b> {{ ticket.subject }}</div>
+        <div class="nc-device-sub"><b>Пользователь:</b> {{ user_map[ticket.user_id].username if user_map.get(ticket.user_id) else ('#' ~ ticket.user_id) }}</div>
+        <div class="nc-device-sub"><b>Ответственный:</b> {% if ticket.assigned_to and user_map.get(ticket.assigned_to) %}{{ user_map[ticket.assigned_to].username }}{% elif ticket.assigned_to %}#{{ ticket.assigned_to }}{% else %}не назначен{% endif %}</div>
+        <div class="nc-device-sub"><b>Создан:</b> {{ ticket.created_at.strftime('%d.%m.%Y %H:%M') if ticket.created_at else '—' }}</div>
+        <div class="nc-device-sub"><b>Обновлён:</b> {{ ticket.updated_at.strftime('%d.%m.%Y %H:%M') if ticket.updated_at else '—' }}</div>
+        <div class="nc-device-sub"><b>Последнее сообщение:</b> {{ ticket.last_message_at.strftime('%d.%m.%Y %H:%M') if ticket.last_message_at else '—' }}</div>
+        <div class="nc-device-sub"><b>Теги:</b> {% if tag_list(ticket) %}{% for tg in tag_list(ticket) %}<span class="nc-audit-badge is-warn">#{{ tg }}</span>{% endfor %}{% else %}—{% endif %}</div>
+        {% if ticket.satisfaction_rating %}<div class="nc-device-sub"><b>Оценка:</b> {{ ticket.satisfaction_rating }}/5{% if ticket.satisfaction_comment %} · {{ ticket.satisfaction_comment }}{% endif %}</div>{% endif %}
+      </div>
+
+      <div class="glass-card" style="padding:14px; border-radius:16px;">
+        <div class="nc-device-title">Таймлиния</div>
+        <div class="nc-audit-list" style="margin-top:10px; max-height:720px; overflow:auto;">
+          {% for ev in events %}
+          <div class="nc-audit-item">
+            <div class="nc-device-title">{{ ev.event_type }}{% if ev.event_value %} · {{ ev.event_value }}{% endif %}</div>
+            <div class="nc-device-sub">{% if ev.actor_user_id and user_map.get(ev.actor_user_id) %}{{ user_map[ev.actor_user_id].username }} · {% endif %}{{ ev.created_at.strftime('%d.%m.%Y %H:%M') if ev.created_at else '—' }}</div>
+            {% if ev.body %}<div style="margin-top:6px; white-space:pre-wrap; line-height:1.45;">{{ ev.body }}</div>{% endif %}
+          </div>
+          {% else %}
+          <div class="nc-settings-muted">История пока пустая.</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="glass-card" style="padding:14px; border-radius:16px; margin-top:16px;">
+      <div class="nc-device-title">Полная переписка</div>
+      <div class="nc-audit-list" style="margin-top:10px; max-height:760px; overflow:auto;">
+        {% for msg in messages %}
+        <div class="nc-audit-item" style="opacity:{% if msg.is_internal %}.82{% else %}1{% endif %};">
+          <div class="nc-device-title">
+            <span class="nc-audit-badge {% if msg.is_internal %}is-bad{% elif msg.is_staff %}is-warn{% else %}is-ok{% endif %}">{% if msg.is_internal %}Internal{% elif msg.is_staff %}Staff{% else %}User{% endif %}</span>
+            {{ user_map[msg.author_user_id].username if msg.author_user_id and user_map.get(msg.author_user_id) else ('Support' if msg.is_staff else 'System') }}
+          </div>
+          <div class="nc-device-sub">{{ msg.created_at.strftime('%d.%m.%Y %H:%M') if msg.created_at else '—' }}</div>
+          <div style="margin-top:8px; white-space:pre-wrap; line-height:1.45;">{{ msg.body }}</div>
+          {% if attachment_map.get(msg.id) %}<div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">{% for a in attachment_map[msg.id] %}<a href="{{ a.file_url }}" target="_blank" class="nc-btn ghost" style="text-decoration:none; max-width:220px; overflow:hidden; text-overflow:ellipsis;">{% if a.is_image %}🖼{% else %}📎{% endif %} {{ a.file_name }}</a>{% endfor %}</div>{% endif %}
+        </div>
+        {% else %}
+        <div class="nc-settings-muted">Сообщений пока нет.</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

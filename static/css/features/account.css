@@ -1,0 +1,583 @@
+/* Semantic stylesheet */
+
+/* fix352: richer account UI + hard click safety */
+#nc-settings-overlay [data-page="account"]{
+  position:relative;
+  isolation:isolate;
+}
+#nc-settings-overlay [data-page="account"]::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    radial-gradient(560px 260px at 0% 0%, rgba(168,98,255,.09), transparent 55%),
+    radial-gradient(460px 220px at 100% 0%, rgba(78,255,226,.08), transparent 52%),
+    linear-gradient(180deg, rgba(255,255,255,.02), transparent 18%);
+  opacity:.95;
+}
+#nc-settings-overlay [data-page="account"] .nc-account-card,
+#nc-settings-overlay [data-page="account"] .nc-account-panel,
+#nc-settings-overlay [data-page="account"] .nc-account-summary-item,
+#nc-settings-overlay [data-page="account"] .nc-field-row,
+#nc-settings-overlay [data-page="account"] .nc-account-subpanel,
+#nc-settings-overlay [data-page="account"] #nc-security-keys-block{
+  position:relative;
+  overflow:hidden;
+}
+#nc-settings-overlay [data-page="account"] .nc-account-card::before,
+#nc-settings-overlay [data-page="account"] .nc-account-panel::before,
+#nc-settings-overlay [data-page="account"] .nc-account-summary-item::before,
+#nc-settings-overlay [data-page="account"] .nc-field-row::before,
+#nc-settings-overlay [data-page="account"] .nc-account-subpanel::before,
+#nc-settings-overlay [data-page="account"] #nc-security-keys-block::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,0));
+  opacity:.75;
+}
+#nc-settings-overlay [data-page="account"] .nc-account-hero{
+  border-radius:24px;
+  border-color:rgba(124, 213, 206, .18);
+  box-shadow:0 26px 56px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.05);
+}
+#nc-settings-overlay [data-page="account"] .nc-account-banner{
+  height:152px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  background:
+    radial-gradient(circle at 10% 18%, rgba(255, 84, 194, .34), transparent 26%),
+    radial-gradient(circle at 88% 16%, rgba(115, 255, 218, .28), transparent 22%),
+    radial-gradient(circle at 58% 90%, rgba(97, 144, 255, .14), transparent 28%),
+    linear-gradient(115deg, rgba(108,58,255,.40), rgba(17,174,160,.30) 46%, rgba(14,23,37,.72));
+}
+#nc-settings-overlay [data-page="account"] .nc-account-banner::after{
+  content:"";
+  position:absolute;
+  right:-88px;
+  top:-108px;
+  width:260px;
+  height:260px;
+  border-radius:50%;
+  background:radial-gradient(circle, rgba(126,255,234,.28), rgba(126,255,234,0) 68%);
+  filter:blur(8px);
+  pointer-events:none;
+}
+#nc-settings-overlay [data-page="account"] .nc-account-banner-grid,
+#nc-settings-overlay [data-page="account"] .nc-account-banner-glow,
+#nc-settings-overlay [data-page="account"] .nc-account-banner-badges,
+#nc-settings-overlay [data-page="account"] .nc-account-chip,
+#nc-settings-overlay [data-page="account"] .nc-account-chip::before{
+  pointer-events:none !important;
+}
+#nc-settings-overlay [data-page="account"] .nc-account-chip{
+  padding:8px 12px;
+  border-color:rgba(255,255,255,.11);
+  color:rgba(255,255,255,.96);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+}
+#nc-settings-overlay [data-page="account"] .nc-account-chip.is-brand{
+  background:linear-gradient(180deg, rgba(233,96,255,.26), rgba(72, 209, 255, .16));
+  border-color:rgba(188, 170, 255, .24);
+}
+#nc-settings-overlay [data-page="account"] .nc-account-card-body,
+#nc-settings-overlay [data-page="account"] .nc-account-toprow,
+#nc-settings-overlay [data-page="account"] .nc-account-summary,
+#nc-settings-overlay [data-page="account"] .nc-account-fields,
+#nc-settings-overlay [data-page="account"] .nc-account-fields-head,
+#nc-settings-overlay [data-page="account"] .nc-account-panel,
+#nc-settings-overlay [data-page="account"] .nc-settings-subsection,
+#nc-settings-overlay [data-page="account"] .nc-settings-actions,
+#nc-settings-overlay [data-page="account"] .nc-expand-panel,
+#nc-settings-overlay [data-page="account"] .nc-settings-tab,
+#nc-settings-overlay [data-page="account"] .nc-btn,
+#nc-settings-overlay [data-page="account"] button,
+#nc-settings-overlay [data-page="account"] input,
+#nc-settings-overlay [data-page="account"] textarea{
+  position:relative;
+  z-index:5;
+  pointer-events:auto !important;
+}
+#nc-settings-overlay [data-page="account"] .nc-account-card-body{
+  padding:0 20px 22px;
+}
+#nc-settings-overlay [data-page="account"] .nc-account-toprow{
+  gap:18px;
+  margin-top:-42px;
+}
+#nc-settings-overlay [data-page="account"] .nc-account-ava{
+  width:98px;
+  height:98px;
+  border:4px solid rgba(11, 24, 38, .95);
+  box-shadow:0 22px 44px rgba(0,0,0,.34), 0 0 0 1px rgba(255,255,255,.07);
+}
+#nc-settings-overlay [data-page="account"] .nc-account-ava::after{
+  content:"";
+  position:absolute;
+  inset:-8px;
+  border-radius:inherit;
+  pointer-events:none;
+  background:radial-gradient(circle, rgba(255,255,255,.10), rgba(255,255,255,0) 70%);
+}
+#nc-settings-overlay [data-page="account"] .nc-account-id{
+  align-self:flex-end;
+  padding-bottom:8px;
+}
+#nc-settings-overlay [data-page="account"] .nc-account-name{
+  font-size:34px;
+  font-weight:900;
+  text-shadow:0 6px 22px rgba(0,0,0,.18);
+}
+#nc-settings-overlay [data-page="account"] .nc-account-handle{
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+  backdrop-filter:blur(14px);
+}
+#nc-settings-overlay [data-page="account"] .nc-account-subtitle{
+  color:rgba(232,245,255,.74);
+  font-size:14px;
+  max-width:640px;
+}
+#nc-settings-overlay [data-page="account"] .nc-account-top-actions .nc-btn{
+  min-height:48px;
+  min-width:208px;
+  border-radius:15px;
+  box-shadow:0 14px 28px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.06);
+}
+#nc-settings-overlay [data-page="account"] .nc-account-summary{
+  margin-top:20px;
+  gap:12px;
+}
+#nc-settings-overlay [data-page="account"] .nc-account-summary-item{
+  min-height:88px;
+  padding:16px 16px 15px;
+  border-radius:16px;
+  background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03));
+  border:1px solid rgba(255,255,255,.09);
+  box-shadow:0 12px 30px rgba(0,0,0,.12);
+}
+#nc-settings-overlay [data-page="account"] .nc-account-summary-item strong{
+  font-size:18px;
+}
+#nc-settings-overlay [data-page="account"] .nc-account-block-title{
+  font-size:17px;
+}
+#nc-settings-overlay [data-page="account"] .nc-account-fields{
+  margin-top:18px;
+}
+#nc-settings-overlay [data-page="account"] .nc-field-row{
+  min-height:84px;
+  padding:15px 15px 15px 18px;
+  border-radius:17px;
+  background:linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.028));
+  box-shadow:0 14px 34px rgba(0,0,0,.12);
+}
+#nc-settings-overlay [data-page="account"] .nc-field-row:hover{
+  transform:translateY(-2px);
+  border-color:rgba(118, 232, 220, .26);
+  box-shadow:0 18px 38px rgba(0,0,0,.14), 0 0 0 1px rgba(116,255,231,.05) inset;
+}
+#nc-settings-overlay [data-page="account"] .nc-field-value{
+  font-size:18px;
+}
+#nc-settings-overlay [data-page="account"] .nc-field-row .nc-btn{
+  min-width:126px;
+  min-height:44px;
+  border-radius:14px;
+}
+#nc-settings-overlay [data-page="account"] .nc-account-panel{
+  margin-top:20px;
+  padding:22px;
+  border-radius:22px;
+}
+#nc-settings-overlay [data-page="account"] .nc-account-panel .nc-settings-h3{
+  font-size:24px;
+  margin-bottom:12px;
+}
+#nc-settings-overlay [data-page="account"] .nc-account-panel > .nc-btn,
+#nc-settings-overlay [data-page="account"] .nc-account-panel > .nc-settings-actions > .nc-btn{
+  min-height:46px;
+  border-radius:14px;
+  margin-right:8px;
+  margin-bottom:10px;
+}
+#nc-settings-overlay [data-page="account"] .nc-account-subpanel,
+#nc-settings-overlay [data-page="account"] #nc-security-keys-block{
+  margin-top:18px;
+  padding:18px;
+  border-radius:18px;
+  background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+  border:1px solid rgba(255,255,255,.08);
+}
+#nc-settings-overlay [data-page="account"] .nc-account-panel.is-danger{
+  background:linear-gradient(180deg, rgba(73, 24, 36, .86), rgba(41, 16, 26, .92));
+  border-color:rgba(255, 116, 150, .18);
+}
+#nc-settings-overlay [data-page="account"] .nc-account-panel.is-danger::after{
+  content:"ВНИМАНИЕ";
+  position:absolute;
+  right:20px;
+  top:18px;
+  display:inline-flex;
+  align-items:center;
+  padding:8px 12px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.06em;
+  color:rgba(255,235,239,.96);
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.08);
+  pointer-events:none;
+}
+#nc-settings-overlay [data-page="account"] .nc-settings-tabs{
+  gap:10px;
+  margin-bottom:18px;
+}
+#nc-settings-overlay [data-page="account"] .nc-settings-tab{
+  min-height:40px;
+  padding:0 14px;
+  border-radius:14px;
+  background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+  border:1px solid rgba(255,255,255,.10);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+}
+#nc-settings-overlay [data-page="account"] .nc-settings-tab.is-active{
+  background:linear-gradient(180deg, rgba(108,58,255,.38), rgba(17,174,160,.26));
+  border-color:rgba(154, 236, 225, .22);
+  color:#fff;
+}
+#nc-settings-overlay [data-page="account"] .nc-account-panel .nc-settings-muted,
+#nc-settings-overlay [data-page="account"] .nc-account-block-subtitle,
+#nc-settings-overlay [data-page="account"] .nc-account-summary-label,
+#nc-settings-overlay [data-page="account"] .nc-field-label{
+  color:rgba(226,239,255,.60);
+}
+#nc-settings-overlay [data-page="account"] .nc-account-panel .nc-btn.ghost,
+#nc-settings-overlay [data-page="account"] .nc-field-row .nc-btn.ghost{
+  background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.045));
+  border-color:rgba(255,255,255,.10);
+}
+#nc-settings-overlay [data-page="account"] .nc-account-panel .nc-btn.primary,
+#nc-settings-overlay [data-page="account"] .nc-account-top-actions .nc-btn.primary{
+  background:linear-gradient(180deg, rgba(79, 210, 255, .32), rgba(55, 123, 255, .20));
+  border-color:rgba(106, 224, 255, .26);
+}
+@media (max-width: 980px){
+  #nc-settings-overlay [data-page="account"] .nc-account-banner{ height:136px; }
+  #nc-settings-overlay [data-page="account"] .nc-account-top-actions{ width:100%; }
+  #nc-settings-overlay [data-page="account"] .nc-account-top-actions .nc-btn{ width:100%; min-width:0; }
+}
+@media (max-width: 640px){
+  #nc-settings-overlay [data-page="account"] .nc-account-name{ font-size:28px; }
+  #nc-settings-overlay [data-page="account"] .nc-account-summary{ grid-template-columns:1fr; }
+}
+
+/* v40: remove translucent header frame on account page */
+#nc-settings-overlay [data-page="account"] .nc-settings-page-head{
+  position: static !important;
+  top: auto !important;
+  margin: 0 0 8px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+#nc-settings-overlay [data-page="account"] .nc-settings-title{
+  margin: 0 0 8px !important;
+}
+
+#nc-settings-overlay [data-page="account"] .nc-field-meta{
+  margin-top:8px;
+  font-size:12px;
+  line-height:1.45;
+  color:rgba(210,225,242,.62);
+}
+#nc-settings-overlay [data-page="account"] .nc-field-row .nc-btn[disabled]{
+  opacity:.55;
+  cursor:not-allowed;
+  filter:saturate(.8);
+}
+#nc-settings-overlay [data-page="account"] .nc-field-row .nc-btn[disabled]:hover{
+  transform:none;
+}
+
+
+/* fix353: account mini-modals must sit above settings and not be clipped by content scroll */
+.nc-mini-modal{
+  z-index: 120050 !important;
+}
+.nc-mini-modal-backdrop{
+  background: rgba(2, 6, 14, .68) !important;
+  backdrop-filter: blur(10px) saturate(120%);
+}
+.nc-mini-modal-card,
+.nc-2fa-modal-card{
+  z-index: 120051 !important;
+}
+body.nc-account-mini-open #nc-settings-overlay .nc-settings-modal{
+  pointer-events: none !important;
+  filter: blur(1.5px) saturate(.95);
+  transform: scale(.995);
+  transition: filter .18s ease, transform .18s ease;
+}
+body.nc-account-mini-open .nc-mini-modal,
+body.nc-account-mini-open .nc-mini-modal *{
+  pointer-events: auto !important;
+}
+body.nc-account-mini-open .nc-mini-modal-card,
+body.nc-account-mini-open .nc-2fa-modal-card{
+  box-shadow: 0 30px 90px rgba(0,0,0,.55), 0 0 0 1px rgba(142,226,255,.08), inset 0 1px 0 rgba(255,255,255,.04) !important;
+}
+#nc-settings-overlay [data-page="account"] .nc-account-panel > .nc-btn,
+#nc-settings-overlay [data-page="account"] .nc-account-panel > .nc-settings-actions > .nc-btn,
+#nc-settings-overlay [data-page="account"] .nc-field-row .nc-btn,
+#nc-settings-overlay [data-page="account"] .nc-account-top-actions .nc-btn{
+  box-shadow: 0 10px 24px rgba(0,0,0,.14), inset 0 1px 0 rgba(255,255,255,.05);
+}
+#nc-settings-overlay [data-page="account"] .nc-account-panel .nc-settings-h3{
+  letter-spacing: -.02em;
+}
+
+
+/* fix354: settings must stay clear until a real account mini-modal is open */
+body.nc-modal-open.nc-settings-open:not(.nc-account-mini-open) #nc-settings-overlay{
+  pointer-events: auto !important;
+}
+body.nc-modal-open.nc-settings-open:not(.nc-account-mini-open) #nc-settings-overlay .nc-settings-modal{
+  filter: none !important;
+  backdrop-filter: none !important;
+  transform: none !important;
+}
+/* keep the blur only for actual account mini-modals */
+body.nc-modal-open.nc-settings-open.nc-account-mini-open #nc-settings-overlay .nc-settings-modal{
+  filter: blur(1.5px) saturate(.95) !important;
+  transform: scale(.995) !important;
+}
+
+
+/* fix355: hard override account modals so they always appear above settings */
+#nc-hard-modal-root{
+  position:fixed;
+  inset:0;
+  z-index:2147483647;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  pointer-events:none;
+}
+
+#nc-hard-modal-root.is-open{ display:flex; pointer-events:auto; }
+#nc-hard-modal-root .nc-hard-modal-backdrop{
+  position:absolute;
+  inset:0;
+  z-index:0;
+  pointer-events:auto;
+  background:rgba(5,10,18,.62);
+  backdrop-filter: blur(8px) saturate(118%);
+}
+#nc-hard-modal-root .nc-hard-modal-card{
+  position:relative;
+  z-index:1;
+  pointer-events:auto;
+  width:min(560px, calc(100vw - 28px));
+  max-height:min(86vh, 900px);
+  overflow:auto;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,.1);
+  background:linear-gradient(180deg, rgba(19,28,45,.98), rgba(14,22,36,.98));
+  box-shadow:0 28px 90px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.05);
+  padding:16px;
+}
+#nc-hard-modal-root .nc-hard-modal-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:10px;
+}
+#nc-hard-modal-root .nc-hard-modal-kicker{
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:rgba(130,215,255,.88);
+  margin-bottom:6px;
+}
+
+#nc-hard-modal-root .nc-hard-modal-card,
+#nc-hard-modal-root .nc-hard-modal-card *{ pointer-events:auto; }
+#nc-hard-modal-root .nc-hard-modal-title{
+  font-size:30px;
+  line-height:1.05;
+  font-weight:900;
+  color:#fff;
+}
+#nc-hard-modal-root .nc-hard-modal-subtitle{
+  margin-top:8px;
+  font-size:14px;
+  line-height:1.45;
+  color:rgba(255,255,255,.78);
+}
+#nc-hard-modal-root .nc-hard-modal-close{
+  width:40px;
+  height:40px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.06);
+  color:#fff;
+  font-size:26px;
+  cursor:pointer;
+}
+#nc-hard-modal-root .nc-hard-modal-section{
+  margin-top:16px;
+  padding:14px;
+  border-radius:16px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+}
+#nc-hard-modal-root .nc-hard-grid-12{
+  display:grid;
+  grid-template-columns:repeat(6, 1fr);
+  gap:10px;
+}
+#nc-hard-modal-root .nc-hard-label{
+  display:block;
+  margin-bottom:8px;
+  font-size:12px;
+  font-weight:800;
+  color:rgba(255,255,255,.72);
+  text-transform:uppercase;
+}
+#nc-hard-modal-root .nc-hard-input,
+#nc-hard-modal-root .nc-hard-code,
+#nc-hard-modal-root .nc-hard-textarea{
+  width:100%;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.1);
+  background:rgba(0,0,0,.2);
+  color:#fff;
+  outline:none;
+  padding:12px 14px;
+  font-size:14px;
+}
+#nc-hard-modal-root .nc-hard-textarea{ min-height:96px; resize:vertical; }
+#nc-hard-modal-root .nc-hard-input:focus,
+#nc-hard-modal-root .nc-hard-code:focus,
+#nc-hard-modal-root .nc-hard-textarea:focus{
+  border-color:rgba(95,208,255,.6);
+  box-shadow:0 0 0 3px rgba(95,208,255,.14);
+}
+#nc-hard-modal-root .nc-hard-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:10px;
+  margin-top:16px;
+}
+#nc-hard-modal-root .nc-hard-btn{
+  min-height:42px;
+  padding:0 16px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.1);
+  background:rgba(255,255,255,.06);
+  color:#fff;
+  font-weight:800;
+  cursor:pointer;
+}
+#nc-hard-modal-root .nc-hard-btn:hover{ filter:brightness(1.05); }
+#nc-hard-modal-root .nc-hard-btn.is-primary{
+  background:linear-gradient(180deg, rgba(90,214,255,.28), rgba(43,165,214,.22));
+  border-color:rgba(100,220,255,.5);
+}
+#nc-hard-modal-root .nc-hard-btn.is-danger{
+  background:linear-gradient(180deg, rgba(255,96,120,.35), rgba(220,55,80,.28));
+  border-color:rgba(255,120,140,.55);
+}
+#nc-hard-modal-root .nc-hard-error{
+  min-height:18px;
+  margin-top:10px;
+  color:rgba(255,130,140,.95);
+  font-size:13px;
+}
+#nc-hard-modal-root .nc-hard-success{
+  color:rgba(139,255,186,.95);
+}
+#nc-hard-modal-root .nc-hard-qr-row{
+  display:grid;
+  grid-template-columns:170px 1fr;
+  gap:16px;
+  align-items:start;
+}
+#nc-hard-modal-root .nc-hard-qr-box{
+  width:170px;
+  height:170px;
+  border-radius:16px;
+  background:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+#nc-hard-modal-root .nc-hard-qr-box img{
+  width:154px;
+  height:154px;
+  display:block;
+}
+#nc-hard-modal-root .nc-hard-secret{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size:13px;
+  color:rgba(255,255,255,.9);
+  letter-spacing:.04em;
+  word-break:break-all;
+}
+body.nc-hard-modal-open #nc-settings-overlay .nc-settings-modal{
+  filter:blur(2px) saturate(.95) !important;
+  transform:scale(.995) !important;
+  pointer-events:none !important;
+}
+@media (max-width:720px){
+  
+#nc-hard-modal-root .nc-hard-modal-card,
+#nc-hard-modal-root .nc-hard-modal-card *{ pointer-events:auto; }
+#nc-hard-modal-root .nc-hard-modal-title{ font-size:24px; }
+  #nc-hard-modal-root .nc-hard-grid-12{ grid-template-columns:repeat(3, 1fr); }
+  #nc-hard-modal-root .nc-hard-qr-row{ grid-template-columns:1fr; }
+}
+
+
+/* fix358: remove leftover translucent strip/shadow on account page header */
+#nc-settings-overlay [data-page="account"]{
+  background: transparent !important;
+}
+#nc-settings-overlay [data-page="account"]::before,
+#nc-settings-overlay [data-page="account"]::after{
+  content: none !important;
+  background: none !important;
+  box-shadow: none !important;
+  border: 0 !important;
+}
+#nc-settings-overlay [data-page="account"] .nc-settings-page-head,
+#nc-settings-overlay [data-page="account"] .nc-settings-page-head::before,
+#nc-settings-overlay [data-page="account"] .nc-settings-page-head::after{
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+  backdrop-filter: none !important;
+  filter: none !important;
+}
+#nc-settings-overlay [data-page="account"] .nc-settings-tabs{
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 14px !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+#nc-settings-overlay [data-page="account"] .nc-settings-title{
+  text-shadow: none !important;
+}

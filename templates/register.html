@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="auth-wrapper">
+        <div class="auth-card glass-card">
+            {% include "_np_logo.html" %}
+    <h2 class="auth-title">Регистрация</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-list">
+        {% for cat, msg in messages %}
+          <div class="flash flash-{{ cat }}">{{ msg }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+    {% endwith %}
+
+    <form method="post" class="auth-form" id="reg-form">
+      <label>Ник</label>
+      <input type="text" name="username" id="reg-username" autocomplete="username" maxlength="32" required>
+      <label>Пароль <span class="hint">(8–21, сложный)</span></label>
+      <div class="pw-rules">Нужно: заглавная + строчная + цифра + символ. Нельзя: 123456, abcdef, много одинаковых подряд.</div>
+      <div class="pw-row">
+        <input type="password" name="password" id="reg-password" autocomplete="new-password" minlength="8" maxlength="21" required>
+        <button type="button" class="btn-secondary pw-gen" id="btn-gen">Сгенерировать</button>
+      </div>
+
+      <div class="pw-meter" aria-live="polite" data-pw-meter data-password="reg-password" data-username="reg-username">
+        <div class="pw-meter-track"><div class="pw-meter-bar lvl-0" id="pw-bar-reg"></div></div>
+        <div class="pw-meter-text" id="pw-text-reg">Введи пароль</div>
+        <ul class="pw-meter-list" id="pw-list-reg"></ul>
+      </div>
+
+      <button type="submit" class="btn-primary">Создать аккаунт</button>
+
+      <div class="auth-help">
+        Почта не нужна. Пароль никуда не отправляем. После регистрации мы покажем одноразовые коды восстановления. Сохрани их, иначе пароль не восстановить.
+      </div>
+    </form>
+
+    <div class="auth-alt">
+      Уже есть аккаунт? <a href="{{ url_for('login') }}">Войти</a>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const btn = document.getElementById('btn-gen');
+  const input = document.getElementById('reg-password');
+  if(!btn || !input) return;
+
+  function gen(len){
+    const A = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+    const a = "abcdefghijkmnopqrstuvwxyz";
+    const d = "23456789";
+    const s = "!@#$%^&*_-+=";
+    const all = A+a+d+s;
+    let out = "";
+    out += A[Math.floor(Math.random()*A.length)];
+    out += a[Math.floor(Math.random()*a.length)];
+    out += d[Math.floor(Math.random()*d.length)];
+    out += s[Math.floor(Math.random()*s.length)];
+    for(let i=out.length;i<len;i++){
+      out += all[Math.floor(Math.random()*all.length)];
+    }
+    return out.split('').sort(()=>Math.random()-0.5).join('');
+  }
+
+  btn.addEventListener('click', () => {
+    const len = 12 + Math.floor(Math.random()*6); // 12–17
+    input.value = gen(Math.min(21, Math.max(8, len)));
+    input.type = 'text';
+    setTimeout(()=>{ input.type='password'; }, 1200);
+    input.focus();
+    try { navigator.clipboard.writeText(input.value); } catch(e){}
+    try { input.dispatchEvent(new Event('input', {bubbles:true})); } catch(e){}
+  });
+})();
+
+</script>
+{% endblock %}

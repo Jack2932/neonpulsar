@@ -1,0 +1,15 @@
+{
+  "name": "Neon Chat",
+  "short_name": "NeonChat",
+  "start_url": "/chat",
+  "display": "standalone",
+  "background_color": "#0b0f1a",
+  "theme_color": "#0b0f1a",
+  "icons": [
+    {
+      "src": "/static/avatars/user_1.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    }
+  ]
+}

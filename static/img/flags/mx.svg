@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="16" viewBox="0 0 24 16" aria-label="Mexico">
+  <rect width="8" height="16" x="0" y="0" fill="#006847"/>
+  <rect width="8" height="16" x="8" y="0" fill="#FFFFFF"/>
+  <rect width="8" height="16" x="16" y="0" fill="#CE1126"/>
+  <!-- simplified emblem dot -->
+  <circle cx="12" cy="8" r="1.4" fill="#A67C52" opacity="0.85"/>
+</svg>

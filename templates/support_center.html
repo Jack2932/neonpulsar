@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="auth-wrapper" style="align-items:flex-start; padding-top:32px; padding-bottom:32px;">
+  <div class="auth-card glass-card" style="max-width:1240px; width:min(1240px, 96vw);">
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+      <div>
+        <h2 class="auth-title">Центр поддержки</h2>
+        <div class="auth-subtitle">Здесь можно открыть тикет, ответить саппорту и закрыть обращение, когда вопрос решён.</div>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <a class="nc-btn ghost" href="/chat">Вернуться в чат</a>
+        <a class="nc-btn ghost" href="/help">О поддержке</a>{% if current_user.is_authenticated %}<a class="nc-btn ghost" href="/admin/support">Саппорт-панель</a>{% endif %}
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:minmax(280px,360px) minmax(0,1fr); gap:16px; margin-top:18px;">
+      <div class="glass-card" style="padding:16px; border-radius:18px;">
+        <div class="nc-vv-h2">Новый тикет</div>
+        <div class="nc-vv-muted">Чем точнее тема и описание, тем быстрее саппорт поймёт проблему.</div>
+        <form id="supportCreateForm" style="display:grid; gap:10px; margin-top:14px;" enctype="multipart/form-data">
+          <input class="auth-input" name="subject" maxlength="160" placeholder="Тема обращения" required>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <select class="auth-input" name="category">
+              <option value="bug">Баг</option>
+              <option value="security">Безопасность</option>
+              <option value="billing">Оплата</option>
+              <option value="server">Сервер / канал</option>
+              <option value="report">Жалоба</option>
+              <option value="other">Другое</option>
+            </select>
+            <select class="auth-input" name="priority">
+              <option value="low">Низкий</option>
+              <option value="normal" selected>Обычный</option>
+              <option value="high">Высокий</option>
+              <option value="urgent">Срочно</option>
+            </select>
+          </div>
+          <textarea class="auth-input" name="body" rows="6" maxlength="4000" placeholder="Опиши проблему, что делал, что ожидал и что получилось на самом деле." required></textarea>
+          <input class="auth-input" type="file" name="files" multiple>
+          <div class="nc-vv-muted">Можно приложить до 5 файлов, каждый до 10MB.</div>
+          <button class="nc-btn" type="submit">Создать тикет</button>
+        </form>
+      </div>
+
+      <div class="glass-card" style="padding:16px; border-radius:18px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+          <div>
+            <div class="nc-vv-h2">Мои обращения</div>
+            <div class="nc-vv-muted">Всего: {{ tickets|length }}{% if status %} · фильтр: {{ status }}{% endif %}</div>
+          </div>
+          <div class="nc-device-actions">
+            <a class="nc-btn ghost" href="/support">Все</a>
+            <a class="nc-btn ghost" href="/support?status=open">Открытые</a>
+            <a class="nc-btn ghost" href="/support?status=pending">В работе</a>
+            <a class="nc-btn ghost" href="/support?status=closed">Закрытые</a>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:minmax(260px,340px) minmax(0,1fr); gap:14px; margin-top:14px;">
+          <div class="nc-audit-list" style="max-height:720px; overflow:auto;">
+            {% for row in tickets %}
+            <a href="/support?ticket={{ row.id }}{% if status %}&status={{ status }}{% endif %}" class="nc-audit-item" style="display:block; text-decoration:none; color:inherit; border:{% if selected and selected.id == row.id %}1px solid rgba(126,92,255,.55){% else %}1px solid transparent{% endif %};">
+              <div class="nc-device-meta">
+                <div class="nc-device-title">
+                  <span class="nc-audit-badge {% if row.status == 'open' %}is-bad{% elif row.status == 'pending' %}is-warn{% else %}is-ok{% endif %}">{{ row.status }}</span>
+                  <span class="nc-audit-badge {% if sla_map.get(row.id) and sla_map[row.id].is_overdue %}is-bad{% elif sla_map.get(row.id) and sla_map[row.id].waiting_for == 'user' %}is-ok{% else %}is-warn{% endif %}">{{ sla_map[row.id].label if sla_map.get(row.id) else '—' }}</span>
+                  #{{ row.id }} · {{ row.subject }}
+                </div>
+                <div class="nc-device-sub">{{ row.category }} · {{ row.priority }} · {{ row.last_message_at.strftime('%d.%m.%Y %H:%M') if row.last_message_at else '—' }}</div>
+              </div>
+            </a>
+            {% else %}
+            <div class="nc-settings-muted">Пока тикетов нет.</div>
+            {% endfor %}
+          </div>
+
+          <div class="glass-card" style="padding:14px; border-radius:16px; min-height:420px;">
+            {% if selected %}
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+                <div>
+                  <div class="nc-device-title">#{{ selected.id }} · {{ selected.subject }}</div>
+                  <div class="nc-device-sub">{{ selected.category }} · {{ selected.priority }} · статус {{ selected.status }} · {{ selected_sla.label if selected_sla else "—" }}</div>
+                  {% if tag_list(selected) %}<div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">{% for tg in tag_list(selected) %}<span class="nc-audit-badge is-warn">#{{ tg }}</span>{% endfor %}</div>{% endif %}
+                </div>
+                <div class="nc-device-actions">
+                  {% if selected.status != 'closed' %}<button class="nc-btn ghost" type="button" onclick="closeTicket({{ selected.id }})">Закрыть тикет</button>{% endif %}
+                </div>
+              </div>
+
+              {% if selected.status == 'closed' %}
+              <div class="glass-card" style="padding:12px; border-radius:14px; margin-top:12px;">
+                <div class="nc-device-title">Оценка поддержки</div>
+                {% if selected.satisfaction_rating %}
+                  <div class="nc-device-sub" style="margin-top:6px;">Твоя оценка: {{ '★' * selected.satisfaction_rating }}{{ '☆' * (5 - selected.satisfaction_rating) }}</div>
+                  {% if selected.satisfaction_comment %}<div style="margin-top:8px; white-space:pre-wrap;">{{ selected.satisfaction_comment }}</div>{% endif %}
+                {% else %}
+                  <form id="supportRateForm" style="display:grid; gap:10px; margin-top:10px;">
+                    <select class="auth-input" name="rating" required>
+                      <option value="5">5 — отлично</option>
+                      <option value="4">4 — хорошо</option>
+                      <option value="3">3 — нормально</option>
+                      <option value="2">2 — слабо</option>
+                      <option value="1">1 — плохо</option>
+                    </select>
+                    <textarea class="auth-input" name="comment" rows="3" maxlength="1000" placeholder="Что понравилось или что стоит улучшить"></textarea>
+                    <button class="nc-btn ghost" type="submit">Оценить поддержку</button>
+                  </form>
+                {% endif %}
+              </div>
+              {% endif %}
+
+              <div class="nc-audit-list" style="margin-top:14px; max-height:430px; overflow:auto;">
+                {% for msg in messages %}
+                <div class="nc-audit-item">
+                  <div class="nc-device-left">
+                    <div class="nc-device-meta">
+                      <div class="nc-device-title">
+                        <span class="nc-audit-badge {% if msg.is_staff %}is-warn{% else %}is-ok{% endif %}">{% if msg.is_staff %}Support{% else %}You{% endif %}</span>
+                        {{ user_map[msg.author_user_id].username if msg.author_user_id and user_map.get(msg.author_user_id) else ('Support' if msg.is_staff else 'Вы') }}
+                      </div>
+                      <div class="nc-device-sub">{{ msg.created_at.strftime('%d.%m.%Y %H:%M') if msg.created_at else '—' }}</div>
+                      <div style="margin-top:8px; white-space:pre-wrap; line-height:1.45;">{{ msg.body }}</div>
+                      {% if attachment_map.get(msg.id) %}<div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">{% for a in attachment_map[msg.id] %}<a href="{{ a.file_url }}" target="_blank" class="nc-btn ghost" style="text-decoration:none; max-width:220px; overflow:hidden; text-overflow:ellipsis;">{% if a.is_image %}🖼{% else %}📎{% endif %} {{ a.file_name }}</a>{% endfor %}</div>{% endif %}
+                    </div>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+
+              {% if selected.status != 'closed' %}
+              <form id="replyForm" style="display:grid; gap:10px; margin-top:14px;" enctype="multipart/form-data">
+                <textarea class="auth-input" id="userReplyBody" name="body" rows="5" maxlength="4000" placeholder="Напиши дополнительную информацию или ответ саппорту" required></textarea>
+                <input class="auth-input" type="file" name="files" multiple>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">{% for qr in saved_replies[:6] %}<button type="button" class="nc-btn ghost nc-quick-reply" data-target="userReplyBody" data-body="{{ qr.body|e }}">{{ qr.title }}</button>{% endfor %}</div><button class="nc-btn" type="submit">Отправить ответ</button>
+              </form>
+              {% else %}
+              <div class="nc-settings-muted" style="margin-top:14px;">Тикет закрыт. Если вопрос снова актуален, создай новый тикет с актуальным описанием.</div>
+              {% endif %}
+            {% else %}
+              <div class="nc-settings-muted">Выбери обращение слева или создай новое.</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(async function(){
+  const createForm = document.getElementById('supportCreateForm');
+  if (createForm){
+    createForm.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const fd = new FormData(createForm);
+      const r = await fetch('/api/support/tickets', {method:'POST', body:fd});
+      const j = await r.json().catch(()=>({ok:false}));
+      if (j.ok && j.redirect_url) window.location.href = j.redirect_url;
+      else alert('Не удалось создать тикет');
+    });
+  }
+  const replyForm = document.getElementById('replyForm');
+  if (replyForm){
+    replyForm.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const fd = new FormData(replyForm);
+      const r = await fetch('/api/support/tickets/{{ selected.id if selected else 0 }}/reply', {method:'POST', body:fd});
+      const j = await r.json().catch(()=>({ok:false}));
+      if (j.ok) window.location.reload();
+      else alert('Не удалось отправить ответ');
+    });
+  }
+  const rateForm = document.getElementById('supportRateForm');
+  if (rateForm){
+    rateForm.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const fd = new FormData(rateForm);
+      const r = await fetch('/api/support/tickets/{{ selected.id if selected else 0 }}/rate', {method:'POST', body:fd});
+      const j = await r.json().catch(()=>({ok:false}));
+      if (j.ok) window.location.reload();
+      else alert(j.error || 'Не удалось оценить поддержку');
+    });
+  }
+  document.addEventListener('click', (e)=>{
+    const qr = e.target && e.target.closest ? e.target.closest('.nc-quick-reply') : null;
+    if(!qr) return;
+    const target = document.getElementById(qr.getAttribute('data-target'));
+    if(target){ target.value = qr.getAttribute('data-body') || ''; target.focus(); }
+  });
+})();
+async function closeTicket(id){
+  if(!confirm('Закрыть тикет?')) return;
+  const r = await fetch(`/api/support/tickets/${id}/close`, {method:'POST'});
+  const j = await r.json().catch(()=>({ok:false}));
+  if(j.ok) window.location.reload(); else alert('Не удалось закрыть тикет');
+}
+</script>
+{% endblock %}

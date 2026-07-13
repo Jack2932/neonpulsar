@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="16" viewBox="0 0 24 16">
+<rect width="24" height="16" rx="2" ry="2" fill="#111" opacity="0"/>
+<rect width="24" height="16" fill="#fe0000"/>
+<rect width="12.000" height="8.000" fill="#000095"/>
+<g><line x1="4.32" y1="4.48" x2="7.32" y2="4.48" stroke="#ffffff" stroke-width="0.8"/><line x1="4.32" y1="4.48" x2="6.92" y2="5.98" stroke="#ffffff" stroke-width="0.8"/><line x1="4.32" y1="4.48" x2="5.82" y2="7.08" stroke="#ffffff" stroke-width="0.8"/><line x1="4.32" y1="4.48" x2="4.32" y2="7.48" stroke="#ffffff" stroke-width="0.8"/><line x1="4.32" y1="4.48" x2="2.82" y2="7.08" stroke="#ffffff" stroke-width="0.8"/><line x1="4.32" y1="4.48" x2="1.72" y2="5.98" stroke="#ffffff" stroke-width="0.8"/><line x1="4.32" y1="4.48" x2="1.32" y2="4.48" stroke="#ffffff" stroke-width="0.8"/><line x1="4.32" y1="4.48" x2="1.72" y2="2.98" stroke="#ffffff" stroke-width="0.8"/><line x1="4.32" y1="4.48" x2="2.82" y2="1.88" stroke="#ffffff" stroke-width="0.8"/><line x1="4.32" y1="4.48" x2="4.32" y2="1.48" stroke="#ffffff" stroke-width="0.8"/><line x1="4.32" y1="4.48" x2="5.82" y2="1.88" stroke="#ffffff" stroke-width="0.8"/><line x1="4.32" y1="4.48" x2="6.92" y2="2.98" stroke="#ffffff" stroke-width="0.8"/><circle cx="4.32" cy="4.48" r="1.4" fill="#ffffff"/></g>
+</svg>

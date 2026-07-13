@@ -1,0 +1,280 @@
+/* v51: closer to ref — full stage, cleaner spacing, source cards fully readable */
+#ss-preview-shell.ss-preview{
+  min-height: 392px !important;
+  padding: 0 !important;
+}
+
+#ss-preview-shell .ss-preview-overlay{
+  border-radius: 28px !important;
+}
+
+#ss-preview-shell .ss-preview-placeholder{
+  position: absolute !important;
+  inset: 14px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: stretch !important;
+  justify-content: stretch !important;
+  overflow: hidden !important;
+}
+
+#ss-preview-shell .ss-preview-scene{
+  position: relative !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 100% !important;
+  margin: 0 !important;
+  padding: 22px 22px 18px !important;
+  border-radius: 26px !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-rows: auto auto auto 1fr auto !important;
+  align-content: stretch !important;
+  justify-items: start !important;
+  gap: 10px !important;
+  overflow: hidden !important;
+  background:
+    radial-gradient(72% 90% at 100% 0%, rgba(35, 207, 255, 0.12) 0%, rgba(35, 207, 255, 0) 60%),
+    radial-gradient(62% 72% at 0% 100%, rgba(215, 92, 255, 0.12) 0%, rgba(215, 92, 255, 0) 62%),
+    linear-gradient(135deg, rgba(4, 7, 21, 0.98) 0%, rgba(8, 13, 31, 0.98) 48%, rgba(5, 8, 21, 0.99) 100%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    inset 0 0 0 1px rgba(123, 200, 255, 0.08),
+    0 20px 44px rgba(0,0,0,0.28) !important;
+}
+
+#ss-preview-shell .ss-preview-scene::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(42% 56% at 76% 32%, rgba(57, 182, 255, 0.10), transparent 70%),
+    radial-gradient(36% 50% at 24% 70%, rgba(212, 80, 255, 0.10), transparent 74%),
+    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0));
+}
+
+#ss-preview-shell .ss-preview-kicker,
+#ss-preview-shell .ss-preview-title,
+#ss-preview-shell .ss-preview-copy,
+#ss-preview-shell .ss-preview-sources,
+#ss-preview-shell .ss-preview-hints{
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+#ss-preview-shell .ss-preview-kicker{
+  margin: 0 !important;
+  padding: 10px 16px !important;
+  border-radius: 999px !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  letter-spacing: .20em !important;
+  color: rgba(239, 245, 255, 0.92) !important;
+  background: linear-gradient(180deg, rgba(28, 38, 63, 0.86), rgba(15, 23, 42, 0.82)) !important;
+  border: 1px solid rgba(136, 196, 255, 0.15) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04) !important;
+}
+
+#ss-preview-shell .ss-preview-title{
+  max-width: 8.5ch !important;
+  margin: 0 !important;
+  font-size: clamp(36px, 2vw + 20px, 54px) !important;
+  line-height: 0.92 !important;
+  letter-spacing: -0.055em !important;
+  font-weight: 900 !important;
+  text-wrap: balance !important;
+}
+
+#ss-preview-shell .ss-preview-copy{
+  max-width: 34ch !important;
+  margin: 0 !important;
+  font-size: 15px !important;
+  line-height: 1.32 !important;
+  color: rgba(226, 236, 249, 0.86) !important;
+}
+
+#ss-preview-shell .ss-preview-sources{
+  width: 100% !important;
+  margin-top: auto !important;
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+  align-self: end !important;
+}
+
+#ss-preview-shell .ss-source-card{
+  min-width: 0 !important;
+  min-height: 74px !important;
+  padding: 12px 14px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  border-radius: 18px !important;
+  background: linear-gradient(180deg, rgba(18, 29, 53, 0.90), rgba(8, 15, 31, 0.94)) !important;
+  border: 1px solid rgba(126, 202, 255, 0.16) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.05),
+    0 10px 20px rgba(0,0,0,0.20) !important;
+}
+
+#ss-preview-shell .ss-source-card.is-screen{
+  background:
+    radial-gradient(120% 120% at 0% 100%, rgba(72, 125, 255, 0.22), transparent 54%),
+    linear-gradient(180deg, rgba(18, 35, 66, 0.92), rgba(7, 15, 31, 0.96)) !important;
+}
+
+#ss-preview-shell .ss-source-card.is-window{
+  background:
+    radial-gradient(120% 120% at 50% 0%, rgba(181, 90, 255, 0.20), transparent 54%),
+    linear-gradient(180deg, rgba(25, 28, 62, 0.92), rgba(11, 13, 31, 0.96)) !important;
+}
+
+#ss-preview-shell .ss-source-card.is-tab{
+  background:
+    radial-gradient(120% 120% at 100% 0%, rgba(62, 232, 208, 0.18), transparent 52%),
+    linear-gradient(180deg, rgba(12, 43, 54, 0.90), rgba(8, 21, 28, 0.96)) !important;
+}
+
+#ss-preview-shell .ss-source-card-icon{
+  flex: 0 0 34px !important;
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 11px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 13px !important;
+  color: rgba(255,255,255,0.96) !important;
+  background: linear-gradient(180deg, rgba(112, 180, 255, 0.30), rgba(74, 132, 255, 0.22)) !important;
+  border: 1px solid rgba(176, 219, 255, 0.14) !important;
+}
+
+#ss-preview-shell .is-window .ss-source-card-icon{
+  background: linear-gradient(180deg, rgba(209, 116, 255, 0.30), rgba(156, 84, 255, 0.22)) !important;
+}
+
+#ss-preview-shell .is-tab .ss-source-card-icon{
+  background: linear-gradient(180deg, rgba(87, 235, 228, 0.28), rgba(58, 188, 169, 0.20)) !important;
+}
+
+#ss-preview-shell .ss-source-card-copy{
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+#ss-preview-shell .ss-source-card-title,
+#ss-preview-shell .ss-source-card-sub{
+  display: block !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+#ss-preview-shell .ss-source-card-title{
+  margin: 0 !important;
+  font-size: 15px !important;
+  line-height: 1.1 !important;
+  font-weight: 800 !important;
+  color: #fff !important;
+}
+
+#ss-preview-shell .ss-source-card-sub{
+  margin-top: 3px !important;
+  font-size: 11px !important;
+  line-height: 1.2 !important;
+  color: rgba(214, 227, 245, 0.72) !important;
+}
+
+#ss-preview-shell .ss-preview-hints{
+  display: none !important;
+}
+
+@media (max-width: 980px){
+  #ss-preview-shell.ss-preview{
+    min-height: 340px !important;
+  }
+
+  #ss-preview-shell .ss-preview-placeholder{
+    inset: 12px !important;
+  }
+
+  #ss-preview-shell .ss-preview-scene{
+    padding: 18px 18px 16px !important;
+    gap: 9px !important;
+  }
+
+  #ss-preview-shell .ss-preview-title{
+    font-size: clamp(28px, 1.3vw + 18px, 40px) !important;
+  }
+
+  #ss-preview-shell .ss-preview-copy{
+    max-width: 30ch !important;
+    font-size: 13px !important;
+  }
+
+  #ss-preview-shell .ss-preview-sources{
+    gap: 8px !important;
+  }
+
+  #ss-preview-shell .ss-source-card{
+    min-height: 64px !important;
+    padding: 10px 11px !important;
+    gap: 10px !important;
+  }
+
+  #ss-preview-shell .ss-source-card-title{
+    font-size: 13px !important;
+  }
+
+  #ss-preview-shell .ss-source-card-sub{
+    font-size: 10px !important;
+  }
+}
+
+@media (max-height: 920px){
+  #ss-preview-shell.ss-preview{
+    min-height: 312px !important;
+  }
+
+  #ss-preview-shell .ss-preview-placeholder{
+    inset: 10px !important;
+  }
+
+  #ss-preview-shell .ss-preview-scene{
+    padding: 16px 16px 14px !important;
+    gap: 8px !important;
+  }
+
+  #ss-preview-shell .ss-preview-title{
+    max-width: 9ch !important;
+    font-size: clamp(24px, 1vw + 18px, 34px) !important;
+  }
+
+  #ss-preview-shell .ss-preview-copy{
+    max-width: 31ch !important;
+    font-size: 12px !important;
+  }
+
+  #ss-preview-shell .ss-source-card{
+    min-height: 58px !important;
+    padding: 9px 10px !important;
+    gap: 9px !important;
+  }
+
+  #ss-preview-shell .ss-source-card-icon{
+    width: 30px !important;
+    height: 30px !important;
+    flex-basis: 30px !important;
+    border-radius: 10px !important;
+    font-size: 12px !important;
+  }
+
+  #ss-preview-shell .ss-source-card-title{
+    font-size: 12px !important;
+  }
+
+  #ss-preview-shell .ss-source-card-sub{
+    font-size: 9px !important;
+  }
+}

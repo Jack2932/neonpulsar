@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="auth-wrapper">
+  <div class="auth-card glass-card" style="max-width:560px; text-align:center;">
+    <h2 class="auth-title">{{ title or 'Сообщение' }}</h2>
+    <div class="auth-subtitle">{{ message or '' }}</div>
+  </div>
+</div>
+{% endblock %}

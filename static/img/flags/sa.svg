@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="16" viewBox="0 0 24 16" aria-label="Saudi Arabia">
+  <rect width="24" height="16" x="0" y="0" fill="#006C35"/>
+  <!-- simplified white script bar -->
+  <rect x="4" y="5" width="16" height="3" rx="1.5" fill="#FFFFFF" opacity="0.85"/>
+  <!-- simplified sword -->
+  <rect x="6" y="11" width="12" height="1.4" rx="0.7" fill="#FFFFFF" opacity="0.9"/>
+  <circle cx="18.2" cy="11.7" r="0.6" fill="#FFFFFF" opacity="0.9"/>
+</svg>

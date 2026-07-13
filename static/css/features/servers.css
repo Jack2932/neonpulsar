@@ -1,0 +1,514 @@
+/* Semantic stylesheet */
+
+/*
+  FIX218 (обновление файла nc_guild_discord_fix217.css)
+  ----------------------------------------------------
+  Требование: в server-mode НЕ ломаем твой Pulsar/Glass UI.
+  Каналы должны выглядеть по структуре как Discord (скрин 2),
+  но сама колонка остаётся стеклянной (как в твоём DM UI).
+
+  Что здесь:
+  - Убираем плоско-серые оверрайды из FIX217
+  - Чиним высоту/скролл списка категорий/каналов (чтобы не было пустого поля)
+  - Голосовой экран в сервере оставляем как Discord (скрин 3)
+*/
+
+/* =========================
+   SERVER (Guild) sidebar
+   ========================= */
+
+/* В сервере сверху не нужен брендовый "Neon Pulsar" блок — вместо него guild-header с названием сервера */
+body.nc-server-mode #sidebar .server-header{
+  display: none !important;
+}
+
+/* Каналы должны занимать всю высоту в средней части сайдбара */
+body.nc-server-mode #pane-channels{
+  background: transparent !important;
+}
+
+/* Внутренний блок (тот самый glass-контейнер) делаем полноценной flex-колонкой */
+body.nc-server-mode #pane-channels .sidebar-block{
+  height: 100% !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Плейсхолдер "выберите сервер" — по центру, чтобы не было серого пустого поля */
+body.nc-server-mode #guild-empty{
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 18px 10px;
+  opacity: .92;
+}
+
+/* Контейнер каналов растягиваем */
+body.nc-server-mode #guild-channel-block{
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Сам список категорий/каналов должен скроллиться (как friend-list) */
+body.nc-server-mode #guild-channel-block .guild-cats{
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  padding-right: 6px;
+}
+
+/* Лёгкая стеклянная подложка под хедером сервера (дороже визуально, чем "серый прямоугольник") */
+body.nc-server-mode #pane-channels .guild-header{
+  backdrop-filter: blur(14px);
+  background: linear-gradient(90deg, rgba(0,0,0,.14), rgba(255,255,255,.02));
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+
+/* =========================
+   VOICE VIEW (Guild channel)
+   ========================= */
+
+/* В голосовом канале центр — чёрный как Discord */
+body.nc-server-mode .chat-main.is-voice-view{
+  background: #000 !important;
+}
+
+body.nc-server-mode .chat-main.is-voice-view .chat-header{
+  background: rgba(0,0,0,.22) !important;
+  border-bottom: 1px solid rgba(255,255,255,.06) !important;
+}
+
+/* Контейнер голосового экрана */
+body.nc-server-mode .chat-main.is-voice-view #voice-view{
+  padding: 14px 14px 10px !important;
+}
+
+/* Две плитки (как на скрине 3): слева сцена, справа активности */
+body.nc-server-mode .chat-main.is-voice-view #voice-stage{
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+  gap: 16px !important;
+  align-items: stretch;
+}
+
+/* Плитки */
+body.nc-server-mode .chat-main.is-voice-view #voice-tile-main,
+body.nc-server-mode .chat-main.is-voice-view #voice-tile-side{
+  background: rgba(20,22,28,.85) !important;
+  border: 1px solid rgba(255,255,255,.06) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 18px 60px rgba(0,0,0,.55) !important;
+}
+
+/* Side tile показываем только в серверном голосовом */
+body.nc-server-mode .chat-main.is-voice-view #voice-tile-side,
+body.nc-server-mode .chat-main.is-voice-view #voice-tile-side.is-hidden{
+  display: block !important;
+}
+
+/* Если экран шарится — даём максимум места сцене */
+body.nc-server-mode .chat-main.is-voice-view .voice-view.has-share #voice-stage{
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+body.nc-server-mode .chat-main.is-voice-view .voice-view.has-share #voice-tile-side{
+  display: none !important;
+}
+
+/* Контент "Активности" */
+#voice-tile-side .voice-activity{
+  height: 100%;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap: 14px;
+  padding: 18px;
+}
+
+#voice-tile-side .voice-activity-hero{
+  flex: 0 0 auto;
+  height: 190px;
+  border-radius: 12px;
+  background:
+    radial-gradient(120px 120px at 20% 30%, rgba(159,69,255,.55), transparent 60%),
+    radial-gradient(140px 140px at 70% 35%, rgba(36,255,153,.35), transparent 62%),
+    radial-gradient(160px 160px at 50% 75%, rgba(0,180,255,.25), transparent 65%),
+    rgba(0,0,0,.22);
+  border: 1px solid rgba(255,255,255,.06);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+#voice-tile-side .voice-activity-hero-icon{
+  font-size: 54px;
+  filter: drop-shadow(0 16px 32px rgba(0,0,0,.55));
+}
+
+#voice-tile-side .voice-activity-actions{
+  display:flex;
+  gap: 10px;
+  justify-content:center;
+  flex-wrap: wrap;
+}
+
+#voice-tile-side .voice-activity-btn{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.06);
+  color: rgba(255,255,255,.92);
+  cursor:pointer;
+  font-weight: 700;
+}
+#voice-tile-side .voice-activity-btn:hover{
+  background: rgba(255,255,255,.10);
+}
+#voice-tile-side .voice-activity-ico{ opacity: .92; }
+
+
+/*
+  FIX221
+  - Fix voice roster positioning (no more "user under category text")
+  - Round top of "Мой сервер" header inside glass sidebar
+  - Add Discord-like Guild pages styling (Browse channels / Members) with glass look
+  IMPORTANT: Everything is scoped to body.nc-server-mode
+*/
+
+/* === Sidebar header rounding ("Мой сервер") === */
+body.nc-server-mode #pane-channels .sidebar-block{
+  /* keep your glass, but clip header background to rounded top */
+  overflow: hidden !important;
+}
+
+body.nc-server-mode #pane-channels .guild-header{
+  border-top-left-radius: 18px !important;
+  border-top-right-radius: 18px !important;
+}
+
+/* === FIX: voice roster must be below the voice channel row, not inside flex-row === */
+body.nc-server-mode #pane-channels .guild-channel-item{
+  /* was display:flex in FIX219; make it a block wrapper */
+  display: block !important;
+  height: auto !important;
+  padding: 0 !important;
+  margin: 1px 0 !important;
+  background: transparent !important;
+}
+
+body.nc-server-mode #pane-channels .guild-channel-row{
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  height: 32px !important;
+  padding: 0 8px !important;
+  border-radius: 4px !important;
+  color: rgba(255,255,255,.70) !important;
+  cursor: pointer;
+}
+
+body.nc-server-mode #pane-channels .guild-channel-item:hover .guild-channel-row{
+  background: rgba(255,255,255,.06) !important;
+  color: rgba(255,255,255,.92) !important;
+}
+
+body.nc-server-mode #pane-channels .guild-channel-item.is-active .guild-channel-row{
+  background: rgba(255,255,255,.10) !important;
+  color: rgba(255,255,255,.96) !important;
+}
+
+body.nc-server-mode #pane-channels .guild-channel-item.is-joined .guild-channel-row{
+  background: rgba(80, 180, 255, .12) !important;
+}
+
+/* Keep icons/name/badges/actions inside row */
+body.nc-server-mode #pane-channels .guild-channel-row .guild-channel-icon{
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: .9;
+}
+body.nc-server-mode #pane-channels .guild-channel-row .guild-channel-icon .i{ width: 18px; height: 18px; }
+body.nc-server-mode #pane-channels .guild-channel-row .guild-channel-name{
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 600 !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+body.nc-server-mode #pane-channels .guild-channel-row .guild-channel-badges{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+body.nc-server-mode #pane-channels .guild-channel-row .guild-channel-actions{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0;
+  pointer-events: none;
+}
+body.nc-server-mode #pane-channels .guild-channel-item:hover .guild-channel-actions,
+body.nc-server-mode #pane-channels .guild-channel-item.is-active .guild-channel-actions{
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Voice roster indentation + prevent overlap */
+body.nc-server-mode #pane-channels .guild-voice-roster{
+  display: block !important;
+  margin: 2px 0 8px !important;
+  padding-left: 34px !important;
+}
+
+/* hide channels/categories toggled off in Browse Channels */
+body.nc-server-mode #pane-channels .nc-browse-hidden{ display: none !important; }
+
+/* === Guild Pages (main area) === */
+body.nc-server-mode .guild-page{
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px;
+}
+
+body.nc-server-mode .guild-page.is-hidden{ display: none !important; }
+
+body.nc-server-mode .guild-page-head{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(30,31,34,.28);
+  border: 1px solid rgba(255,255,255,.06);
+  backdrop-filter: blur(14px);
+}
+
+body.nc-server-mode .guild-page-title{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+body.nc-server-mode .guild-page-title .gph-text{
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: .2px;
+}
+
+body.nc-server-mode .guild-page-actions{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+body.nc-server-mode .guild-page-search{
+  padding: 0 2px;
+}
+
+body.nc-server-mode .gpc-search,
+body.nc-server-mode .gph-search{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 10px;
+  background: rgba(0,0,0,.20);
+  border: 1px solid rgba(255,255,255,.08);
+}
+
+body.nc-server-mode .gpc-search input,
+body.nc-server-mode .gph-search input{
+  width: 260px;
+  max-width: 42vw;
+  background: transparent;
+  border: 0;
+  outline: none;
+  color: rgba(255,255,255,.92);
+  font-weight: 700;
+}
+
+body.nc-server-mode .guild-page-body{
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  padding: 2px;
+}
+
+/* Browse categories cards */
+body.nc-server-mode .gb-cat{
+  border-radius: 12px;
+  background: rgba(30,31,34,.22);
+  border: 1px solid rgba(255,255,255,.06);
+  backdrop-filter: blur(14px);
+  margin: 10px 0;
+  overflow: hidden;
+}
+
+body.nc-server-mode .gb-cat-head{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+
+body.nc-server-mode .gb-cat-title{
+  font-size: 18px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+body.nc-server-mode .gb-cat-actions{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Discord-like switch */
+body.nc-server-mode .nc-switch{
+  position: relative;
+  width: 44px;
+  height: 24px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.10);
+  border: 1px solid rgba(255,255,255,.08);
+  cursor: pointer;
+}
+body.nc-server-mode .nc-switch::after{
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.85);
+  transition: transform .18s ease;
+}
+body.nc-server-mode .nc-switch.is-on{
+  background: rgba(88,101,242,.55);
+  border-color: rgba(88,101,242,.65);
+}
+body.nc-server-mode .nc-switch.is-on::after{
+  transform: translateX(20px);
+}
+
+body.nc-server-mode .gb-list{ padding: 8px 0; }
+body.nc-server-mode .gb-row{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  color: rgba(255,255,255,.86);
+}
+body.nc-server-mode .gb-row:hover{ background: rgba(255,255,255,.06); }
+body.nc-server-mode .gb-row-left{ display:flex; align-items:center; gap:10px; min-width:0; }
+body.nc-server-mode .gb-row-name{ font-weight: 800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+body.nc-server-mode .gb-row-meta{ font-size: 12px; opacity: .72; margin-top: 2px; }
+
+body.nc-server-mode .gb-check{
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.10);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255,255,255,.92);
+}
+body.nc-server-mode .gb-check.is-on{ background: rgba(88,101,242,.55); border-color: rgba(88,101,242,.65); }
+
+/* Members table */
+body.nc-server-mode .gm-wrap{
+  border-radius: 12px;
+  background: rgba(30,31,34,.22);
+  border: 1px solid rgba(255,255,255,.06);
+  backdrop-filter: blur(14px);
+  overflow: hidden;
+}
+
+body.nc-server-mode .gm-head{
+  padding: 12px;
+  font-size: 16px;
+  font-weight: 900;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+
+body.nc-server-mode .gm-table{
+  width: 100%;
+  border-collapse: collapse;
+}
+body.nc-server-mode .gm-table th,
+body.nc-server-mode .gm-table td{
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  text-align: left;
+  font-size: 13px;
+  color: rgba(255,255,255,.86);
+}
+body.nc-server-mode .gm-table th{
+  font-size: 11px;
+  opacity: .7;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+body.nc-server-mode .gm-user{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  min-width: 0;
+}
+body.nc-server-mode .gm-av{
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.08);
+}
+body.nc-server-mode .gm-name{ font-weight: 900; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+body.nc-server-mode .gm-sub{ font-size: 12px; opacity: .7; margin-top: 2px; }
+body.nc-server-mode .gm-role{
+  display:inline-flex;
+  align-items:center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.10);
+  font-weight: 800;
+}
+
+body.nc-server-mode .gm-actions{ display:flex; align-items:center; gap: 8px; justify-content:flex-end; }
+body.nc-server-mode .gm-actions .icon-btn{
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.08);
+}
+body.nc-server-mode .gm-actions .icon-btn:hover{ background: rgba(255,255,255,.10); }

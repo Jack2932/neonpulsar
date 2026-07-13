@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="auth-wrapper">
+  <div class="auth-card glass-card">
+    {% include "_np_logo.html" %}
+    <h2 class="auth-title">Коды восстановления</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-list">
+        {% for cat, msg in messages %}
+          <div class="flash flash-{{ cat }}">{{ msg }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+    {% endwith %}
+
+    <style>
+      .rc-warn{margin:10px 0 14px; padding:12px 14px; border-radius:14px; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); color:#fff; line-height:1.35}
+      .rc-table{width:100%; border-collapse:separate; border-spacing:0 10px; margin:14px 0}
+      .rc-code{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+               letter-spacing:.08em; font-size:14px; padding:12px 12px; border-radius:14px;
+               background:rgba(0,0,0,.24); border:1px solid rgba(255,255,255,.10); color:#fff; text-align:center}
+      .rc-actions{display:flex; gap:10px; margin-top:10px}
+      .rc-actions .btn-primary, .rc-actions .btn-secondary{flex:1}
+      .rc-small{opacity:.85; font-size:13px}
+    </style>
+
+    {% if codes %}
+      <div class="rc-warn">
+        <b>Это одноразовый показ.</b> Сохрани коды сейчас. Потом мы их уже не покажем.
+        Если потеряешь и пароль, и эти коды, восстановить доступ будет невозможно.
+        <div class="rc-small" style="margin-top:8px">Подсказка: можно скачать .txt или скопировать одним нажатием.</div>
+      </div>
+
+      <table class="rc-table" aria-label="recovery codes">
+        <tbody>
+          {% for c in codes[:3] %}
+            <tr><td class="rc-code">{{ c }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% if codes|length > 3 %}
+      <div class="rc-warn">
+        Показаны только первые 3 кода. Полный список из {{ codes|length }} кодов автоматически скачивается в <b>TXT-файл</b> на устройство и остаётся у тебя на ПК.
+      </div>
+      {% endif %}
+
+      <div class="rc-actions">
+        <button type="button" class="btn-secondary" id="btn-copy-rc">Скопировать</button>
+        <button type="button" class="btn-secondary" id="btn-dl-rc">Скачать .txt</button>
+      </div>
+
+      <div class="rc-actions" style="margin-top:10px">
+        <a class="btn-primary" href="{{ url_for('chat') }}" style="text-align:center; text-decoration:none; padding:12px 14px; border-radius:14px; display:block">Я сохранил, продолжить</a>
+      </div>
+
+      <script>
+      (function(){
+        const codes = {{ codes|tojson }};
+        const text = codes.join('\n');
+        const autoFileName = 'neonpulsar_recovery_codes.txt';
+        const btnCopy = document.getElementById('btn-copy-rc');
+        const btnDl = document.getElementById('btn-dl-rc');
+
+        btnCopy && btnCopy.addEventListener('click', async () => {
+          try { await navigator.clipboard.writeText(text); } catch(e){}
+          btnCopy.textContent = 'Скопировано';
+          setTimeout(()=>btnCopy.textContent='Скопировать', 1200);
+        });
+
+        btnDl && btnDl.addEventListener('click', () => {
+          const blob = new Blob([text + '\n'], {type:'text/plain'});
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = autoFileName;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+        });
+              setTimeout(()=>{ try{ btnDl && btnDl.click(); }catch(e){} }, 120);
+      })();
+      </script>
+    {% else %}
+      <div class="rc-warn">
+        Коды уже были показаны один раз и больше не доступны.
+        <div class="rc-small" style="margin-top:8px">Если нужно, можно сгенерировать новые (старые перестанут работать).</div>
+      </div>
+
+      <form method="post" action="{{ url_for('regen_recovery_codes') }}">
+        <button type="submit" class="btn-primary" style="width:100%">Сгенерировать новые коды</button>
+      </form>
+
+      <div class="auth-alt" style="margin-top:12px">
+        <a href="{{ url_for('chat') }}">Вернуться в чат</a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

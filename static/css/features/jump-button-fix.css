@@ -1,0 +1,25 @@
+/* v19b — jump button should not drift or animate when already pinned to bottom */
+.jump-latest,
+#btn-jump-latest{
+  transition: opacity .14s ease, background-color .14s ease, border-color .14s ease, box-shadow .18s ease !important;
+  will-change: auto !important;
+}
+
+.jump-latest:hover,
+#btn-jump-latest:hover,
+.jump-latest:active,
+#btn-jump-latest:active{
+  transform: translateX(-50%) !important;
+  filter: none !important;
+}
+
+.jump-latest:hover,
+#btn-jump-latest:hover{
+  background: rgba(255,255,255,0.08) !important;
+}
+
+.jump-latest.is-hidden,
+#btn-jump-latest.is-hidden{
+  opacity: 0 !important;
+  pointer-events: none !important;
+}

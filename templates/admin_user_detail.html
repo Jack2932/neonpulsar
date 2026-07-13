@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="auth-wrapper" style="align-items:flex-start; padding-top:32px; padding-bottom:32px;">
+  <div class="auth-card glass-card" style="max-width:1280px; width:min(1280px, 97vw);">
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+      <div>
+        <h2 class="auth-title">Карточка пользователя · {{ user_obj.username }}</h2>
+        <div class="auth-subtitle">Детальный просмотр аккаунта, быстрые санкции, история действий и участие на серверах.</div>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <a class="nc-btn ghost" href="/admin/users">Назад к пользователям</a>
+        <a class="nc-btn ghost" href="/admin/security?q={{ user_obj.username }}">Безопасность</a>
+        <a class="nc-btn ghost" href="/admin/audit?q={{ user_obj.username }}">Логи действий</a>
+      </div>
+    </div>
+
+    <div class="nc-vv-section nc-vv-section-first nc-security-dashboard" style="display:block; margin-top:18px;">
+      <div class="nc-vv-h2">Профиль</div>
+      <div class="nc-security-stats">
+        <div class="nc-security-stat"><div class="nc-security-stat-label">ID</div><div class="nc-security-stat-value">{{ user_obj.id }}</div></div>
+        <div class="nc-security-stat"><div class="nc-security-stat-label">Статус</div><div class="nc-security-stat-value">{{ 'banned' if user_obj.is_disabled else ('online' if user_obj.is_online else ('deleted' if user_obj.is_deleted else 'active')) }}</div></div>
+        <div class="nc-security-stat"><div class="nc-security-stat-label">Создан</div><div class="nc-security-stat-value" style="font-size:16px;">{{ user_obj.created_at }}</div></div>
+        <div class="nc-security-stat"><div class="nc-security-stat-label">Last seen</div><div class="nc-security-stat-value" style="font-size:16px;">{{ user_obj.last_seen }}</div></div>
+      </div>
+      <div class="nc-vv-muted" style="margin-top:10px;">{% if user_obj.display_name %}display: {{ user_obj.display_name }} · {% endif %}{% if user_obj.email %}email: {{ user_obj.email }} · {% endif %}2FA: {{ 'on' if user_obj.totp_enabled else 'off' }}</div>
+    </div>
+
+
+    <div class="nc-vv-section">
+      <div class="nc-vv-h2">Админ-доступ</div>
+      <div class="nc-audit-list" style="margin-top:12px;">
+        <div class="nc-audit-item">
+          <div class="nc-device-left">
+            <div class="nc-device-meta">
+              <div class="nc-device-title">
+                {% if user_obj.id == 1 %}
+                <span class="nc-audit-badge is-ok">owner</span> Полный доступ
+                {% elif admin_grant and admin_grant.is_superadmin %}
+                <span class="nc-audit-badge is-warn">superadmin</span> Полный доступ через роль
+                {% elif admin_permissions %}
+                <span class="nc-audit-badge">custom</span> {{ admin_permissions|join(', ') }}
+                {% else %}
+                <span class="nc-audit-badge">none</span> Нет админ-доступа
+                {% endif %}
+              </div>
+              <div class="nc-device-sub">{% if admin_grant and admin_grant.note %}{{ admin_grant.note }}{% else %}Выдать или поменять права можно в разделе /admin/roles.{% endif %}</div>
+            </div>
+          </div>
+          <div class="nc-device-actions"><a class="nc-btn ghost" href="/admin/roles?q={{ user_obj.username }}">Открыть роли</a></div>
+        </div>
+      </div>
+    </div>
+    <div class="nc-vv-section">
+      <div class="nc-vv-h2">Быстрые действия</div>
+      <div class="nc-vv-muted">Можно мгновенно выбить все сессии, выдать мут или бан. Все действия пишутся в историю ниже.</div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+        <button class="nc-btn ghost nc-admin-user-action" type="button" data-action="logout_all" data-user-id="{{ user_obj.id }}">Выйти везде</button>
+        {% if user_obj.is_disabled %}
+        <button class="nc-btn ghost nc-admin-user-action" type="button" data-action="unban" data-user-id="{{ user_obj.id }}">Разбанить</button>
+        {% else %}
+        <button class="nc-btn ghost nc-admin-user-action" type="button" data-action="ban" data-user-id="{{ user_obj.id }}">Забанить</button>
+        {% endif %}
+        {% if active_mute %}
+        <button class="nc-btn ghost nc-admin-user-action" type="button" data-action="unmute" data-user-id="{{ user_obj.id }}">Снять мут</button>
+        <div class="nc-audit-badge is-warn" style="align-self:center;">Мут до {{ active_mute.expires_at or '∞' }}</div>
+        {% else %}
+        <button class="nc-btn ghost nc-admin-user-action" type="button" data-action="mute" data-duration="60" data-user-id="{{ user_obj.id }}">Мут 1 час</button>
+        <button class="nc-btn ghost nc-admin-user-action" type="button" data-action="mute" data-duration="1440" data-user-id="{{ user_obj.id }}">Мут 24 часа</button>
+        <button class="nc-btn ghost nc-admin-user-action" type="button" data-action="mute" data-duration="10080" data-user-id="{{ user_obj.id }}">Мут 7 дней</button>
+        {% endif %}
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+        <button class="nc-btn ghost nc-admin-user-ipban" type="button" data-user-id="{{ user_obj.id }}">Забанить IP из последних сессий</button>
+        <button class="nc-btn ghost nc-admin-user-delete" type="button" data-mode="soft_delete" data-user-id="{{ user_obj.id }}">Удалить с возвратом</button>
+        <button class="nc-btn ghost nc-admin-user-delete" type="button" data-mode="purge_delete" data-user-id="{{ user_obj.id }}">Удалить навсегда</button>
+        {% if user_obj.is_deleted %}<button class="nc-btn ghost nc-admin-user-delete" type="button" data-mode="restore" data-user-id="{{ user_obj.id }}">Восстановить аккаунт</button>{% endif %}
+      </div>
+      <div class="nc-vv-muted" style="margin-top:10px;">IP-бан использует последний известный IP пользователя и блокирует вход. «Удалить с возвратом» можно потом восстановить из админки.</div>
+    </div>
+
+    <div class="nc-vv-section">
+      <div class="nc-vv-h2">Активные и недавние сессии</div>
+      <div class="nc-audit-list" style="margin-top:12px;">
+        {% for row in sessions %}
+        <div class="nc-audit-item">
+          <div class="nc-device-left">
+            <div class="nc-device-meta">
+              <div class="nc-device-title"><span class="nc-audit-badge {% if row.revoked_at %}is-warn{% else %}is-ok{% endif %}">{{ 'revoked' if row.revoked_at else 'active' }}</span> {{ row.device_name or 'Устройство' }}</div>
+              <div class="nc-device-sub">{{ row.ip_address or '—' }} · {{ row.user_agent or '—' }}</div>
+              <div class="nc-device-sub">создан: {{ row.created_at }} · seen: {{ row.last_seen_at }}</div>
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <div class="nc-settings-muted">Сессий пока нет.</div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="nc-vv-section">
+      <div class="nc-vv-h2">История входов и ошибки</div>
+      <div class="nc-audit-list" style="margin-top:12px;">
+        {% for row in attempts %}
+        <div class="nc-audit-item">
+          <div class="nc-device-left">
+            <div class="nc-device-meta">
+              <div class="nc-device-title"><span class="nc-audit-badge {% if 'success' in row.status %}is-ok{% elif 'bad' in row.status or 'blocked' in row.status or 'rate' in row.status %}is-bad{% else %}{% endif %}">{{ row.status }}</span> {{ row.login_value or user_obj.username }}</div>
+              <div class="nc-device-sub">{{ row.created_at }} · IP: {{ row.ip_address or '—' }}{% if row.note %} · {{ row.note }}{% endif %}</div>
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <div class="nc-settings-muted">Попыток входа пока нет.</div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="nc-vv-section">
+      <div class="nc-vv-h2">История санкций и действий администратора</div>
+      <div class="nc-audit-list" style="margin-top:12px;">
+        {% for row in action_rows %}
+        <div class="nc-audit-item">
+          <div class="nc-device-left">
+            <div class="nc-device-meta">
+              <div class="nc-device-title"><span class="nc-audit-badge {% if row.action_type in ['ban','mute'] and row.is_active %}is-bad{% elif row.action_type in ['unban','unmute'] %}is-ok{% else %}is-warn{% endif %}">{{ row.action_type }}</span> {% if row.guild_id %}сервер #{{ row.guild_id }}{% else %}глобально{% endif %}</div>
+              <div class="nc-device-sub">{{ row.created_at }}{% if row.expires_at %} · до {{ row.expires_at }}{% endif %}{% if row.reason %} · {{ row.reason }}{% endif %}</div>
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <div class="nc-settings-muted">Действий администратора пока нет.</div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="nc-vv-section">
+      <div class="nc-vv-h2">Недавние сообщения</div>
+      <div class="nc-audit-list" style="margin-top:12px;">
+        {% for msg in recent_messages %}
+        {% set ch = channel_map.get(msg.channel_id) %}
+        <div class="nc-audit-item">
+          <div class="nc-device-left" style="align-items:flex-start;">
+            <div class="nc-device-meta">
+              <div class="nc-device-title">#{{ msg.id }} <span class="nc-audit-badge {% if msg.deleted_at %}is-warn{% else %}is-ok{% endif %}">{{ 'hidden' if msg.deleted_at else 'visible' }}</span></div>
+              <div class="nc-device-sub">{{ msg.created_at }} · канал: {{ ch.name if ch else msg.channel_id }}</div>
+              <div class="nc-device-sub" style="margin-top:6px; line-height:1.45;">{{ msg.content if msg.content else 'Пустое содержимое' }}</div>
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <div class="nc-settings-muted">Сообщений пока нет.</div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="nc-vv-section">
+      <div class="nc-vv-h2">Жалобы и участие в серверах</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+        <div class="glass-card" style="padding:14px; border-radius:18px;">
+          <div class="nc-device-title">Жалобы</div>
+          <div class="nc-audit-list" style="margin-top:12px;">
+            {% for rep in reports %}
+            {% set ch = channel_map.get(rep.channel_id) %}
+            <div class="nc-audit-item">
+              <div class="nc-device-left">
+                <div class="nc-device-meta">
+                  <div class="nc-device-title"><span class="nc-audit-badge {% if rep.status == 'open' %}is-bad{% elif rep.status == 'resolved' %}is-ok{% endif %}">{{ rep.status }}</span> {{ rep.reason }}</div>
+                  <div class="nc-device-sub">msg #{{ rep.message_id }} · канал: {{ ch.name if ch else rep.channel_id }} · {{ rep.created_at }}</div>
+                </div>
+              </div>
+            </div>
+            {% else %}<div class="nc-settings-muted">Жалоб с участием пользователя нет.</div>{% endfor %}
+          </div>
+        </div>
+        <div class="glass-card" style="padding:14px; border-radius:18px;">
+          <div class="nc-device-title">Серверы и каналы</div>
+          <div class="nc-audit-list" style="margin-top:12px;">
+            {% for row in membership_rows %}
+            {% set ch = channel_map.get(row.channel_id) %}
+            {% set root = root_servers.get((ch.guild_id if ch and ch.guild_id else ch.id) if ch else 0) %}
+            <div class="nc-audit-item">
+              <div class="nc-device-left">
+                <div class="nc-device-meta">
+                  <div class="nc-device-title">{{ root.name if root else (ch.name if ch else row.channel_id) }} <span class="nc-audit-badge {% if row.role == 'admin' %}is-ok{% elif row.role == 'moderator' %}is-warn{% endif %}">{{ row.role }}</span></div>
+                  <div class="nc-device-sub">канал: {{ ch.name if ch else row.channel_id }} · joined: {{ row.joined_at }}</div>
+                </div>
+              </div>
+            </div>
+            {% else %}<div class="nc-settings-muted">Участий не найдено.</div>{% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  async function post(url, body){
+    const r = await fetch(url, {method:'POST', credentials:'include', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body||{})});
+    const j = await r.json().catch(()=>({}));
+    if (!r.ok || !j || j.ok !== true) throw new Error((j && j.error) || 'Ошибка');
+    return j;
+  }
+  document.addEventListener('click', async function(e){
+    const btn = e.target && e.target.closest ? e.target.closest('.nc-admin-user-action') : null;
+    if (!btn) return;
+    const userId = parseInt(btn.getAttribute('data-user-id') || '0', 10);
+    const action = btn.getAttribute('data-action') || '';
+    const duration = parseInt(btn.getAttribute('data-duration') || '0', 10);
+    if (!userId || !action) return;
+    const reason = prompt('Причина (необязательно):', '') || '';
+    btn.disabled = true;
+    try{
+      await post('/api/admin/users/punish', {user_id:userId, action, duration_minutes:duration, reason});
+      location.reload();
+    }catch(err){
+      alert(err.message || 'Ошибка');
+      btn.disabled = false;
+    }
+  }, true);
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,1020 @@
+/* Semantic stylesheet */
+
+/* Fix264: Subscription gifts (Nitro-like) */
+
+#modal-gifts.modal-backdrop{
+  align-items:center;
+  justify-content:center;
+}
+
+#modal-gifts .modal{
+  width:min(700px, calc(100vw - 24px));
+  padding:14px 14px 12px;
+}
+
+#modal-gifts .modal .glass-card{
+  border-radius:18px;
+}
+
+.nc-gift-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:10px;
+}
+
+.nc-gift-title{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.nc-gift-title .ico{ font-size:22px; line-height:1; }
+
+.nc-gift-tabs{
+  display:flex;
+  gap:8px;
+  margin:10px 0 12px;
+}
+
+.nc-gift-tab{
+  appearance:none;
+  border:1px solid var(--border-soft);
+  background:rgba(0,0,0,0.18);
+  color:var(--text-main);
+  padding:8px 10px;
+  border-radius:12px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.nc-gift-tab.is-active{
+  border-color:rgba(122,243,255,0.35);
+  box-shadow:0 0 0 2px rgba(122,243,255,0.10) inset;
+}
+
+.nc-gift-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+}
+
+@media (min-width: 560px){
+  .nc-gift-grid.two{
+    grid-template-columns:1fr 1fr;
+  }
+}
+
+.nc-gift-field label{
+  display:block;
+  font-size:12px;
+  font-weight:800;
+  color:var(--text-muted);
+  margin:0 0 6px;
+}
+
+.nc-gift-field input,
+.nc-gift-field select,
+.nc-gift-field textarea{
+  width:100%;
+  border:1px solid var(--border-soft);
+  background:rgba(0,0,0,0.18);
+  color:var(--text-main);
+  border-radius:12px;
+  padding:10px 12px;
+  outline:none;
+}
+
+.nc-gift-field textarea{ min-height:74px; resize:vertical; }
+
+.nc-gift-actions{
+  display:flex;
+  gap:10px;
+  margin-top:12px;
+}
+
+.nc-gift-actions .nc-bill-btn{ flex:1; }
+
+.nc-gift-result{
+  margin-top:12px;
+  padding:12px;
+  border-radius:14px;
+  border:1px solid var(--border-soft);
+  background:rgba(0,0,0,0.16);
+}
+
+.nc-gift-code{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-weight:900;
+  letter-spacing:0.3px;
+}
+
+.nc-gift-list .row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px 0;
+  border-top:1px solid rgba(255,255,255,0.06);
+}
+
+.nc-gift-list .row:first-child{ border-top:none; }
+
+.nc-gift-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 9px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,0.10);
+  background:rgba(0,0,0,0.12);
+  font-weight:800;
+  font-size:12px;
+}
+
+
+
+
+
+
+.nc-gift-card-shell{
+  border-radius:24px !important;
+  border:1px solid rgba(255,255,255,.10) !important;
+  background:
+    radial-gradient(120% 120% at 0% 0%, rgba(166,89,255,.18), transparent 42%),
+    radial-gradient(90% 90% at 100% 0%, rgba(122,243,255,.15), transparent 40%),
+    linear-gradient(180deg, rgba(18,23,39,.94), rgba(10,16,31,.96)) !important;
+  box-shadow:0 24px 80px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.05) !important;
+}
+.nc-gift-title{ align-items:flex-start; }
+.nc-gift-title .ico{
+  width:42px;
+  height:42px;
+  display:grid;
+  place-items:center;
+  border-radius:14px;
+  background:linear-gradient(180deg, rgba(255,181,71,.24), rgba(255,106,0,.14));
+  border:1px solid rgba(255,210,122,.24);
+  box-shadow:0 10px 30px rgba(255,170,0,.12);
+}
+.nc-gift-title__main{
+  font-weight:900;
+  font-size:22px;
+  line-height:1.05;
+}
+.nc-gift-title__sub{
+  margin-top:6px;
+  max-width:560px;
+  font-size:13px;
+  line-height:1.45;
+  color:var(--text-muted);
+}
+.nc-gift-hero-card{
+  position:relative;
+  overflow:hidden;
+  margin:12px 0 14px;
+  padding:14px 16px;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,.08);
+  background:linear-gradient(135deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+}
+.nc-gift-hero-card__orb{
+  position:absolute;
+  width:160px;
+  height:160px;
+  right:-40px;
+  top:-64px;
+  border-radius:999px;
+  background:radial-gradient(circle, rgba(122,243,255,.24), rgba(122,243,255,0) 68%);
+  pointer-events:none;
+}
+.nc-gift-hero-card__content{ position:relative; z-index:1; }
+.nc-gift-hero-card__kicker{
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.22em;
+  color:#93dff1;
+}
+.nc-gift-hero-card__title{
+  margin-top:4px;
+  font-size:20px;
+  font-weight:900;
+}
+.nc-gift-hero-card__text{
+  margin-top:6px;
+  color:var(--text-muted);
+  line-height:1.45;
+}
+.nc-gift-plan-preview{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  margin-bottom:14px;
+  padding:14px 16px;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,.08);
+  background:linear-gradient(180deg, rgba(12,27,48,.78), rgba(8,18,34,.88));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.03);
+}
+.nc-gift-plan-preview__main{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  min-width:0;
+}
+.nc-gift-plan-preview__logo-wrap{
+  width:60px;
+  height:60px;
+  border-radius:16px;
+  display:grid;
+  place-items:center;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.08);
+  flex:0 0 auto;
+}
+.nc-gift-plan-preview__logo{ max-width:44px; max-height:44px; display:block; }
+.nc-gift-plan-preview__copy{ min-width:0; }
+.nc-gift-plan-preview__kicker{
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.18em;
+  color:#86d9e9;
+}
+.nc-gift-plan-preview__name{
+  margin-top:4px;
+  font-size:24px;
+  font-weight:900;
+  line-height:1;
+}
+.nc-gift-plan-preview__desc{
+  margin-top:6px;
+  color:var(--text-muted);
+  line-height:1.4;
+}
+.nc-gift-plan-preview__side{ text-align:right; flex:0 0 auto; }
+.nc-gift-plan-preview__price{
+  font-size:26px;
+  font-weight:900;
+  line-height:1;
+}
+.nc-gift-plan-preview__term{
+  margin-top:8px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:7px 12px;
+  border-radius:999px;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.08);
+  font-size:12px;
+  font-weight:800;
+  color:#d7f7ff;
+}
+.nc-gift-grid--top{ margin-bottom:0; }
+.nc-gift-duration-box{
+  background:linear-gradient(180deg, rgba(7,19,36,.86), rgba(7,18,34,.62)) !important;
+  border:1px solid rgba(255,255,255,.08) !important;
+}
+.nc-gift-actions--single-row{ margin-top:14px; }
+.nc-gift-footnote{ font-size:12px; }
+@media (max-width: 640px){
+  .nc-gift-title__main{ font-size:18px; }
+  .nc-gift-title__sub{ max-width:none; font-size:12px; }
+  .nc-gift-plan-preview{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+  .nc-gift-plan-preview__side{ text-align:left; width:100%; }
+  .nc-gift-plan-preview__price{ font-size:22px; }
+  .nc-gift-actions{ flex-direction:column; }
+}
+/* fix312: clean top-layer gift modal */
+#nc-gift-toplayer{
+  position:fixed !important;
+  inset:0 !important;
+  display:none !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:24px !important;
+  background:rgba(5,9,18,.72) !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+  z-index:2147483646 !important;
+  pointer-events:auto !important;
+}
+#nc-gift-toplayer[aria-hidden="false"]{ display:flex !important; }
+#nc-gift-toplayer #modal-gifts.nc-gift-shell{
+  position:relative !important;
+  display:grid !important;
+  place-items:center !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:100% !important;
+  max-width:100% !important;
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+  outline:0 !important;
+  pointer-events:auto !important;
+}
+#nc-gift-toplayer #modal-gifts.nc-gift-shell::before,
+#nc-gift-toplayer #modal-gifts.nc-gift-shell::after{ content:none !important; }
+#nc-gift-toplayer #modal-gifts .modal.nc-gift-modal{
+  position:relative !important;
+  display:block !important;
+  width:min(700px, calc(100vw - 32px)) !important;
+  max-width:min(700px, calc(100vw - 32px)) !important;
+  min-height:auto !important;
+  margin:0 auto !important;
+  padding:0 !important;
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+  pointer-events:auto !important;
+}
+#nc-gift-toplayer #modal-gifts .glass-card{
+  width:100% !important;
+  margin:0 auto !important;
+  position:relative !important;
+  z-index:5 !important;
+  pointer-events:auto !important;
+  backdrop-filter:blur(10px) !important;
+  -webkit-backdrop-filter:blur(10px) !important;
+  box-shadow:0 20px 70px rgba(0,0,0,.45) !important;
+}
+#nc-gift-toplayer #modal-gifts .modal-close,
+#nc-gift-toplayer #modal-gifts button,
+#nc-gift-toplayer #modal-gifts select,
+#nc-gift-toplayer #modal-gifts textarea,
+#nc-gift-toplayer #modal-gifts input,
+#nc-gift-toplayer #modal-gifts label{
+  pointer-events:auto !important;
+  position:relative !important;
+  z-index:6 !important;
+}
+body.nc-gift-modal-open #nc-settings-overlay,
+body.nc-gift-modal-open #nc-settings-overlay *{
+  pointer-events:auto !important;
+}
+body.nc-gift-modal-open #nc-gift-toplayer{
+  pointer-events:auto !important;
+}
+body.nc-gift-modal-open #nc-gift-toplayer #modal-gifts,
+body.nc-gift-modal-open #nc-gift-toplayer #modal-gifts .modal,
+body.nc-gift-modal-open #nc-gift-toplayer #modal-gifts .glass-card,
+body.nc-gift-modal-open #nc-gift-toplayer #modal-gifts button,
+body.nc-gift-modal-open #nc-gift-toplayer #modal-gifts select,
+body.nc-gift-modal-open #nc-gift-toplayer #modal-gifts textarea,
+body.nc-gift-modal-open #nc-gift-toplayer #modal-gifts input,
+body.nc-gift-modal-open #nc-gift-toplayer #modal-gifts label{
+  pointer-events:auto !important;
+}
+
+
+/* fix314: native dialog top-layer for gift modal */
+#nc-gift-toplayer.nc-gift-dialog{
+  border:0 !important;
+  padding:24px !important;
+  margin:0 !important;
+  max-width:none !important;
+  width:auto !important;
+  background:transparent !important;
+  overflow:visible !important;
+}
+#nc-gift-toplayer.nc-gift-dialog::backdrop{
+  background:rgba(5,9,18,.72) !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}
+#nc-gift-toplayer.nc-gift-dialog[open]{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+#nc-gift-toplayer.nc-gift-dialog #modal-gifts.nc-gift-shell{
+  display:block !important;
+  width:auto !important;
+  max-width:none !important;
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+  pointer-events:auto !important;
+}
+#nc-gift-toplayer.nc-gift-dialog #modal-gifts .modal.nc-gift-modal{
+  display:block !important;
+  width:min(700px, calc(100vw - 32px)) !important;
+  max-width:min(700px, calc(100vw - 32px)) !important;
+  margin:0 !important;
+  padding:0 !important;
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+  pointer-events:auto !important;
+}
+#nc-gift-toplayer.nc-gift-dialog #modal-gifts .glass-card{
+  width:100% !important;
+  margin:0 !important;
+  position:relative !important;
+  pointer-events:auto !important;
+  backdrop-filter:blur(10px) !important;
+  -webkit-backdrop-filter:blur(10px) !important;
+}
+#nc-gift-toplayer.nc-gift-dialog #modal-gifts,
+#nc-gift-toplayer.nc-gift-dialog #modal-gifts *,
+#nc-gift-toplayer.nc-gift-dialog #modal-gifts button,
+#nc-gift-toplayer.nc-gift-dialog #modal-gifts select,
+#nc-gift-toplayer.nc-gift-dialog #modal-gifts textarea,
+#nc-gift-toplayer.nc-gift-dialog #modal-gifts input,
+#nc-gift-toplayer.nc-gift-dialog #modal-gifts label{
+  pointer-events:auto !important;
+}
+body.nc-gift-modal-open #nc-settings-overlay,
+body.nc-gift-modal-open #nc-settings-overlay *{
+  pointer-events:none !important;
+}
+body.nc-gift-modal-open #nc-gift-toplayer,
+body.nc-gift-modal-open #nc-gift-toplayer *{
+  pointer-events:auto !important;
+}
+
+
+/* fix315: mount gift modal inside settings overlay to avoid click interception */
+#nc-settings-overlay.nc-has-gift-modal > .nc-settings-modal{
+  pointer-events:none !important;
+}
+#nc-settings-overlay.nc-has-gift-modal > .nc-settings-modal *{
+  pointer-events:none !important;
+}
+#nc-gift-root{
+  position:absolute !important;
+  inset:0 !important;
+  display:none !important;
+  z-index:999999 !important;
+  pointer-events:none !important;
+}
+#nc-gift-root.is-open{ display:block !important; }
+#nc-gift-root .nc-gift-backdrop{
+  position:absolute !important;
+  inset:0 !important;
+  background:rgba(5,9,18,.62) !important;
+  pointer-events:auto !important;
+}
+#nc-gift-root .nc-gift-stage{
+  position:absolute !important;
+  inset:0 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:24px !important;
+  pointer-events:none !important;
+}
+#nc-gift-root #modal-gifts{
+  display:block !important;
+  pointer-events:none !important;
+  background:transparent !important;
+}
+#nc-gift-root #modal-gifts .modal.nc-gift-modal{
+  display:block !important;
+  width:min(700px, calc(100vw - 32px)) !important;
+  max-width:min(700px, calc(100vw - 32px)) !important;
+  margin:0 !important;
+  padding:0 !important;
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+  pointer-events:none !important;
+}
+#nc-gift-root #modal-gifts .glass-card{
+  width:100% !important;
+  position:relative !important;
+  margin:0 auto !important;
+  border-radius:18px !important;
+  box-shadow:0 20px 70px rgba(0,0,0,.45) !important;
+  pointer-events:auto !important;
+}
+#nc-gift-root #modal-gifts .glass-card *{
+  pointer-events:auto !important;
+}
+#nc-gift-root #modal-gifts select,
+#nc-gift-root #modal-gifts textarea,
+#nc-gift-root #modal-gifts input,
+#nc-gift-root #modal-gifts button{
+  position:relative !important;
+  z-index:2 !important;
+}
+
+
+/* Fix265: Gift cards inside messages (Discord-like). Lightweight glow. */
+
+.msg-gift-embeds{
+  margin-top:8px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.msg-gift-card{
+  width:min(520px, 100%);
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,0.10);
+  background: linear-gradient(180deg, rgba(10,16,28,0.78), rgba(10,16,28,0.55));
+  overflow:hidden;
+  position:relative;
+  padding:12px 12px 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.28), 0 0 0 1px rgba(0,0,0,0.20) inset;
+}
+
+/* Subtle neon frame (no filters, cheap). */
+.msg-gift-card::before{
+  content:"";
+  position:absolute;
+  inset:-1px;
+  border-radius:16px;
+  pointer-events:none;
+  background: radial-gradient(120% 120% at 10% 0%, rgba(122,243,255,0.18), rgba(0,0,0,0) 55%),
+              radial-gradient(120% 120% at 90% 100%, rgba(168,85,247,0.16), rgba(0,0,0,0) 55%);
+  opacity:0.9;
+}
+
+.msg-gift-top{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.msg-gift-ico{
+  width:38px;
+  height:38px;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.18);
+  box-shadow: 0 0 0 2px rgba(122,243,255,0.10) inset;
+  font-size:18px;
+  flex:0 0 auto;
+}
+
+.msg-gift-meta{
+  min-width:0;
+  flex:1 1 auto;
+}
+
+.msg-gift-title{
+  font-weight:950;
+  letter-spacing:0.2px;
+  color: var(--text-main);
+  line-height:1.15;
+}
+
+.msg-gift-sub{
+  margin-top:2px;
+  font-size:12px;
+  color: var(--text-muted);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.msg-gift-open{
+  flex:0 0 auto;
+  font-weight:900;
+  font-size:12px;
+  color: rgba(210,245,255,0.92);
+  text-decoration:none;
+  padding:8px 10px;
+  border-radius:12px;
+  border:1px solid rgba(122,243,255,0.16);
+  background: rgba(0,0,0,0.16);
+}
+
+.msg-gift-open:hover{
+  border-color: rgba(122,243,255,0.28);
+  box-shadow: 0 0 0 2px rgba(122,243,255,0.08) inset;
+}
+
+.msg-gift-note{
+  margin-top:10px;
+  padding:10px 10px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.14);
+  color: var(--text-main);
+  font-weight:700;
+  font-size:13px;
+}
+
+.msg-gift-actions{
+  display:flex;
+  gap:10px;
+  margin-top:10px;
+}
+
+.msg-gift-btn{
+  appearance:none;
+  border:1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.18);
+  color: var(--text-main);
+  border-radius:12px;
+  padding:10px 12px;
+  font-weight:950;
+  cursor:pointer;
+  flex:1 1 auto;
+}
+
+.msg-gift-btn.primary{
+  border-color: rgba(122,243,255,0.20);
+  box-shadow: 0 0 0 2px rgba(122,243,255,0.10) inset;
+}
+
+.msg-gift-btn:hover{
+  border-color: rgba(255,255,255,0.18);
+}
+
+.msg-gift-btn.primary:hover{
+  border-color: rgba(122,243,255,0.32);
+  box-shadow: 0 0 0 2px rgba(122,243,255,0.14) inset;
+}
+
+.msg-gift-btn:disabled{
+  cursor:not-allowed;
+  opacity:0.75;
+}
+
+.msg-gift-foot{
+  margin-top:10px;
+  font-size:12px;
+  color: var(--text-muted);
+}
+
+.msg-gift-code{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-weight:900;
+  color: rgba(210,245,255,0.94);
+}
+
+.msg-gift-card.is-redeemed .msg-gift-ico{
+  box-shadow: 0 0 0 2px rgba(52,211,153,0.14) inset;
+}
+
+.msg-gift-card.is-expired::before,
+.msg-gift-card.is-revoked::before,
+.msg-gift-card.is-denied::before{
+  opacity:0.35;
+}
+
+/* Compact chat mode: slightly smaller */
+.msg-row.compact .msg-gift-card{ padding:10px 10px 9px; border-radius:14px; }
+.msg-row.compact .msg-gift-card::before{ border-radius:14px; }
+.msg-row.compact .msg-gift-ico{ width:34px; height:34px; border-radius:11px; }
+
+
+/* Fix266: Nitro-like gift shimmer (hover-only, lightweight). */
+
+:root{
+  /* Intensity is tuned for low-end PCs: no heavy filters, no always-on animations. */
+  --nc-gift-shine-alpha: 0.22;
+  --nc-gift-glow-alpha:  0.10;
+  --nc-gift-spark-alpha: 0.14;
+}
+
+/* Respect your global effect knobs */
+body.nc-neon-off{
+  --nc-gift-shine-alpha: 0;
+  --nc-gift-glow-alpha:  0;
+  --nc-gift-spark-alpha: 0;
+}
+body.nc-neon-med{
+  --nc-gift-shine-alpha: 0.30;
+  --nc-gift-glow-alpha:  0.13;
+  --nc-gift-spark-alpha: 0.18;
+}
+body.nc-neon-high{
+  --nc-gift-shine-alpha: 0.40;
+  --nc-gift-glow-alpha:  0.16;
+  --nc-gift-spark-alpha: 0.22;
+}
+
+/* When auto-perf caps kick in, keep it subtle */
+body.nc-neon-auto-capped{
+  --nc-gift-shine-alpha: 0.16;
+  --nc-gift-glow-alpha:  0.08;
+  --nc-gift-spark-alpha: 0.10;
+}
+
+/* Ultra-lite mode: no extra overlays */
+body.nc-litefx{
+  --nc-gift-shine-alpha: 0;
+  --nc-gift-glow-alpha:  0;
+  --nc-gift-spark-alpha: 0;
+}
+
+@keyframes ncGiftShine266{
+  0%   { background-position: -180% 0; opacity: 0; }
+  10%  { opacity: 1; }
+  100% { background-position: 220% 0; opacity: 0; }
+}
+
+/* Message gift card: add a Nitro-ish shine layer on hover */
+.msg-gift-card{
+  /* Small “premium” tint – cheap and safe */
+  background:
+    radial-gradient(110% 130% at 0% 0%, rgba(122,243,255,0.10), rgba(0,0,0,0) 55%),
+    radial-gradient(120% 140% at 100% 100%, rgba(168,85,247,0.08), rgba(0,0,0,0) 55%),
+    linear-gradient(180deg, rgba(10,16,28,0.78), rgba(10,16,28,0.55));
+}
+
+/* Hover glow: only shadows (no blur filters) */
+body:not(.nc-neon-off):not(.nc-litefx) .msg-gift-card:hover{
+  border-color: rgba(255,255,255,0.16);
+  box-shadow:
+    0 14px 36px rgba(0,0,0,0.32),
+    0 0 0 1px rgba(0,0,0,0.20) inset,
+    0 0 0 3px rgba(122,243,255,var(--nc-gift-glow-alpha)) inset;
+}
+
+/* Shine layer: hover-only, one pass (cheap). */
+.msg-gift-card::after{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  border-radius:inherit;
+  pointer-events:none;
+  opacity:0;
+  /* A “Nitro” style streak + tiny sparkles, both very lightweight */
+  background:
+    linear-gradient(
+      115deg,
+      rgba(255,255,255,0) 0%,
+      rgba(255,255,255,var(--nc-gift-shine-alpha)) 36%,
+      rgba(122,243,255,var(--nc-gift-shine-alpha)) 45%,
+      rgba(255,255,255,0) 62%
+    ),
+    radial-gradient(10px 10px at 12% 22%, rgba(255,255,255,var(--nc-gift-spark-alpha)), rgba(255,255,255,0) 70%),
+    radial-gradient(8px 8px at 82% 34%, rgba(122,243,255,var(--nc-gift-spark-alpha)), rgba(255,255,255,0) 70%),
+    radial-gradient(7px 7px at 68% 78%, rgba(168,85,247,var(--nc-gift-spark-alpha)), rgba(255,255,255,0) 70%);
+  background-size: 260% 100%, auto, auto, auto;
+  background-position: -180% 0, center, center, center;
+}
+
+/* Run the shine only when motion is allowed */
+body:not(.nc-motion-off):not(.nc-motion-reduced):not(.nc-litefx) .msg-gift-card:hover::after{
+  animation: ncGiftShine266 1.15s ease-out 1;
+}
+
+/* Reduced motion: keep a static, super-light highlight */
+body.nc-motion-off .msg-gift-card:hover::after,
+body.nc-motion-reduced .msg-gift-card:hover::after{
+  opacity:0.10;
+  background-position: 40% 0, center, center, center;
+  animation:none;
+}
+
+@media (prefers-reduced-motion: reduce){
+  .msg-gift-card:hover::after{
+    opacity:0.10;
+    background-position: 40% 0, center, center, center;
+    animation:none;
+  }
+}
+
+/* States: redeemed/expired/revoked shouldn't shine */
+.msg-gift-card.is-redeemed::after,
+.msg-gift-card.is-expired::after,
+.msg-gift-card.is-revoked::after,
+.msg-gift-card.is-denied::after{
+  display:none;
+}
+
+/* Gift list cards (in the gifts modal) also get the same hover shine if present */
+.nc-gift-card{
+  position:relative;
+  overflow:hidden;
+}
+
+.nc-gift-card::after{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  border-radius:inherit;
+  pointer-events:none;
+  opacity:0;
+  background:
+    linear-gradient(
+      120deg,
+      rgba(255,255,255,0) 0%,
+      rgba(255,255,255,var(--nc-gift-shine-alpha)) 35%,
+      rgba(122,243,255,var(--nc-gift-shine-alpha)) 46%,
+      rgba(255,255,255,0) 62%
+    );
+  background-size: 260% 100%;
+  background-position: -180% 0;
+}
+
+body:not(.nc-motion-off):not(.nc-motion-reduced):not(.nc-neon-off):not(.nc-litefx) .nc-gift-card:hover::after{
+  animation: ncGiftShine266 1.05s ease-out 1;
+}
+
+
+
+/* Fix267: Ultra Nitro-like gift cover (hover-only, lightweight).
+   Goals:
+   - “Обложка” как у Nitro Gift: яркая шапка с текстурой + искрами.
+   - Без тяжёлых filter/backdrop-filter.
+   - Анимация только на hover и только если motion разрешён.
+*/
+
+:root{
+  --nc-gift-cover-h: 84px;
+  --nc-gift-cover-pad: 12px;
+  --nc-gift-cover-text: rgba(245,250,255,0.94);
+  --nc-gift-cover-muted: rgba(245,250,255,0.72);
+}
+
+/* Push main content under the cover */
+.msg-gift-card{
+  padding-top: calc(var(--nc-gift-cover-h) + var(--nc-gift-cover-pad));
+}
+
+.msg-gift-cover{
+  position:absolute;
+  left:0; right:0; top:0;
+  height: var(--nc-gift-cover-h);
+  pointer-events:none;
+  user-select:none;
+  border-bottom:1px solid rgba(255,255,255,0.10);
+}
+
+/* Base cover art: gradients + cheap “foil” texture */
+.msg-gift-cover::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    /* fade into body */
+    linear-gradient(180deg, rgba(0,0,0,0) 48%, rgba(10,16,28,0.58) 100%),
+    /* sparkles */
+    radial-gradient(12px 12px at 18% 34%, rgba(255,255,255,0.28), rgba(255,255,255,0) 72%),
+    radial-gradient(10px 10px at 72% 24%, rgba(122,243,255,0.26), rgba(255,255,255,0) 72%),
+    radial-gradient(9px 9px at 86% 62%, rgba(168,85,247,0.22), rgba(255,255,255,0) 72%),
+    /* ribbon */
+    linear-gradient(125deg,
+      rgba(255,255,255,0) 0%,
+      rgba(255,255,255,0) 30%,
+      rgba(255,255,255,0.18) 40%,
+      rgba(122,243,255,0.22) 48%,
+      rgba(255,255,255,0) 62%
+    ),
+    /* foil texture */
+    repeating-linear-gradient(115deg,
+      rgba(255,255,255,0.06) 0px,
+      rgba(255,255,255,0.06) 1px,
+      rgba(255,255,255,0.00) 5px,
+      rgba(255,255,255,0.00) 9px
+    ),
+    /* base gradient */
+    linear-gradient(135deg,
+      rgba(122,243,255,0.32),
+      rgba(168,85,247,0.24),
+      rgba(255,255,255,0.06)
+    );
+  background-size:
+    100% 100%,
+    auto,
+    auto,
+    auto,
+    160% 100%,
+    220% 100%,
+    100% 100%;
+  background-position:
+    0% 0%,
+    center,
+    center,
+    center,
+    0% 0%,
+    0% 0%,
+    0% 0%;
+  opacity: 0.95;
+}
+
+/* Hover sweep: one pass, motion-aware */
+@keyframes ncGiftCoverSweep267{
+  0%   { transform: translateX(-120%); opacity: 0; }
+  12%  { opacity: 1; }
+  100% { transform: translateX(120%); opacity: 0; }
+}
+
+.msg-gift-cover::after{
+  content:"";
+  position:absolute;
+  inset:-10px;
+  opacity:0;
+  transform: translateX(-120%);
+  background:
+    linear-gradient(115deg,
+      rgba(255,255,255,0) 0%,
+      rgba(255,255,255,calc(var(--nc-gift-shine-alpha, 0.22) * 1.05)) 38%,
+      rgba(122,243,255,calc(var(--nc-gift-shine-alpha, 0.22) * 1.10)) 46%,
+      rgba(255,255,255,0) 62%
+    );
+}
+
+body:not(.nc-motion-off):not(.nc-motion-reduced):not(.nc-neon-off):not(.nc-litefx) .msg-gift-card:hover .msg-gift-cover::after{
+  animation: ncGiftCoverSweep267 1.05s ease-out 1;
+}
+
+body.nc-motion-off .msg-gift-card:hover .msg-gift-cover::after,
+body.nc-motion-reduced .msg-gift-card:hover .msg-gift-cover::after{
+  opacity: 0.12;
+  transform: translateX(0%);
+  animation:none;
+}
+
+@media (prefers-reduced-motion: reduce){
+  .msg-gift-card:hover .msg-gift-cover::after{
+    opacity: 0.12;
+    transform: translateX(0%);
+    animation:none;
+  }
+}
+
+/* Cover text */
+.msg-gift-cover-badge{
+  position:absolute;
+  top:10px; left:10px;
+  padding:6px 10px;
+  border-radius:999px;
+  font-size:11px;
+  letter-spacing:0.8px;
+  font-weight:950;
+  color: rgba(245,250,255,0.94);
+  border:1px solid rgba(255,255,255,0.14);
+  background: rgba(0,0,0,0.18);
+  box-shadow: 0 0 0 2px rgba(122,243,255,calc(var(--nc-gift-glow-alpha, 0.10) * 0.9)) inset;
+  text-transform:uppercase;
+}
+
+.msg-gift-cover-text{
+  position:absolute;
+  left:10px; right:10px;
+  bottom:10px;
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+
+.msg-gift-cover-plan{
+  font-weight:1000;
+  font-size:14px;
+  color: var(--nc-gift-cover-text);
+  text-shadow: 0 1px 0 rgba(0,0,0,0.25);
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.msg-gift-cover-sub{
+  font-weight:800;
+  font-size:12px;
+  color: var(--nc-gift-cover-muted);
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+/* Status color cues */
+.msg-gift-card.is-redeemed .msg-gift-cover::before{
+  background:
+    radial-gradient(12px 12px at 18% 34%, rgba(255,255,255,0.26), rgba(255,255,255,0) 72%),
+    radial-gradient(10px 10px at 82% 30%, rgba(52,211,153,0.26), rgba(255,255,255,0) 72%),
+    repeating-linear-gradient(115deg, rgba(255,255,255,0.06) 0px, rgba(255,255,255,0.06) 1px, rgba(255,255,255,0) 5px, rgba(255,255,255,0) 9px),
+    linear-gradient(135deg, rgba(52,211,153,0.28), rgba(122,243,255,0.12), rgba(255,255,255,0.05));
+}
+
+.msg-gift-card.is-expired .msg-gift-cover::before,
+.msg-gift-card.is-revoked .msg-gift-cover::before,
+.msg-gift-card.is-denied .msg-gift-cover::before{
+  opacity:0.55;
+}
+
+/* Compact mode */
+.msg-row.compact .msg-gift-card{
+  --nc-gift-cover-h: 74px;
+  --nc-gift-cover-pad: 10px;
+  padding: calc(var(--nc-gift-cover-h) + var(--nc-gift-cover-pad)) 10px 9px;
+  border-radius:14px;
+}
+
+.msg-row.compact .msg-gift-cover-badge{ top:9px; left:9px; padding:5px 9px; font-size:10px; }
+.msg-row.compact .msg-gift-cover-text{ left:9px; right:9px; bottom:9px; }
+.msg-row.compact .msg-gift-cover-plan{ font-size:13px; }
+.msg-row.compact .msg-gift-cover-sub{ font-size:11px; }
+
+/* Don’t draw cover effects in ultra-lite mode */
+body.nc-litefx .msg-gift-cover::before,
+body.nc-litefx .msg-gift-cover::after{
+  display:none;
+}

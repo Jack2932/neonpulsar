@@ -1,0 +1,242 @@
+/* v61 — responsive stability + YaBrowser viewport safety */
+
+html, body, .app-root, .layout.dc-layout,
+.layout.dc-layout > *,
+.layout.dc-layout .chat-main,
+.layout.dc-layout #sidebar,
+.layout.dc-layout .rightbar,
+.layout.dc-layout .chat-header,
+.layout.dc-layout .chat-input,
+.layout.dc-layout #message-form,
+.layout.dc-layout #friends-view,
+.layout.dc-layout #friends-view .friends-topbar,
+.layout.dc-layout #friends-view .friends-tabs,
+.layout.dc-layout #friends-view .friends-search,
+.layout.dc-layout #friends-view .friends-list-wrap,
+.layout.dc-layout .channel-title-wrap{
+  min-width: 0 !important;
+  box-sizing: border-box;
+}
+
+.layout.dc-layout{
+  align-items: stretch;
+}
+
+.layout.dc-layout .chat-main{
+  overflow: hidden;
+}
+
+.layout.dc-layout .chat-header,
+.layout.dc-layout .chat-messages,
+.layout.dc-layout .chat-input{
+  width: 100%;
+}
+
+/* Hide empty/friends composer states completely so giant blank bars don't appear */
+body.nc-ui-mode-friends footer.chat-input,
+body.nc-ui-mode-empty footer.chat-input,
+.chat-main.friends-mode footer.chat-input{
+  display: none !important;
+}
+
+/* Keep the composer itself compact when it is visible */
+.layout.dc-layout .chat-input{
+  padding: 10px 12px 12px !important;
+}
+.layout.dc-layout .chat-input .nc-composer-v2{
+  min-width: 0 !important;
+  width: 100%;
+  gap: 8px !important;
+}
+.layout.dc-layout .chat-input .nc-composer-v2 .nc-composer-input{
+  min-width: 0 !important;
+}
+.layout.dc-layout .chat-input .nc-composer-v2 .nc-composer-actions{
+  min-width: 0;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+.layout.dc-layout .chat-input .nc-composer-v2 .nc-ico-btn{
+  width: 32px;
+  height: 32px;
+}
+.layout.dc-layout .chat-input .nc-composer-v2 .nc-gif-btn{
+  padding-inline: 8px;
+}
+
+/* Friends header must wrap cleanly on narrower desktop widths */
+body.nc-layout-compact .layout.dc-layout #friends-view .friends-topbar,
+body.nc-layout-narrow .layout.dc-layout #friends-view .friends-topbar{
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 10px;
+}
+body.nc-layout-compact .layout.dc-layout #friends-view .friends-tabs,
+body.nc-layout-narrow .layout.dc-layout #friends-view .friends-tabs{
+  min-width: 0;
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+body.nc-layout-compact .layout.dc-layout #friends-view .friends-tabs::-webkit-scrollbar,
+body.nc-layout-narrow .layout.dc-layout #friends-view .friends-tabs::-webkit-scrollbar{
+  width: 0;
+  height: 0;
+}
+body.nc-layout-compact .layout.dc-layout #friends-view .friends-tab,
+body.nc-layout-narrow .layout.dc-layout #friends-view .friends-tab{
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+body.nc-layout-compact .layout.dc-layout #friends-view .friends-add-btn,
+body.nc-layout-narrow .layout.dc-layout #friends-view .friends-add-btn{
+  width: 100%;
+}
+
+/* Compact desktop: collapse the right profile panel before the layout breaks */
+body.nc-layout-compact .layout.dc-layout{
+  grid-template-columns: 72px 254px minmax(0, 1fr) 0px !important;
+  gap: 12px !important;
+}
+body.nc-layout-compact .layout.dc-layout .rightbar,
+body.nc-layout-compact .layout.dc-layout > aside:last-child{
+  width: 0 !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  opacity: 0 !important;
+  overflow: hidden !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Narrow desktop / half-window: reduce the sidebar width too */
+body.nc-layout-narrow .layout.dc-layout{
+  grid-template-columns: 68px 228px minmax(0, 1fr) 0px !important;
+  gap: 10px !important;
+}
+body.nc-layout-narrow .layout.dc-layout .sidebar{
+  padding-inline: 10px !important;
+}
+body.nc-layout-narrow .layout.dc-layout .server-header{
+  margin-bottom: 12px !important;
+}
+body.nc-layout-narrow .layout.dc-layout .server-logo{
+  font-size: 16px !important;
+}
+
+/* Tight widths: turn the DM sidebar into an overlay instead of crushing the center */
+body.nc-layout-tight .layout.dc-layout{
+  grid-template-columns: 64px minmax(0, 1fr) !important;
+  gap: 10px !important;
+}
+body.nc-layout-tight .layout.dc-layout .rightbar,
+body.nc-layout-tight .layout.dc-layout > aside:last-child{
+  display: none !important;
+}
+body.nc-layout-tight #sidebar{
+  position: fixed !important;
+  left: 84px !important;
+  top: 10px !important;
+  bottom: 10px !important;
+  width: min(320px, calc(100vw - 100px)) !important;
+  max-width: min(320px, calc(100vw - 100px)) !important;
+  z-index: 1200 !important;
+  transform: translateX(-120%) !important;
+  transition: transform .22s ease !important;
+}
+body.nc-layout-tight.nc-mobile-sidebar-open #sidebar,
+body.nc-layout-tight.nc-mobile-chat #sidebar{
+  transform: translateX(0) !important;
+}
+body.nc-layout-tight .layout.dc-layout .chat-main{
+  width: 100% !important;
+}
+
+/* YaBrowser safe viewport/layout pass */
+html.is-yabrowser body.nc-layout-compact .layout.dc-layout,
+html.is-yabrowser body.nc-layout-narrow .layout.dc-layout,
+html.is-yabrowser body.nc-layout-tight .layout.dc-layout{
+  width: 100% !important;
+  max-width: 100% !important;
+}
+html.is-yabrowser .layout.dc-layout .glass-card,
+html.is-yabrowser .layout.dc-layout .chat-main,
+html.is-yabrowser .layout.dc-layout .sidebar,
+html.is-yabrowser .layout.dc-layout .rightbar,
+html.is-yabrowser .layout.dc-layout .chat-input .nc-composer-v2{
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+html.is-yabrowser body.nc-layout-tight #sidebar{
+  transition: none !important;
+}
+
+@media (max-width: 1500px){
+  body:not(.nc-layout-tight) .layout.dc-layout{
+    grid-template-columns: 72px 254px minmax(0, 1fr) 0px !important;
+    gap: 12px !important;
+  }
+  body:not(.nc-layout-tight) .layout.dc-layout .rightbar,
+  body:not(.nc-layout-tight) .layout.dc-layout > aside:last-child{
+    width: 0 !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    opacity: 0 !important;
+    overflow: hidden !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+}
+
+@media (max-width: 1280px){
+  body:not(.nc-layout-tight) .layout.dc-layout{
+    grid-template-columns: 68px 228px minmax(0, 1fr) 0px !important;
+    gap: 10px !important;
+  }
+  .layout.dc-layout #friends-view .friends-topbar{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .layout.dc-layout #friends-view .friends-tabs{
+    min-width: 0;
+    width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .layout.dc-layout #friends-view .friends-tabs::-webkit-scrollbar{
+    width: 0;
+    height: 0;
+  }
+}
+
+@media (max-width: 1120px){
+  body .layout.dc-layout{
+    grid-template-columns: 64px minmax(0, 1fr) !important;
+    gap: 10px !important;
+  }
+  body #sidebar{
+    position: fixed !important;
+    left: 84px !important;
+    top: 10px !important;
+    bottom: 10px !important;
+    width: min(320px, calc(100vw - 100px)) !important;
+    max-width: min(320px, calc(100vw - 100px)) !important;
+    z-index: 1200 !important;
+    transform: translateX(-120%) !important;
+    transition: transform .22s ease !important;
+  }
+  body.nc-mobile-sidebar-open #sidebar,
+  body.nc-mobile-chat #sidebar{
+    transform: translateX(0) !important;
+  }
+  body .layout.dc-layout .rightbar,
+  body .layout.dc-layout > aside:last-child{
+    display: none !important;
+  }
+}

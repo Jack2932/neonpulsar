@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block body %}
+<div class="auth-container" style="min-height:calc(var(--nc-vh, 1vh) * 100); display:flex; align-items:center; justify-content:center; padding:24px;">
+  <div class="glass-card" style="width:min(520px, calc(100vw - 24px)); padding:18px 18px 16px; border-radius:18px;">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+      <div style="font-size:26px; line-height:1;">🎁</div>
+      <div>
+        <div style="font-size:18px; font-weight:900;">Подарок подписки</div>
+        <div class="nc-bill-muted" style="margin-top:2px;">Активируй подарок и получи функции подписки.</div>
+      </div>
+    </div>
+
+    {% if not gift %}
+      <div class="nc-bill-error" style="margin-top:10px;">Подарок не найден. Проверь ссылку или код.</div>
+    {% else %}
+      <div class="nc-bill-card" style="margin:12px 0;">
+        <div class="nc-bill-kv">
+          <div class="nc-bill-kv-item"><div class="nc-bill-kv-k">Тариф</div><div class="nc-bill-kv-v">{{ gift.plan.name }}</div></div>
+          <div class="nc-bill-kv-item"><div class="nc-bill-kv-k">От</div><div class="nc-bill-kv-v">{{ gift.from.display_name or gift.from.username }}</div></div>
+          <div class="nc-bill-kv-item"><div class="nc-bill-kv-k">Статус</div><div class="nc-bill-kv-v">{{ gift.status }}</div></div>
+          <div class="nc-bill-kv-item"><div class="nc-bill-kv-k">Срок</div><div class="nc-bill-kv-v">{{ gift.expires_at or '—' }}</div></div>
+        </div>
+      </div>
+      {% if gift.message %}
+        <div class="nc-bill-card" style="margin:12px 0;">
+          <div style="font-weight:800; margin-bottom:6px;">Сообщение</div>
+          <div class="nc-bill-muted">{{ gift.message }}</div>
+        </div>
+      {% endif %}
+
+      {% if is_active %}
+        {% if current_user.is_authenticated %}
+          {% if intended_ok %}
+            <button class="nc-bill-btn primary" id="gift-claim-btn" data-gift-code="{{ code }}" style="width:100%;">Активировать подарок</button>
+            <div class="nc-bill-muted" style="margin-top:10px;">После активации ты вернёшься в чат.</div>
+          {% else %}
+            <div class="nc-bill-error" style="margin-top:10px;">Этот подарок предназначен другому пользователю.</div>
+          {% endif %}
+        {% else %}
+          <a class="nc-bill-btn primary" style="display:inline-flex; width:100%; justify-content:center; text-decoration:none;" href="{{ url_for('login', next='/gift/' ~ code) }}">Войти и активировать</a>
+          <div class="nc-bill-muted" style="margin-top:10px;">Нужно войти в аккаунт, чтобы активировать подарок.</div>
+        {% endif %}
+      {% else %}
+        <div class="nc-bill-error" style="margin-top:10px;">Подарок недоступен: уже активирован, отозван или срок истёк.</div>
+      {% endif %}
+
+      <div style="margin-top:12px; display:flex; gap:10px;">
+        <button class="nc-bill-btn" id="gift-copy-code" data-gift-code="{{ code }}" style="flex:1;">Скопировать код</button>
+        <a class="nc-bill-btn" style="flex:1; text-align:center; text-decoration:none;" href="{{ url_for('chat') }}">Открыть чат</a>
+      </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}

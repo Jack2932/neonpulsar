@@ -1,0 +1,207 @@
+/* v57: idle preview content must sit fully inside the fake browser screen,
+   without sliding under the top chrome or clipping into the footer. */
+#ss-preview-shell.ss-preview{
+  min-height: 324px !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+#ss-preview-shell .ss-preview-overlay{
+  opacity: .66 !important;
+}
+
+#ss-preview-shell .ss-preview-placeholder,
+#ss-preview-shell.ss-preview .ss-preview-placeholder{
+  position: absolute !important;
+  inset: 42px 12px 12px 12px !important;
+  display: block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  max-width: none !important;
+  border-radius: 20px !important;
+  overflow: hidden !important;
+  text-align: left !important;
+  background:
+    radial-gradient(42% 58% at 68% 18%, rgba(88, 102, 255, 0.18), transparent 68%),
+    radial-gradient(26% 36% at 94% 84%, rgba(214, 79, 255, 0.16), transparent 72%),
+    radial-gradient(28% 34% at 24% 32%, rgba(64, 181, 255, 0.10), transparent 74%),
+    linear-gradient(180deg, rgba(8, 12, 26, 0.98) 0%, rgba(4, 7, 17, 0.995) 100%) !important;
+}
+
+#ss-preview-shell .ss-preview-placeholder::before{
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0)),
+    linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0));
+}
+
+#ss-preview-shell .ss-preview-scene,
+#ss-preview-shell.ss-preview .ss-preview-placeholder .ss-preview-scene{
+  position: absolute !important;
+  inset: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  max-width: none !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 14px 14px 12px !important;
+  display: grid !important;
+  grid-template-rows: auto auto auto 1fr auto !important;
+  align-content: stretch !important;
+  gap: 8px !important;
+  overflow: hidden !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+#ss-preview-shell .ss-preview-scene::before{
+  display: none !important;
+}
+
+#ss-preview-shell .ss-preview-kicker,
+#ss-preview-shell .ss-preview-title,
+#ss-preview-shell .ss-preview-copy,
+#ss-preview-shell .ss-preview-sources,
+#ss-preview-shell .ss-preview-hints{
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+#ss-preview-shell .ss-preview-kicker{
+  margin: 0 !important;
+  align-self: start !important;
+  padding: 8px 15px !important;
+  border-radius: 999px !important;
+  font-size: 10px !important;
+  letter-spacing: .18em !important;
+}
+
+#ss-preview-shell .ss-preview-title{
+  margin: 0 !important;
+  max-width: 13.5ch !important;
+  font-size: clamp(18px, 0.9vw + 12px, 32px) !important;
+  line-height: 0.94 !important;
+  letter-spacing: -0.055em !important;
+  font-weight: 900 !important;
+  text-wrap: balance !important;
+}
+
+#ss-preview-shell .ss-preview-copy{
+  margin: 0 !important;
+  max-width: 34ch !important;
+  font-size: 11.8px !important;
+  line-height: 1.34 !important;
+  color: rgba(226, 236, 249, 0.86) !important;
+}
+
+#ss-preview-shell .ss-preview-sources{
+  width: 100% !important;
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+  align-self: stretch !important;
+  align-items: stretch !important;
+  margin-top: 0 !important;
+}
+
+#ss-preview-shell .ss-source-card{
+  min-width: 0 !important;
+  min-height: 70px !important;
+  padding: 11px 12px !important;
+  gap: 9px !important;
+  border-radius: 16px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+#ss-preview-shell .ss-source-card-copy{
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+#ss-preview-shell .ss-source-card-icon{
+  flex: 0 0 30px !important;
+  width: 30px !important;
+  height: 30px !important;
+  border-radius: 10px !important;
+  font-size: 12px !important;
+}
+
+#ss-preview-shell .ss-source-card-title,
+#ss-preview-shell .ss-source-card-sub{
+  display: block !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+#ss-preview-shell .ss-source-card-title{
+  margin: 0 !important;
+  font-size: 12.6px !important;
+  line-height: 1.08 !important;
+  font-weight: 800 !important;
+}
+
+#ss-preview-shell .ss-source-card-sub{
+  margin-top: 2px !important;
+  font-size: 9.2px !important;
+  line-height: 1.12 !important;
+  color: rgba(214, 227, 245, 0.76) !important;
+}
+
+#ss-preview-shell .ss-preview-hints{
+  display: none !important;
+}
+
+#ss-preview-shell .ss-preview-livehud{
+  inset: 56px 24px 24px 24px !important;
+}
+
+@media (max-width: 1280px), (max-height: 920px){
+  #ss-preview-shell.ss-preview{
+    min-height: 308px !important;
+  }
+
+  #ss-preview-shell .ss-preview-placeholder,
+  #ss-preview-shell.ss-preview .ss-preview-placeholder{
+    inset: 42px 12px 12px 12px !important;
+  }
+
+  #ss-preview-shell .ss-preview-scene,
+  #ss-preview-shell.ss-preview .ss-preview-placeholder .ss-preview-scene{
+    padding: 13px 13px 11px !important;
+    gap: 7px !important;
+  }
+
+  #ss-preview-shell .ss-preview-title{
+    font-size: clamp(17px, .7vw + 11px, 28px) !important;
+    max-width: 13.8ch !important;
+  }
+
+  #ss-preview-shell .ss-preview-copy{
+    font-size: 11.1px !important;
+    max-width: 31ch !important;
+  }
+
+  #ss-preview-shell .ss-source-card{
+    min-height: 64px !important;
+    padding: 10px 10px !important;
+    gap: 8px !important;
+  }
+
+  #ss-preview-shell .ss-source-card-title{
+    font-size: 11.6px !important;
+  }
+
+  #ss-preview-shell .ss-source-card-sub{
+    font-size: 8.8px !important;
+  }
+}

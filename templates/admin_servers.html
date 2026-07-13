@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="auth-wrapper" style="align-items:flex-start; padding-top:32px; padding-bottom:32px;">
+  <div class="auth-card glass-card" style="max-width:1260px; width:min(1260px, 97vw);">
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+      <div>
+        <h2 class="auth-title">Админка · Серверы</h2>
+        <div class="auth-subtitle">Обзор всех root-серверов, каналов и активности внутри них.</div>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <a class="nc-btn ghost" href="/admin">Назад в админку</a>
+        <a class="nc-btn ghost" href="/admin/users">Пользователи</a>
+      </div>
+    </div>
+
+    <div class="nc-vv-section nc-vv-section-first nc-security-dashboard" style="display:block; margin-top:18px;">
+      <div class="nc-vv-h2">Сводка по серверам</div>
+      <div class="nc-security-stats">
+        <div class="nc-security-stat"><div class="nc-security-stat-label">Всего</div><div class="nc-security-stat-value">{{ stats.total }}</div></div>
+        <div class="nc-security-stat"><div class="nc-security-stat-label">Приватные</div><div class="nc-security-stat-value">{{ stats.private }}</div></div>
+        <div class="nc-security-stat"><div class="nc-security-stat-label">Публичные</div><div class="nc-security-stat-value">{{ stats.public }}</div></div>
+        <div class="nc-security-stat"><div class="nc-security-stat-label">Новых за 24ч</div><div class="nc-security-stat-value">{{ stats.new_24h }}</div></div>
+      </div>
+    </div>
+
+    <div class="nc-vv-section">
+      <div class="nc-vv-h2">Фильтры</div>
+      <form method="get" action="/admin/servers" style="display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:10px; margin-top:12px;">
+        <input class="auth-input" type="text" name="q" value="{{ current_q }}" placeholder="название / topic / tag" style="grid-column: span 2;">
+        <select class="auth-input" name="visibility">
+          <option value="" {% if not current_visibility %}selected{% endif %}>Любая видимость</option>
+          <option value="private" {% if current_visibility == 'private' %}selected{% endif %}>Приватные</option>
+          <option value="public" {% if current_visibility == 'public' %}selected{% endif %}>Публичные</option>
+        </select>
+        <select class="auth-input" name="sort">
+          <option value="recent" {% if current_sort == 'recent' %}selected{% endif %}>Новые сверху</option>
+          <option value="name" {% if current_sort == 'name' %}selected{% endif %}>По имени</option>
+        </select>
+        <input class="auth-input" type="number" name="limit" min="20" max="300" value="{{ current_limit }}">
+        <div style="grid-column:1/-1; display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="nc-btn" type="submit">Применить</button>
+          <a class="nc-btn ghost" href="/admin/servers">Сбросить</a>
+        </div>
+      </form>
+    </div>
+
+    <div class="nc-vv-section">
+      <div class="nc-vv-h2">Серверы</div>
+      <div style="overflow:auto; margin-top:12px;">
+        <table style="width:100%; border-collapse:collapse; font-size:14px; min-width:1100px;">
+          <thead>
+            <tr>
+              <th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Сервер</th>
+              <th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Видимость</th>
+              <th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Создатель</th>
+              <th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Участники</th>
+              <th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Каналы</th>
+              <th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Админы</th>
+              <th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Сообщения</th>
+              <th style="text-align:left; padding:10px; border-bottom:1px solid rgba(255,255,255,.08);">Создан</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in servers %}
+            {% set creator = creators.get(s.created_by) %}
+            <tr>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);">
+                <div class="nc-device-title"><a href="/admin/servers/{{ s.id }}" style="color:inherit; text-decoration:none;">{{ s.name }}</a> {% if s.server_tag %}<span style="opacity:.75; font-weight:500;">· {{ s.server_tag }}</span>{% endif %}</div>
+                <div class="nc-device-sub">id: {{ s.id }}{% if s.topic %} · {{ s.topic }}{% endif %}</div>
+              </td>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);"><span class="nc-audit-badge {% if s.is_private %}is-warn{% else %}is-ok{% endif %}">{{ 'private' if s.is_private else 'public' }}</span></td>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);">{% if creator %}{{ creator.username }} <span style="opacity:.7;">#{{ creator.id }}</span>{% else %}user: {{ s.created_by or '—' }}{% endif %}</td>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);">{{ member_counts.get(s.id, 0) }}</td>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);">{{ subchannel_counts.get(s.id, 0) }}</td>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);">{{ admin_counts.get(s.id, 0) }}</td>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);">{{ message_counts.get(s.id, 0) }}</td>
+              <td style="padding:10px; border-bottom:1px solid rgba(255,255,255,.05);">{{ s.created_at or '—' }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="8" style="padding:12px; opacity:.8;">Серверы не найдены.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

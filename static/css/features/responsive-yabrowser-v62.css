@@ -1,0 +1,246 @@
+/* v62 — lighter responsive pass + YaBrowser performance mode */
+
+html, body, .app-root, .layout.dc-layout,
+.layout.dc-layout > *,
+.layout.dc-layout .chat-main,
+.layout.dc-layout #sidebar,
+.layout.dc-layout .rightbar,
+.layout.dc-layout .chat-header,
+.layout.dc-layout .chat-input,
+.layout.dc-layout #message-form,
+.layout.dc-layout #friends-view,
+.layout.dc-layout .channel-title-wrap,
+.layout.dc-layout .chat-messages {
+  min-width: 0 !important;
+  box-sizing: border-box;
+}
+
+.layout.dc-layout{
+  align-items: stretch;
+}
+
+.layout.dc-layout .chat-main{
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+.layout.dc-layout .chat-header,
+.layout.dc-layout .chat-messages,
+.layout.dc-layout .chat-input,
+.layout.dc-layout #message-form,
+.layout.dc-layout .chat-input .nc-composer-v2{
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Hide composer only in explicit friends mode. Do not touch DM/guild/empty chat states. */
+body.nc-friends-mode footer.chat-input,
+.chat-main.friends-mode footer.chat-input{
+  display: none !important;
+}
+
+.layout.dc-layout .chat-input{
+  padding: 10px 12px 12px !important;
+}
+.layout.dc-layout .chat-input .nc-composer-v2{
+  min-width: 0 !important;
+  gap: 8px !important;
+}
+.layout.dc-layout .chat-input .nc-composer-v2 .nc-composer-input{
+  min-width: 0 !important;
+}
+.layout.dc-layout .chat-input .nc-composer-v2 .nc-composer-actions{
+  min-width: 0 !important;
+  gap: 6px !important;
+  flex: 0 0 auto;
+}
+.layout.dc-layout .chat-input .nc-composer-v2 .nc-ico-btn{
+  width: 32px;
+  height: 32px;
+}
+.layout.dc-layout .chat-input .nc-composer-v2 .nc-gif-btn{
+  padding-inline: 8px;
+}
+
+/* prevent the giant empty input shell when window narrows */
+.layout.dc-layout .chat-input .nc-composer-input,
+.layout.dc-layout .chat-input #message-input{
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+body.nc-layout-compact .layout.dc-layout{
+  grid-template-columns: 72px 254px minmax(0, 1fr) 0 !important;
+  gap: 12px !important;
+}
+body.nc-layout-compact .layout.dc-layout .rightbar,
+body.nc-layout-compact .layout.dc-layout > aside:last-child{
+  width: 0 !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  opacity: 0 !important;
+  overflow: hidden !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+body.nc-layout-narrow .layout.dc-layout{
+  grid-template-columns: 68px 228px minmax(0, 1fr) 0 !important;
+  gap: 10px !important;
+}
+body.nc-layout-narrow .layout.dc-layout .sidebar{
+  padding-inline: 10px !important;
+}
+body.nc-layout-narrow .layout.dc-layout #friends-view .friends-topbar{
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 10px;
+}
+body.nc-layout-narrow .layout.dc-layout #friends-view .friends-tabs{
+  min-width: 0;
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+body.nc-layout-narrow .layout.dc-layout #friends-view .friends-tabs::-webkit-scrollbar{
+  width: 0;
+  height: 0;
+}
+body.nc-layout-narrow .layout.dc-layout #friends-view .friends-add-btn{
+  width: 100%;
+}
+
+/* Half-window / narrow desktop: keep the center usable */
+body.nc-layout-tight .layout.dc-layout{
+  grid-template-columns: 64px minmax(0, 1fr) !important;
+  gap: 10px !important;
+}
+body.nc-layout-tight .layout.dc-layout .rightbar,
+body.nc-layout-tight .layout.dc-layout > aside:last-child{
+  display: none !important;
+}
+body.nc-layout-tight #sidebar{
+  position: fixed !important;
+  left: 84px !important;
+  top: 10px !important;
+  bottom: 10px !important;
+  width: min(320px, calc(100vw - 100px)) !important;
+  max-width: min(320px, calc(100vw - 100px)) !important;
+  z-index: 1200 !important;
+  transform: translateX(-120%) !important;
+}
+body.nc-layout-tight.nc-mobile-sidebar-open #sidebar,
+body.nc-layout-tight.nc-mobile-chat #sidebar{
+  transform: translateX(0) !important;
+}
+
+/* YaBrowser: trim the expensive visual stack */
+html.is-yabrowser .space-bg::before,
+html.is-yabrowser .space-bg::after,
+html.is-yabrowser .glass-card::before,
+html.is-yabrowser .glass-card::after,
+html.is-yabrowser .panel::before,
+html.is-yabrowser .panel::after,
+html.is-yabrowser .music2026-blob,
+html.is-yabrowser .music2026-rays,
+html.is-yabrowser .orb,
+html.is-yabrowser .ambient-orb,
+html.is-yabrowser .fx-orb,
+html.is-yabrowser .bg-orb{
+  display: none !important;
+  filter: none !important;
+}
+
+html.is-yabrowser body,
+html.is-yabrowser .app-root,
+html.is-yabrowser .layout.dc-layout,
+html.is-yabrowser .space-bg{
+  background-image: radial-gradient(circle at 50% 0%, rgba(55,76,104,.28), transparent 42%), linear-gradient(180deg, #0a1220, #09101c 42%, #08101a 100%) !important;
+}
+
+html.is-yabrowser .layout.dc-layout .glass-card,
+html.is-yabrowser .layout.dc-layout .chat-main,
+html.is-yabrowser .layout.dc-layout .sidebar,
+html.is-yabrowser .layout.dc-layout .rightbar,
+html.is-yabrowser .layout.dc-layout .chat-input,
+html.is-yabrowser .layout.dc-layout .nc-composer-v2,
+html.is-yabrowser .layout.dc-layout .modal,
+html.is-yabrowser .layout.dc-layout .panel,
+html.is-yabrowser .layout.dc-layout .call-bar,
+html.is-yabrowser .layout.dc-layout .dm-call-stage,
+html.is-yabrowser .layout.dc-layout .call-stage,
+html.is-yabrowser .layout.dc-layout .tile{
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  filter: none !important;
+  box-shadow: none !important;
+}
+
+html.is-yabrowser .layout.dc-layout *,
+html.is-yabrowser .ss-overlay *,
+html.is-yabrowser .call-stage *{
+  text-shadow: none !important;
+}
+
+html.is-yabrowser .layout.dc-layout .chat-main,
+html.is-yabrowser .layout.dc-layout .chat-messages,
+html.is-yabrowser .layout.dc-layout #sidebar,
+html.is-yabrowser .layout.dc-layout .rightbar{
+  contain: layout paint;
+}
+
+html.is-yabrowser body.nc-layout-tight #sidebar{
+  transition: none !important;
+}
+
+@media (max-width: 1500px){
+  body:not(.nc-layout-tight) .layout.dc-layout{
+    grid-template-columns: 72px 254px minmax(0, 1fr) 0 !important;
+    gap: 12px !important;
+  }
+  body:not(.nc-layout-tight) .layout.dc-layout .rightbar,
+  body:not(.nc-layout-tight) .layout.dc-layout > aside:last-child{
+    width: 0 !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    opacity: 0 !important;
+    overflow: hidden !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+}
+
+@media (max-width: 1280px){
+  body:not(.nc-layout-tight) .layout.dc-layout{
+    grid-template-columns: 68px 228px minmax(0, 1fr) 0 !important;
+    gap: 10px !important;
+  }
+}
+
+@media (max-width: 1120px){
+  body .layout.dc-layout{
+    grid-template-columns: 64px minmax(0, 1fr) !important;
+    gap: 10px !important;
+  }
+  body #sidebar{
+    position: fixed !important;
+    left: 84px !important;
+    top: 10px !important;
+    bottom: 10px !important;
+    width: min(320px, calc(100vw - 100px)) !important;
+    max-width: min(320px, calc(100vw - 100px)) !important;
+    z-index: 1200 !important;
+    transform: translateX(-120%) !important;
+  }
+  body.nc-mobile-sidebar-open #sidebar,
+  body.nc-mobile-chat #sidebar{
+    transform: translateX(0) !important;
+  }
+  body .layout.dc-layout .rightbar,
+  body .layout.dc-layout > aside:last-child{
+    display: none !important;
+  }
+}
